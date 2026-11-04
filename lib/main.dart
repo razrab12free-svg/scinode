@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'auth_service.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
+import 'services/library_service.dart';
+import 'services/openalex_service.dart';
 import 'strings.dart';
 import 'theme.dart';
 import 'widgets/logo.dart';
@@ -25,6 +27,18 @@ class _ScinodeAppState extends State<ScinodeApp> {
     super.initState();
     Strings.instance.load();
     AuthService.instance.init();
+    OpenAlexService.instance.load();
+    AuthService.instance.addListener(_onAuth);
+  }
+
+  void _onAuth() {
+    LibraryService.instance.ensureLoaded();
+  }
+
+  @override
+  void dispose() {
+    AuthService.instance.removeListener(_onAuth);
+    super.dispose();
   }
 
   @override
