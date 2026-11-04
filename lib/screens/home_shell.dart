@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../auth_service.dart';
+import '../services/library_service.dart';
+import '../services/openalex_service.dart';
 import '../strings.dart';
 import '../widgets/logo.dart';
+import 'library_screen.dart';
+import 'search_screen.dart';
 
-const appVersion = '0.1.0';
+const appVersion = '0.2.0';
 
 void showSoonSheet(BuildContext context, String title, String text) {
   showModalBottomSheet<void>(
@@ -42,22 +46,20 @@ class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
 
   @override
+  void initState() {
+    super.initState();
+    LibraryService.instance.ensureLoaded();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _tab,
         children: [
           HomeTab(onGo: (i) => setState(() => _tab = i)),
-          ComingSoonTab(
-            icon: Icons.search,
-            title: t('tab.search'),
-            text: t('soon.search'),
-          ),
-          ComingSoonTab(
-            icon: Icons.library_books,
-            title: t('tab.library'),
-            text: t('soon.library'),
-          ),
+          SearchScreen(),
+          LibraryScreen(),
           ComingSoonTab(
             icon: Icons.hub,
             title: t('tab.network'),
@@ -109,7 +111,8 @@ class HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final full = AuthService.instance.user?.displayName ?? '';
-    final first = full.trim().isEmpty ? t('home.friend') : full.trim().split(' ').first;
+    final first =
+        full.trim().isEmpty ? t('home.friend') : full.trim().split(' ').first;
 
     return ListView(
       padding: EdgeInsets.zero,
@@ -179,8 +182,14 @@ class HomeTab extends StatelessWidget {
                 onTap: () => onGo(1),
               ),
               _Tile(
+                icon: Icons.library_books_outlined,
+                label: t('tab.library'),
+                onTap: () => onGo(2),
+              ),
+              _Tile(
                 icon: Icons.groups_outlined,
                 label: t('qa.scientists'),
+                soon: true,
                 onTap: () => onGo(3),
               ),
               _Tile(
@@ -189,12 +198,6 @@ class HomeTab extends StatelessWidget {
                 soon: true,
                 onTap: () =>
                     showSoonSheet(context, t('qa.grants'), t('soon.grants')),
-              ),
-              _Tile(
-                icon: Icons.public,
-                label: t('qa.map'),
-                soon: true,
-                onTap: () => onGo(3),
               ),
             ],
           ),
@@ -320,75 +323,141 @@ class ComingSoonTab extends StatelessWidget {
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final st = Strings.instance;
-    final user = AuthService.instance.user;
-    final photo = user?.photoURL;
-    final name = (user?.displayName ?? '').trim();
-    final email = user?.email ?? '';
-
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: CircleAvatar(
-              radius: 44,
-              backgroundImage: photo != null ? NetworkImage(photo) : null,
-              onBackgroundImageError: photo != null ? (_, __) {} : null,
-              child: photo == null ? const Icon(Icons.person, size: 44) : null,
+  Future<void> _editKey(BuildContext context) async {
+    final svc = OpenAlexService.instance;
+    final ctrl = TextEditingController(text: svc.apiKey ?? '');
+    await showDialog<void>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: Text(t('key.title')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t('key.text'), style: const TextStyle(fontSize: 13)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: ctrl,
+              decoration: InputDecoration(
+                hintText: t('key.hint'),
+                border: const OutlineInputBorder(),
+              ),
             ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              svc.setKey(null);
+              Navigator.pop(d);
+            },
+            child: Text(t('key.clear')),
           ),
-          const SizedBox(height: 14),
-          Center(
-            child: Text(
-              name.isEmpty ? t('profile.guest') : name,
-              style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-            ),
+          TextButton(
+            onPressed: () {
+              svc.setKey(ctrl.text.trim());
+              Navigator.pop(d);
+            },
+            child: Text(t('key.save')),
           ),
-          if (email.isNotEmpty)
-            Center(child: Text(email, style: const TextStyle(fontSize: 14))),
-          const SizedBox(height: 28),
-          Text(t('profile.language'),
-              style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final code in const ['uz', 'ru', 'en'])
-                ChoiceChip(
-                  label: Text(Strings.names[code]!,
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w600)),
-                  selected: st.lang == code,
-                  showCheckmark: false,
-                  onSelected: (_) => st.setLang(code),
-                ),
-            ],
-          ),
-          const SizedBox(height: 28),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-            ),
-            onPressed: () => AuthService.instance.signOut(),
-            icon: const Icon(Icons.logout),
-            label: Text(t('profile.signout')),
-          ),
-          const SizedBox(height: 24),
-          Text(t('profile.about'), style: const TextStyle(fontSize: 12)),
-          const SizedBox(height: 8),
-          Text(t('profile.version', {'v': appVersion}),
-              style: const TextStyle(fontSize: 12)),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable:
+          Listenable.merge([Strings.instance, OpenAlexService.instance]),
+      builder: (context, _) {
+        final st = Strings.instance;
+        final svc = OpenAlexService.instance;
+        final user = AuthService.instance.user;
+        final photo = user?.photoURL;
+        final name = (user?.displayName ?? '').trim();
+        final email = user?.email ?? '';
+
+        return SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const SizedBox(height: 12),
+              Center(
+                child: CircleAvatar(
+                  radius: 44,
+                  backgroundImage: photo != null ? NetworkImage(photo) : null,
+                  onBackgroundImageError: photo != null ? (_, __) {} : null,
+                  child:
+                      photo == null ? const Icon(Icons.person, size: 44) : null,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Center(
+                child: Text(
+                  name.isEmpty ? t('profile.guest') : name,
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.w800),
+                ),
+              ),
+              if (email.isNotEmpty)
+                Center(
+                    child: Text(email, style: const TextStyle(fontSize: 14))),
+              const SizedBox(height: 28),
+              Text(t('profile.language'),
+                  style: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final code in const ['uz', 'ru', 'en'])
+                    ChoiceChip(
+                      label: Text(Strings.names[code]!,
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600)),
+                      selected: st.lang == code,
+                      showCheckmark: false,
+                      onSelected: (_) => st.setLang(code),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Card(
+                elevation: 0,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                child: ListTile(
+                  leading: const Icon(Icons.key),
+                  title: Text(t('profile.key')),
+                  subtitle: Text(
+                      svc.hasKey ? t('profile.key_set') : t('profile.key_none')),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _editKey(context),
+                ),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+                onPressed: () => AuthService.instance.signOut(),
+                icon: const Icon(Icons.logout),
+                label: Text(t('profile.signout')),
+              ),
+              const SizedBox(height: 24),
+              Text(t('profile.about'), style: const TextStyle(fontSize: 12)),
+              const SizedBox(height: 8),
+              Text(t('profile.version', {'v': appVersion}),
+                  style: const TextStyle(fontSize: 12)),
+            ],
+          ),
+        );
+      },
     );
   }
 }
