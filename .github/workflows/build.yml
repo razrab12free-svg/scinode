@@ -1,0 +1,93 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate Android platform folder
+        run: |
+          flutter create --org app.scinode --project-name scinode --platforms=android /tmp/gen
+          cp -r /tmp/gen/android ./android
+
+      - name: Add permissions, app name, min SDK
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' $M
+          sed -i 's#android:label="scinode"#android:label="Scinode"#' $M
+          for G in android/app/build.gradle.kts android/app/build.gradle; do
+            if [ -f "$G" ]; then
+              sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/; s/minSdkVersion flutter.minSdkVersion/minSdkVersion 23/' "$G"
+            fi
+          done
+          grep -n "minSdk" android/app/build.gradle* || true
+          echo "Step finished"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Draw app icon
+        run: |
+          pip install pillow
+          python3 tools/make_icon.py
+          dart run flutter_launcher_icons
+
+      - name: Build release APK
+        run: flutter build apk --release --obfuscate --split-debug-info=build/symbols
+
+      - name: Sign APK with permanent key
+        env:
+          PASS: ${{ secrets.KEYSTORE_PASSPHRASE }}
+        run: |
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          if [ -f signing/release.jks.enc ] && [ -n "$PASS" ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
+              -in signing/release.jks.enc -out /tmp/release.jks -pass env:PASS
+            BT=$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)
+            $ANDROID_HOME/build-tools/$BT/apksigner sign \
+              --ks /tmp/release.jks --ks-key-alias scinode \
+              --ks-pass env:PASS --key-pass env:PASS \
+              --out /tmp/signed.apk $APK
+            mv /tmp/signed.apk $APK
+            $ANDROID_HOME/build-tools/$BT/apksigner verify --print-certs $APK | head -n 3
+            rm /tmp/release.jks
+          else
+            echo "::warning::Постоянный ключ не найден, APK подписан временным ключом"
+          fi
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scinode-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.${{ github.run_number }}
+          name: Scinode build ${{ github.run_number }}
+          files: build/app/outputs/flutter-apk/app-release.apk

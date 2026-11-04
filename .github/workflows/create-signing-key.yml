@@ -1,0 +1,58 @@
+name: Create signing key (run once)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    env:
+      PASS: ${{ secrets.KEYSTORE_PASSPHRASE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Safety checks
+        run: |
+          if [ -z "$PASS" ]; then
+            echo "::error::Секрет KEYSTORE_PASSPHRASE не создан"
+            exit 1
+          fi
+          if [ ${#PASS} -lt 16 ]; then
+            echo "::error::Парольная фраза слишком короткая"
+            exit 1
+          fi
+          if [ -f signing/release.jks.enc ]; then
+            echo "::error::Ключ уже существует. Повторное создание запрещено"
+            exit 1
+          fi
+
+      - name: Generate and encrypt key
+        run: |
+          mkdir -p signing
+          keytool -genkeypair -keystore /tmp/release.jks -storetype PKCS12 \
+            -alias scinode -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$PASS" -keypass "$PASS" \
+            -dname "CN=Scinode, OU=App, O=Scinode, C=UZ"
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
+            -in /tmp/release.jks -out signing/release.jks.enc -pass env:PASS
+          echo "=== ОТПЕЧАТКИ ДЛЯ FIREBASE ==="
+          keytool -list -v -keystore /tmp/release.jks -storepass "$PASS" | grep -E "SHA1:|SHA256:"
+          rm /tmp/release.jks
+
+      - name: Save encrypted key to repository
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add signing/release.jks.enc
+          git commit -m "Add encrypted signing key"
+          git push
