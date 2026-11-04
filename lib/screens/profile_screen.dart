@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../auth_service.dart';
 import '../services/openalex_service.dart';
 import '../services/pdf_store.dart';
+import '../services/profile_service.dart';
 import '../strings.dart';
+import 'profile_edit_screen.dart';
 
-const appVersionLabel = '0.3.0';
+const appVersionLabel = '0.4.0';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,6 +21,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     PdfStore.instance.ensureLoaded();
+    ProfileService.instance.ensureLoaded();
+  }
+
+  Future<void> _openProfileEditor() async {
+    await ProfileService.instance.ensureLoaded();
+    if (!mounted) return;
+    final r = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(builder: (_) => const ProfileEditScreen()),
+    );
+    if (r != null && mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(r)));
+    }
   }
 
   Future<void> _editKey() async {
@@ -92,11 +108,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Strings.instance,
         OpenAlexService.instance,
         PdfStore.instance,
+        ProfileService.instance,
       ]),
       builder: (context, _) {
         final st = Strings.instance;
         final svc = OpenAlexService.instance;
         final store = PdfStore.instance;
+        final mine = ProfileService.instance.mine;
         final user = AuthService.instance.user;
         final photo = user?.photoURL;
         final name = (user?.displayName ?? '').trim();
@@ -127,7 +145,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
               if (email.isNotEmpty)
                 Center(
                     child: Text(email, style: const TextStyle(fontSize: 14))),
-              const SizedBox(height: 28),
+              const SizedBox(height: 20),
+              Card(
+                elevation: 0,
+                color: scheme.primary.withAlpha(26),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: _openProfileEditor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(Icons.badge_outlined,
+                            color: scheme.primary, size: 30),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(t('me.title'),
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800)),
+                              const SizedBox(height: 4),
+                              if (mine == null)
+                                Text(t('me.card_sub_empty'),
+                                    style: const TextStyle(fontSize: 13))
+                              else ...[
+                                LinearProgressIndicator(
+                                  value: mine.percent / 100,
+                                  minHeight: 6,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                    t('me.completeness',
+                                        {'p': mine.percent}),
+                                    style: const TextStyle(fontSize: 12)),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
               Text(t('profile.language'),
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w700)),
