@@ -3,6 +3,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'strings_extra.dart';
+import 'strings_pdf.dart';
 /// Язык приложения: uz (латиница), ru, en.
 class Strings extends ChangeNotifier {
   Strings._();
@@ -42,7 +43,7 @@ class Strings extends ChangeNotifier {
   }
 
   String t(String key, [Map<String, Object>? args]) {
-        final row = _db[key] ?? extraStrings[key];
+            final row = _db[key] ?? extraStrings[key] ?? pdfStrings[key];
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {
       args.forEach((k, v) => s = s.replaceAll('{$k}', '$v'));
