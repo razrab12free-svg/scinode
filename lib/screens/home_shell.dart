@@ -6,6 +6,7 @@ import '../services/openalex_service.dart';
 import '../strings.dart';
 import '../widgets/logo.dart';
 import 'library_screen.dart';
+import 'profile_screen.dart';
 import 'search_screen.dart';
 
 const appVersion = '0.2.0';
@@ -65,7 +66,7 @@ class _HomeShellState extends State<HomeShell> {
             title: t('tab.network'),
             text: t('soon.network'),
           ),
-          ProfileTab(),
+           ProfileScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
