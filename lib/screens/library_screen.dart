@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../services/library_service.dart';
+import '../services/pdf_store.dart';
 import '../strings.dart';
 import '../widgets/paper_card.dart';
 import 'paper_sheet.dart';
+import 'pdf_reader_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -17,16 +19,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
   void initState() {
     super.initState();
     LibraryService.instance.ensureLoaded();
+    PdfStore.instance.ensureLoaded();
   }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final lib = LibraryService.instance;
+    final store = PdfStore.instance;
     return SafeArea(
       bottom: false,
       child: ListenableBuilder(
-        listenable: lib,
+        listenable: Listenable.merge([lib, store]),
         builder: (context, _) {
           final items = lib.items;
           return Column(
@@ -81,13 +85,35 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         itemCount: items.length,
                         itemBuilder: (_, i) {
                           final p = items[i];
+                          final id = PdfStore.idOf(p);
+                          final has = store.has(id);
                           return PaperCard(
                             paper: p,
+                            hasPdf: has,
                             onTap: () => showPaperSheet(context, p),
-                            trailing: IconButton(
-                              visualDensity: VisualDensity.compact,
-                              icon: const Icon(Icons.bookmark),
-                              onPressed: () => lib.toggle(p),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (has)
+                                  IconButton(
+                                    visualDensity: VisualDensity.compact,
+                                    icon: const Icon(Icons.menu_book),
+                                    onPressed: () =>
+                                        Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (_) => PdfReaderScreen(
+                                          paper: p,
+                                          path: store.pathOf(id)!,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.bookmark),
+                                  onPressed: () => lib.toggle(p),
+                                ),
+                              ],
                             ),
                           );
                         },
