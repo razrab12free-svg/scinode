@@ -9,10 +9,12 @@ class PaperCard extends StatelessWidget {
     required this.paper,
     required this.onTap,
     this.trailing,
+    this.hasPdf = false,
   });
   final Paper paper;
   final VoidCallback onTap;
   final Widget? trailing;
+  final bool hasPdf;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +85,12 @@ class PaperCard extends StatelessWidget {
                       icon: Icons.lock_open,
                       text: t('paper.oa'),
                       color: const Color(0xFF16A34A),
+                    ),
+                  if (hasPdf)
+                    _Badge(
+                      icon: Icons.picture_as_pdf,
+                      text: t('pdf.badge'),
+                      color: const Color(0xFFDC2626),
                     ),
                 ],
               ),
