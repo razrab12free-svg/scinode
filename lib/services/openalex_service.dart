@@ -24,7 +24,7 @@ class SearchResult {
   final int page;
 }
 
-/// Поиск по открытой базе OpenAlex.
+/// Доступ к открытой базе OpenAlex.
 class OpenAlexService extends ChangeNotifier {
   OpenAlexService._();
   static final OpenAlexService instance = OpenAlexService._();
@@ -61,35 +61,21 @@ class OpenAlexService extends ChangeNotifier {
     } catch (_) {}
   }
 
-  Future<SearchResult> search({
-    required String query,
-    int page = 1,
-    bool oaOnly = false,
-    int? yearFrom,
-    String sort = 'relevance',
-  }) async {
-    final params = <String, String>{
-      'search': query,
-      'per-page': '20',
-      'page': '$page',
-      'select': _select,
-      'mailto': _contact,
-    };
-    final filters = <String>[];
-    if (oaOnly) filters.add('open_access.is_oa:true');
-    if (yearFrom != null) filters.add('publication_year:>${yearFrom - 1}');
-    if (filters.isNotEmpty) params['filter'] = filters.join(',');
-    if (sort == 'cited') params['sort'] = 'cited_by_count:desc';
-    if (sort == 'newest') params['sort'] = 'publication_date:desc';
-    if (hasKey) params['api_key'] = apiKey!;
-
-    final uri = Uri.https('api.openalex.org', '/works', params);
+  /// Общий запрос к OpenAlex. Бросает [SearchException].
+  Future<Map<String, dynamic>> getJson(
+    String path,
+    Map<String, String> params,
+  ) async {
+    final q = Map<String, String>.from(params);
+    q['mailto'] = _contact;
+    if (hasKey) q['api_key'] = apiKey!;
+    final uri = Uri.https('api.openalex.org', path, q);
 
     http.Response res;
     try {
       res = await http
           .get(uri, headers: {'Accept': 'application/json'})
-          .timeout(const Duration(seconds: 20));
+          .timeout(const Duration(seconds: 25));
     } catch (_) {
       throw SearchException('network');
     }
@@ -103,14 +89,42 @@ class OpenAlexService extends ChangeNotifier {
     if (res.statusCode != 200) throw SearchException('other');
 
     try {
-      final data = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    } catch (_) {
+      throw SearchException('other');
+    }
+  }
+
+  Future<SearchResult> search({
+    required String query,
+    int page = 1,
+    bool oaOnly = false,
+    int? yearFrom,
+    String sort = 'relevance',
+  }) async {
+    final params = <String, String>{
+      'search': query,
+      'per-page': '20',
+      'page': '$page',
+      'select': _select,
+    };
+    final filters = <String>[];
+    if (oaOnly) filters.add('open_access.is_oa:true');
+    if (yearFrom != null) filters.add('publication_year:>${yearFrom - 1}');
+    if (filters.isNotEmpty) params['filter'] = filters.join(',');
+    if (sort == 'cited') params['sort'] = 'cited_by_count:desc';
+    if (sort == 'newest') params['sort'] = 'publication_date:desc';
+
+    final data = await getJson('/works', params);
+    try {
       final papers = (data['results'] as List? ?? const [])
           .whereType<Map>()
           .map((e) => Paper.fromOpenAlex(Map<String, dynamic>.from(e)))
           .toList();
       final meta = data['meta'];
-      final total =
-          meta is Map && meta['count'] is int ? meta['count'] as int : papers.length;
+      final total = meta is Map && meta['count'] is int
+          ? meta['count'] as int
+          : papers.length;
       return SearchResult(papers: papers, total: total, page: page);
     } catch (_) {
       throw SearchException('other');
