@@ -63,6 +63,13 @@ Scinode — мобильное приложение для коллаборац�
 - Тайлы OpenStreetMap: обязательны подпись «© OpenStreetMap contributors» и
   `userAgentPackageName: app.scinode.scinode`.
 
+## Firestore
+- Коллекции: `profiles/{uid}`, `conversations/{uid1_uid2}` (+ `messages`), `reports`.
+- Правила — файл `firestore.rules` в корне (источник правды). После изменения:
+  прогнать тесты эмулятора (`firestore_tests/`, нужны Node и Java) и прислать
+  владельцу ПОЛНЫЙ текст файла для вставки в консоль Firebase.
+- Для тестов Dart-кода с Firestore — `fake_cloud_firestore`.
+
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой
   `flutter create`, затем правится шагами `sed` (разрешения, название, minSdk 23).

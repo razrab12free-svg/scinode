@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../auth_service.dart';
+import '../services/data_deletion.dart';
 import '../services/openalex_service.dart';
 import '../services/pdf_store.dart';
 import '../services/profile_service.dart';
@@ -40,6 +41,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _editKey() async {
     await showDialog<void>(
         context: context, builder: (_) => const _KeyDialog());
+  }
+
+  Future<void> _deleteData() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (d) => AlertDialog(
+        icon: Icon(Icons.warning_amber_rounded,
+            color: Theme.of(d).colorScheme.error),
+        title: Text(t('del.title')),
+        content: Text(t('del.text')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(d, false),
+            child: Text(t('pdf.cancel')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(96, 48),
+              backgroundColor: Theme.of(d).colorScheme.error,
+              foregroundColor: Theme.of(d).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(d, true),
+            child: Text(t('del.confirm')),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    // Экран профиля закроется после выхода из аккаунта,
+    // поэтому запоминаем навигатор и место для сообщений заранее.
+    final nav = Navigator.of(context, rootNavigator: true);
+    final messenger = ScaffoldMessenger.of(context);
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 20),
+              Expanded(child: Text(t('del.progress'))),
+            ],
+          ),
+        ),
+      ),
+    );
+    final err = await deleteMyData();
+    if (nav.mounted) nav.pop();
+    messenger.showSnackBar(SnackBar(
+      content:
+          Text(err == null ? t('del.done') : t('del.failed', {'err': err})),
+      duration: const Duration(seconds: 6),
+    ));
   }
 
   Future<void> _clearPdfs() async {
@@ -219,6 +275,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () => AuthService.instance.signOut(),
                 icon: const Icon(Icons.logout),
                 label: Text(t('profile.signout')),
+              ),
+              const SizedBox(height: 10),
+              TextButton.icon(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  foregroundColor: scheme.error,
+                ),
+                onPressed: _deleteData,
+                icon: const Icon(Icons.delete_forever_outlined),
+                label: Text(t('del.button')),
               ),
               const SizedBox(height: 24),
               Text(t('profile.about'), style: const TextStyle(fontSize: 12)),

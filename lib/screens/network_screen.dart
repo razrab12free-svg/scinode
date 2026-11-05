@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import '../auth_service.dart';
 import '../models/profile.dart';
 import '../models/scientist.dart';
+import '../models/chat.dart';
 import '../models/taxonomy.dart';
+import '../services/chat_service.dart';
 import '../services/openalex_service.dart';
 import '../services/profile_service.dart';
 import '../services/scientist_service.dart';
 import '../strings.dart';
 import '../widgets/scientist_card.dart';
 import '../widgets/taxonomy_picker.dart';
+import 'chat_screen.dart';
 
 String _errText(String? kind) {
   if (kind == 'need') return t('net.need_input');
@@ -34,10 +37,17 @@ class _NetworkScreenState extends State<NetworkScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Text(t('net.title'),
-                style:
-                    const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
+            padding: const EdgeInsets.fromLTRB(20, 16, 8, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(t('net.title'),
+                      style: const TextStyle(
+                          fontSize: 26, fontWeight: FontWeight.w800)),
+                ),
+                const ChatButton(),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -520,9 +530,56 @@ class _MembersViewState extends State<_MembersView> {
             MemberCard(
               p: p,
               isMe: p.uid == myUid,
-              onTap: () => showMemberSheet(context, p),
+              onTap: () => showMemberSheet(
+                context,
+                p,
+                onMessage: p.uid == myUid || !ChatService.instance.available
+                    ? null
+                    : () => Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (_) =>
+                              ChatScreen(otherUid: p.uid, otherName: p.name),
+                        )),
+              ),
             ),
       ],
+    );
+  }
+}
+
+/// Значок «Сообщения» со счётчиком непрочитанных и запросов.
+class ChatButton extends StatefulWidget {
+  const ChatButton({super.key});
+
+  @override
+  State<ChatButton> createState() => _ChatButtonState();
+}
+
+class _ChatButtonState extends State<ChatButton> {
+  final ChatService _svc = ChatService.instance;
+  late final Stream<List<Conversation>>? _stream =
+      _svc.available ? _svc.conversations() : null;
+
+  void _open() => Navigator.of(context)
+      .push(MaterialPageRoute<void>(builder: (_) => const ChatListScreen()));
+
+  @override
+  Widget build(BuildContext context) {
+    Widget button(int n) => IconButton(
+          tooltip: t('chat.title'),
+          iconSize: 28,
+          onPressed: _open,
+          icon: Badge(
+            isLabelVisible: n > 0,
+            label: Text(n > 99 ? '99+' : '$n'),
+            child: const Icon(Icons.forum_outlined),
+          ),
+        );
+    final s = _stream;
+    if (s == null) return button(0);
+    return StreamBuilder<List<Conversation>>(
+      stream: s,
+      builder: (ctx, snap) =>
+          button(snap.hasData ? attentionCount(snap.data!, _svc.me) : 0),
     );
   }
 }

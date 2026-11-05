@@ -71,6 +71,13 @@ class LibraryService extends ChangeNotifier {
     await _save();
   }
 
+  /// Очищает библиотеку этого аккаунта («Удалить мои данные»).
+  Future<void> clearAll() async {
+    _items.clear();
+    notifyListeners();
+    await _save();
+  }
+
   Future<void> _save() async {
     try {
       final prefs = await SharedPreferences.getInstance();

@@ -16,3 +16,7 @@ assets/icon/
 .idea/
 .vscode/
 *.iml
+
+# Тесты правил Firestore
+firestore_tests/node_modules
+firestore_tests/*.log
