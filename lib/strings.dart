@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'strings_analytics.dart';
 import 'strings_extra.dart';
 import 'strings_grants.dart';
 import 'strings_library.dart';
@@ -66,7 +67,8 @@ class Strings extends ChangeNotifier {
         zoteroStrings[key] ??
         noteStrings[key] ??
         lockStrings[key] ??
-        orcidStrings[key];
+        orcidStrings[key] ??
+        analyticsStrings[key];
 
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {
