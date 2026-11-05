@@ -259,9 +259,17 @@ service cloud.firestore {
         return signedIn() && request.auth.uid in board().mb;
       }
 
+      // Для записей доску читаем через getAfter: доска и стартовые карточки
+      // создаются одним пакетом, и get() ещё не видит новую доску.
+      // Изменения самой доски проверяются её собственными правилами выше.
+      function boardAfter() {
+        return getAfter(/databases/$(database)/documents/boards/$(bid)).data;
+      }
+
       function canEdit() {
-        return signedIn() && request.auth.uid in board().mb
-          && board().rl[request.auth.uid] in ['owner', 'editor'];
+        return signedIn() && boardAfter() != null
+          && request.auth.uid in boardAfter().mb
+          && boardAfter().rl[request.auth.uid] in ['owner', 'editor'];
       }
 
       match /cards/{cid} {

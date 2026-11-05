@@ -364,3 +364,17 @@ test('время фокуса: каждый прибавляет только с
   const snap = await getDoc(ref(C));
   if (snap.data().ft[B] !== 1500 || snap.data().ft[A] !== 300) throw new Error('ft');
 });
+
+test('доска со стартовыми карточками создаётся одним пакетом', async () => {
+  const da = db(A);
+  const b = writeBatch(da);
+  b.set(doc(da, 'boards', 'tpl1'), boardData(A));
+  b.set(doc(collection(da, 'boards', 'tpl1', 'cards')), cardData(A));
+  b.set(doc(collection(da, 'boards', 'tpl1', 'cards')), cardData(A, { t: 'Вторая' }));
+  await assertSucceeds(b.commit());
+  // Посторонний не может добавить карточки в чужую доску.
+  const dbB = db(B);
+  const bad = writeBatch(dbB);
+  bad.set(doc(collection(dbB, 'boards', 'tpl1', 'cards')), cardData(B));
+  await assertFails(bad.commit());
+});
