@@ -6,6 +6,7 @@ import '../services/library_service.dart';
 import '../services/pdf_store.dart';
 import '../services/reading_progress.dart';
 import '../strings.dart';
+import 'notes_screen.dart';
 import '../utils.dart';
 import 'paper_sheet.dart';
 import 'pdf_reader_screen.dart';
@@ -21,12 +22,13 @@ bool canDownloadPdf(Paper p) =>
     p.pdfUrl != null || (p.isOa && p.doiShort != null);
 
 /// Открывает читалку, если PDF на месте. Возвращает false, если файла нет.
-bool openReader(BuildContext context, Paper p) {
+bool openReader(BuildContext context, Paper p, {int? page}) {
   final store = PdfStore.instance;
   final id = PdfStore.idOf(p);
   if (!store.verify(id)) return false;
   Navigator.of(context).push(MaterialPageRoute<void>(
-    builder: (_) => PdfReaderScreen(paper: p, path: store.pathOf(id)!),
+    builder: (_) =>
+        PdfReaderScreen(paper: p, path: store.pathOf(id)!, initialPage: page),
   ));
   return true;
 }
@@ -138,6 +140,8 @@ Future<void> showPaperActions(BuildContext context, Paper p) {
                   () => openPaper(context, p)),
             item(Icons.info_outline, t('lib.act.details'),
                 () => showPaperSheet(context, p)),
+            item(Icons.edit_note, t('nt.for_paper_act'),
+                () => openPaperNotes(context, p)),
             if (!has && !downloading && canDownloadPdf(p))
               item(Icons.download, t('lib.act.download'),
                   () => downloadPdf(context, p)),

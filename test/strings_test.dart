@@ -8,6 +8,7 @@ import 'package:scinode/strings_map.dart';
 import 'package:scinode/strings_pdf.dart';
 import 'package:scinode/strings_report.dart';
 import 'package:scinode/strings_zotero.dart';
+import 'package:scinode/strings_notes.dart';
 import 'package:scinode/strings_science.dart';
 
 void main() {
@@ -22,6 +23,7 @@ void main() {
     'pdf': pdfStrings,
     'report': reportStrings,
     'zotero': zoteroStrings,
+    'notes': noteStrings,
     'science': scienceStrings,
   };
 

@@ -36,12 +36,14 @@ Scinode — мобильное приложение для коллаборац�
   `map_service` — карта науки; `reading_progress` — прогресс чтения PDF;
   `chat_service` — чат; `board_service` — канбан-доски; `report_pdf` — PDF-отчёт
   по доске; `motivation_service` — серия дней и недельная цель, на телефоне;
-  `zotero_service` — Zotero Web API v3, ключ в flutter_secure_storage).
+  `zotero_service` — Zotero Web API v3, ключ в flutter_secure_storage;
+  `note_service` — заметки с формулами).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
   `grant` — конкурсы, проекты, даты, суммы; `board`, `board_report` — доски и
   статистика отчёта).
 - `widgets/` — переиспользуемые виджеты (`paper_card`, `scientist_card`,
-  `taxonomy_picker`, `logo`).
+  `taxonomy_picker`, `logo`, `math_markdown` — Markdown + формулы LaTeX через
+  flutter_markdown_plus и flutter_math_fork, `math_toolbar` — кнопки формул).
 - `test/` — юнит-тесты; `test/fixtures/` — реальные образцы ответов API.
 - `tools/make_icon.py` — рисует иконку приложения в CI.
 - `assets/fonts/` — шрифт Noto Sans (OFL) для PDF-отчётов: без встроенного шрифта
@@ -68,6 +70,12 @@ Scinode — мобильное приложение для коллаборац�
 - Сайт www.zotero.org из облачной среды закрыт; формы ответов без ключа сверены с
   кодом Zotero и pyzotero (см. `test/fixtures/zotero/README.md`).
 
+## Формулы
+- Формулы: `$…$`, `\(…\)` в строке; `$$…$$`, `\[…\]` блоком. `$5 и $10` — не формула
+  (после открывающего `$` нет пробела, перед закрывающим — пробела, кроме как после
+  команды, после закрывающего — цифры). Правила в `math_markdown.dart` и
+  `models/note.dart` должны совпадать (есть тест).
+
 ## Заметки по OpenAlex и карте
 - Без ключа все пользователи с одного IP делят $0.10/день; с бесплатным ключом —
   $1/день, запрос стоит около $0.0001. Ключ берётся из переменной окружения
@@ -80,7 +88,8 @@ Scinode — мобильное приложение для коллаборац�
 
 ## Firestore
 - Коллекции: `profiles/{uid}`, `conversations/{uid1_uid2}` (+ `messages`), `reports`,
-  `boards/{id}` (+ `cards` → `comments`, `activity`). Роли досок: владелец (поле `ow`),
+  `boards/{id}` (+ `cards` → `comments`, `activity`), `notes/{id}` (поле `o` —
+  владелец, видит только он). Роли досок: владелец (поле `ow`),
   редактор, наблюдатель. Порядок карточек — дробное поле `o` (см. `models/board.dart`).
   Время фокуса — поле карточки `ft` (uid → секунды); каждый прибавляет только своё.
 - Записи в Firestore не ждать в интерфейсе (`fireAndReport`): без сети они
