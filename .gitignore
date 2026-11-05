@@ -1,0 +1,19 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+pubspec.lock
+
+# Папка android/ генерируется в CI командой flutter create
+android/
+ios/
+
+# Иконки генерируются в CI (tools/make_icon.py)
+assets/icon/
+
+# IDE
+.idea/
+.vscode/
+*.iml

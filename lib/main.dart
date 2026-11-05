@@ -44,8 +44,7 @@ class _ScinodeAppState extends State<ScinodeApp> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable:
-          Listenable.merge([Strings.instance, AuthService.instance]),
+      listenable: Listenable.merge([Strings.instance, AuthService.instance]),
       builder: (context, _) {
         final s = Strings.instance;
         final a = AuthService.instance;

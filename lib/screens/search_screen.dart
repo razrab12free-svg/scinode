@@ -127,9 +127,8 @@ class _SearchScreenState extends State<SearchScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(
-                label: Text(y == null
-                    ? t('f.year.any')
-                    : t('f.year.from', {'y': y})),
+                label: Text(
+                    y == null ? t('f.year.any') : t('f.year.from', {'y': y})),
                 selected: _yearFrom == y,
                 showCheckmark: false,
                 onSelected: (_) => _changed(() => _yearFrom = y),
@@ -185,8 +184,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: 16),
             FilledButton(
-              style: FilledButton.styleFrom(
-                  minimumSize: const Size(160, 48)),
+              style: FilledButton.styleFrom(minimumSize: const Size(160, 48)),
               onPressed: () => _run(more: _papers.isNotEmpty),
               child: Text(t('search.retry')),
             ),
@@ -225,8 +223,8 @@ class _SearchScreenState extends State<SearchScreen> {
         child: OutlinedButton(
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
           onPressed: () => _run(more: true),
           child: Text(t('search.more')),

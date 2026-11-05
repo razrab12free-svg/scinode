@@ -73,9 +73,9 @@ class OpenAlexService extends ChangeNotifier {
 
     http.Response res;
     try {
-      res = await http
-          .get(uri, headers: {'Accept': 'application/json'})
-          .timeout(const Duration(seconds: 25));
+      res = await http.get(uri, headers: {
+        'Accept': 'application/json'
+      }).timeout(const Duration(seconds: 25));
     } catch (_) {
       throw SearchException('network');
     }

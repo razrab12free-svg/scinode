@@ -165,8 +165,7 @@ Future<void> showScientistSheet(BuildContext context, Scientist s) {
             ),
             const SizedBox(height: 8),
             Text(sub,
-                style:
-                    TextStyle(fontSize: 14, color: scheme.onSurfaceVariant)),
+                style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant)),
             const SizedBox(height: 14),
             Wrap(
               spacing: 8,
@@ -326,8 +325,7 @@ Future<void> showMemberSheet(BuildContext context, UserProfile p) {
             ),
             const SizedBox(height: 8),
             Text(sub,
-                style:
-                    TextStyle(fontSize: 14, color: scheme.onSurfaceVariant)),
+                style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant)),
             if (p.tags.isNotEmpty) ...[
               const SizedBox(height: 14),
               Wrap(
@@ -362,8 +360,7 @@ Future<void> showMemberSheet(BuildContext context, UserProfile p) {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
-                onPressed: () =>
-                    openLink(ctx, 'https://orcid.org/${p.orcid}'),
+                onPressed: () => openLink(ctx, 'https://orcid.org/${p.orcid}'),
                 icon: const Icon(Icons.badge_outlined),
                 label: Text(t('sci.open_orcid')),
               ),

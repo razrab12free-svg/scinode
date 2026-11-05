@@ -208,7 +208,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: _dec(''),
           ),
           _label(t('me.orcid')),
-          TextField(controller: _orcid, maxLength: 19, decoration: _dec('0000-0000-0000-0000')),
+          TextField(
+              controller: _orcid,
+              maxLength: 19,
+              decoration: _dec('0000-0000-0000-0000')),
           _label(t('me.interests')),
           Wrap(
             spacing: 8,
@@ -249,8 +252,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ),
           ] else ...[
             Text(t('me.claimed', {'name': _p.oaName}),
-                style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             FilledButton.tonalIcon(
               onPressed: _filling ? null : _fill,
@@ -275,8 +278,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           Card(
             elevation: 0,
             color: scheme.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
@@ -298,8 +301,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),
-            Text(_error!,
-                style: TextStyle(color: scheme.error, fontSize: 14)),
+            Text(_error!, style: TextStyle(color: scheme.error, fontSize: 14)),
           ],
           const SizedBox(height: 16),
           FilledButton(

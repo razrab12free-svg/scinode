@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart' show FirebaseException;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -82,7 +81,8 @@ class ProfileService extends ChangeNotifier {
     }
   }
 
-  Future<MembersResult> searchMembers({String? tag, String country = ''}) async {
+  Future<MembersResult> searchMembers(
+      {String? tag, String country = ''}) async {
     if (!AuthService.instance.ready) {
       return MembersResult(const [], t('pf.err.not_ready'));
     }
@@ -103,8 +103,8 @@ class ProfileService extends ChangeNotifier {
       if (country.isNotEmpty) {
         items = items.where((e) => e.country == country).toList();
       }
-      items.sort((a, b) => (b.updated ?? DateTime(2000))
-          .compareTo(a.updated ?? DateTime(2000)));
+      items.sort((a, b) =>
+          (b.updated ?? DateTime(2000)).compareTo(a.updated ?? DateTime(2000)));
       return MembersResult(items, null);
     } catch (e) {
       return MembersResult(const [], _cloudError(e));

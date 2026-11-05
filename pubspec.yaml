@@ -20,6 +20,8 @@ dependencies:
   pdfrx: ^2.0.0
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   flutter_launcher_icons: ^0.14.0
 
 flutter_launcher_icons:

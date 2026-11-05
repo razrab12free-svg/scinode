@@ -180,9 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                    t('me.completeness',
-                                        {'p': mine.percent}),
+                                Text(t('me.completeness', {'p': mine.percent}),
                                     style: const TextStyle(fontSize: 12)),
                               ],
                             ],
@@ -242,8 +240,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ListTile(
                   leading: const Icon(Icons.key),
                   title: Text(t('profile.key')),
-                  subtitle: Text(
-                      svc.hasKey ? t('profile.key_set') : t('profile.key_none')),
+                  subtitle: Text(svc.hasKey
+                      ? t('profile.key_set')
+                      : t('profile.key_none')),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _editKey,
                 ),

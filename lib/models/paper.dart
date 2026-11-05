@@ -130,9 +130,8 @@ class Paper {
       abstractText: _abstract(w['abstract_inverted_index']),
       isOa: _dig(w, ['open_access', 'is_oa']) == true,
       pdfUrl: _str(_dig(w, ['best_oa_location', 'pdf_url'])),
-      landingUrl:
-          _str(_dig(w, ['best_oa_location', 'landing_page_url'])) ??
-              _str(_dig(w, ['open_access', 'oa_url'])),
+      landingUrl: _str(_dig(w, ['best_oa_location', 'landing_page_url'])) ??
+          _str(_dig(w, ['open_access', 'oa_url'])),
       topic: _str(_dig(w, ['primary_topic', 'display_name'])) ?? '',
     );
   }
