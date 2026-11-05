@@ -6,6 +6,7 @@ import '../services/library_service.dart';
 import '../services/pdf_store.dart';
 import '../services/reading_progress.dart';
 import '../strings.dart';
+import 'zotero_screen.dart';
 import '../widgets/paper_card.dart';
 import 'paper_actions.dart';
 
@@ -40,6 +41,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
     super.dispose();
   }
 
+  void _openZotero() => Navigator.of(context)
+      .push(MaterialPageRoute<void>(builder: (_) => const ZoteroScreen()));
+
   void _reset() {
     _search.clear();
     setState(() => _filter = LibFilter.all);
@@ -65,6 +69,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           fontWeight: FontWeight.w600,
                           color: scheme.onSurfaceVariant)),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: ActionChip(
+              avatar: const Icon(Icons.sync_alt, size: 18, color: zoteroAccent),
+              label: Text(t('zt.button')),
+              tooltip: t('zt.title'),
+              onPressed: _openZotero,
             ),
           ),
           if (total > 0)
@@ -169,6 +182,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
             Text(t('lib.empty_text'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 15)),
+            const SizedBox(height: 20),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 52),
+                  foregroundColor: zoteroAccent),
+              onPressed: _openZotero,
+              icon: const Icon(Icons.sync_alt),
+              label: Text(t('zt.lib_import')),
+            ),
           ],
         ),
       ),

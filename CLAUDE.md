@@ -35,7 +35,8 @@ Scinode — мобильное приложение для коллаборац�
   `grants_service` — 4 источника грантов, каждый грузится независимо;
   `map_service` — карта науки; `reading_progress` — прогресс чтения PDF;
   `chat_service` — чат; `board_service` — канбан-доски; `report_pdf` — PDF-отчёт
-  по доске; `motivation_service` — серия дней и недельная цель, на телефоне).
+  по доске; `motivation_service` — серия дней и недельная цель, на телефоне;
+  `zotero_service` — Zotero Web API v3, ключ в flutter_secure_storage).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
   `grant` — конкурсы, проекты, даты, суммы; `board`, `board_report` — доски и
   статистика отчёта).
@@ -57,6 +58,15 @@ Scinode — мобильное приложение для коллаборац�
   Обязательная фраза-дисклеймер — строка `gr.disclaimer`.
 - NIH: `POST /v2/projects/search`, `advanced_text_search` с operator `and`.
 - NSF: `GET /services/v1/awards.json`; слова в `keyword` соединять через `AND`.
+
+## Заметки по Zotero
+- `https://api.zotero.org`, заголовки `Zotero-API-Key` и `Zotero-API-Version: 3`.
+  Сведения о ключе — `GET /keys/current` (`userID`, `username`, `access.user.library/write`).
+- Списки — `format=json&limit=100&start=N`, заголовок `Total-Results`. Запись —
+  `POST /users/<id>/items` (до 50 за раз) с `Zotero-Write-Token` (32 hex); ответ —
+  `success`/`successful`/`unchanged`/`failed`. На 429/503 ждать `Retry-After`/`Backoff`.
+- Сайт www.zotero.org из облачной среды закрыт; формы ответов без ключа сверены с
+  кодом Zotero и pyzotero (см. `test/fixtures/zotero/README.md`).
 
 ## Заметки по OpenAlex и карте
 - Без ключа все пользователи с одного IP делят $0.10/день; с бесплатным ключом —

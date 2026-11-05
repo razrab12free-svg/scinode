@@ -24,6 +24,7 @@ dependencies:
   flutter_map_marker_cluster: ^8.2.2
   pdf: ^3.13.1
   printing: ^5.15.1
+  flutter_secure_storage: ^11.2.0
 
 dev_dependencies:
   flutter_test:

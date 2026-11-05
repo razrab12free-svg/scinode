@@ -1,0 +1,6 @@
+{
+  "successful": {"0": {"key": "ABC123", "version": 6, "data": {"key": "ABC123", "version": 6}}},
+  "success": {"0": "ABC123"},
+  "unchanged": {},
+  "failed": {"1": {"code": 413, "message": "Note too long"}}
+}
