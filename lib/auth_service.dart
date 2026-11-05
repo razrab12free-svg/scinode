@@ -70,8 +70,16 @@ class AuthService extends ChangeNotifier {
       notifyListeners();
       return null;
     } catch (e) {
-      if (e.toString().toLowerCase().contains('cancel')) return cancelled;
-      return '${t('login.failed')}\n$e';
+      final s = e.toString().toLowerCase();
+      if (s.contains('cancel')) return cancelled;
+      // Пользователю — понятный текст, без технических подробностей.
+      if (s.contains('network') ||
+          s.contains('unavailable') ||
+          s.contains('socket') ||
+          s.contains('timeout')) {
+        return t('login.err.network');
+      }
+      return t('login.failed_hint');
     }
   }
 
