@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Правила Firestore для Scinode.
+// Правила Firestore для Scinode (профили, чат, жалобы, канбан-доски).
 // Вставлять целиком: консоль Firebase → Firestore Database → Rules → Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -180,6 +180,154 @@ service cloud.firestore {
         && isStr(request.resource.data.reason, 300)
         && request.resource.data.at == request.time
         && request.auth.uid in get(/databases/$(database)/documents/conversations/$(request.resource.data.cid)).data.members;
+    }
+
+    // ---------------------------------------------------------------
+    // Канбан-доски. Роли: owner (владелец, поле ow), editor, viewer.
+    // Читают все участники, меняют карточки владелец и редакторы,
+    // участниками и ролями управляет только владелец.
+    // ---------------------------------------------------------------
+    match /boards/{bid} {
+
+      function d() {
+        return request.resource.data;
+      }
+
+      function isMember() {
+        return signedIn() && request.auth.uid in resource.data.mb;
+      }
+
+      function isOwner() {
+        return signedIn() && resource.data.ow == request.auth.uid;
+      }
+
+      function changed() {
+        return d().diff(resource.data).affectedKeys();
+      }
+
+      function validBoard() {
+        return d().keys().hasOnly(
+               ['n', 'c', 'ic', 'ow', 'mb', 'rl', 'cols', 'lbs', 'ar', 'tpl', 'cr', 'up'])
+          && d().n is string && d().n.size() > 0 && d().n.size() <= 80
+          && d().c is int && d().c >= 0 && d().c < 12
+          && isStr(d().ic, 20)
+          && d().mb is list && d().mb.size() >= 1 && d().mb.size() <= 20
+          && d().ow in d().mb
+          && d().rl is map
+          && d().rl.keys().toSet() == d().mb.toSet()
+          && d().rl.values().toSet().hasOnly(['owner', 'editor', 'viewer'])
+          && d().rl[d().ow] == 'owner'
+          && d().cols is list && d().cols.size() >= 1 && d().cols.size() <= 12
+          && d().lbs is list && d().lbs.size() <= 20
+          && d().ar is bool
+          && isStr(d().tpl, 20)
+          && d().up == request.time;
+      }
+
+      allow get, list: if isMember();
+
+      allow create: if signedIn()
+        && validBoard()
+        && d().ow == request.auth.uid
+        && d().mb == [request.auth.uid]
+        && d().cr == request.time;
+
+      allow update: if isMember()
+        && validBoard()
+        && d().cr == resource.data.cr
+        && (
+          // Владелец: всё, в том числе участники, роли и передача владения.
+          isOwner()
+          // Редактор: название, цвет, иконка, колонки, метки, архив.
+          || (resource.data.rl[request.auth.uid] == 'editor'
+              && changed().hasOnly(['n', 'c', 'ic', 'cols', 'lbs', 'ar', 'up']))
+          // Любой участник, кроме владельца, может выйти из доски.
+          || (d().ow == resource.data.ow
+              && changed().hasOnly(['mb', 'rl', 'up'])
+              && !(request.auth.uid in d().mb)
+              && resource.data.mb.toSet().difference(d().mb.toSet())
+                   .hasOnly([request.auth.uid]))
+        );
+
+      allow delete: if isOwner();
+
+      function board() {
+        return get(/databases/$(database)/documents/boards/$(bid)).data;
+      }
+
+      function canRead() {
+        return signedIn() && request.auth.uid in board().mb;
+      }
+
+      function canEdit() {
+        return signedIn() && request.auth.uid in board().mb
+          && board().rl[request.auth.uid] in ['owner', 'editor'];
+      }
+
+      match /cards/{cid} {
+        function c() {
+          return request.resource.data;
+        }
+
+        function validCard() {
+          return c().keys().hasOnly(
+                 ['t', 'd', 'col', 'o', 'due', 'p', 'lb', 'as', 'ck', 'pp', 'gr',
+                  'by', 'cr', 'up', 'dn'])
+            && c().t is string && c().t.size() > 0 && c().t.size() <= 200
+            && isStr(c().d, 5000)
+            && isStr(c().col, 40)
+            && c().o is number
+            && (c().due == null || c().due is timestamp)
+            && c().p is int && c().p >= 0 && c().p <= 3
+            && c().lb is list && c().lb.size() <= 20
+            && c().as is list && c().as.size() <= 20
+            && c().ck is list && c().ck.size() <= 50
+            && c().pp is list && c().pp.size() <= 20
+            && c().gr is list && c().gr.size() <= 10
+            && (c().dn == null || c().dn is timestamp)
+            && c().up == request.time;
+        }
+
+        allow read: if canRead();
+        allow create: if canEdit() && validCard()
+          && c().by == request.auth.uid
+          && c().cr == request.time;
+        allow update: if canEdit() && validCard()
+          && c().by == resource.data.by
+          && c().cr == resource.data.cr;
+        allow delete: if canEdit();
+
+        match /comments/{mid} {
+          allow read: if canRead();
+          allow create: if canEdit()
+            && request.resource.data.keys().hasOnly(['by', 't', 'at'])
+            && request.resource.data.by == request.auth.uid
+            && request.resource.data.t is string
+            && request.resource.data.t.size() > 0
+            && request.resource.data.t.size() <= 2000
+            && request.resource.data.at == request.time;
+          allow update: if false;
+          allow delete: if signedIn()
+            && (resource.data.by == request.auth.uid
+                || board().ow == request.auth.uid);
+        }
+      }
+
+      match /activity/{aid} {
+        allow read: if canRead();
+        allow create: if canEdit()
+          && request.resource.data.keys().hasOnly(
+               ['by', 'k', 'card', 'ct', 'from', 'to', 'at'])
+          && request.resource.data.by == request.auth.uid
+          && isStr(request.resource.data.k, 20)
+          && isStr(request.resource.data.card, 40)
+          && isStr(request.resource.data.ct, 200)
+          && isStr(request.resource.data.from, 80)
+          && isStr(request.resource.data.to, 80)
+          && request.resource.data.at == request.time;
+        allow update: if false;
+        allow delete: if signedIn() && board().ow == request.auth.uid;
+      }
     }
 
     // Всё остальное закрыто.

@@ -217,3 +217,128 @@ test('прочие коллекции закрыты', async () => {
   await assertFails(setDoc(doc(db(A), 'secrets', 'x'), { a: 1 }));
   await assertFails(getDoc(doc(db(A), 'secrets', 'x')));
 });
+
+// =============================================================== доски
+
+const BID = 'board1';
+
+function boardData(owner, extra = {}) {
+  return {
+    n: 'Статья в журнал', c: 1, ic: 'article', ow: owner, mb: [owner],
+    rl: { [owner]: 'owner' },
+    cols: [{ id: 'c1', n: 'Идеи', lim: 0, dn: false }, { id: 'c2', n: 'Готово', lim: 0, dn: true }],
+    lbs: [], ar: false, tpl: 'paper', cr: serverTimestamp(), up: serverTimestamp(),
+    ...extra,
+  };
+}
+
+function cardData(by, extra = {}) {
+  return {
+    t: 'Обзор литературы', d: '', col: 'c1', o: 1024, due: null, p: 1,
+    lb: [], as: [], ck: [], pp: [], gr: [], by,
+    cr: serverTimestamp(), up: serverTimestamp(), dn: null, ...extra,
+  };
+}
+
+/** Доска Алисы, где Боб — редактор, Кэрол — наблюдатель. */
+async function sharedBoard() {
+  await assertSucceeds(setDoc(doc(db(A), 'boards', BID), boardData(A)));
+  await assertSucceeds(updateDoc(doc(db(A), 'boards', BID), {
+    mb: [A, B, C], rl: { [A]: 'owner', [B]: 'editor', [C]: 'viewer' },
+    up: serverTimestamp(),
+  }));
+}
+
+test('доска: создать можно только себе и только владельцем', async () => {
+  await assertSucceeds(setDoc(doc(db(A), 'boards', BID), boardData(A)));
+  await assertFails(setDoc(doc(db(A), 'boards', 'b2'), boardData(B)));
+  await assertFails(setDoc(doc(db(A), 'boards', 'b3'), boardData(A, { mb: [A, B], rl: { [A]: 'owner', [B]: 'editor' } })));
+  await assertFails(setDoc(doc(db(A), 'boards', 'b4'), boardData(A, { n: '' })));
+  await assertFails(setDoc(doc(db(A), 'boards', 'b5'), boardData(A, { admin: true })));
+  await assertFails(setDoc(doc(db(A), 'boards', 'b6'), boardData(A, { cols: [] })));
+});
+
+test('доска: читают только участники', async () => {
+  await sharedBoard();
+  await assertSucceeds(getDoc(doc(db(B), 'boards', BID)));
+  await assertSucceeds(getDoc(doc(db(C), 'boards', BID)));
+  await assertFails(getDoc(doc(db(NOPROFILE), 'boards', BID)));
+  await assertSucceeds(getDocs(query(collection(db(B), 'boards'), where('mb', 'array-contains', B))));
+  await assertFails(getDocs(collection(db(B), 'boards')));
+});
+
+test('доска: редактор меняет колонки, но не участников; наблюдатель ничего', async () => {
+  await sharedBoard();
+  await assertSucceeds(updateDoc(doc(db(B), 'boards', BID), {
+    cols: [{ id: 'c1', n: 'Идеи', lim: 3, dn: false }, { id: 'c2', n: 'Готово', lim: 0, dn: true }],
+    up: serverTimestamp(),
+  }));
+  await assertFails(updateDoc(doc(db(B), 'boards', BID), {
+    rl: { [A]: 'owner', [B]: 'editor', [C]: 'editor' }, up: serverTimestamp(),
+  }));
+  await assertFails(updateDoc(doc(db(C), 'boards', BID), { n: 'Взлом', up: serverTimestamp() }));
+  await assertFails(updateDoc(doc(db(B), 'boards', BID), { ow: B, up: serverTimestamp() }));
+});
+
+test('доска: участник выходит сам, владелец выйти не может, но передаёт права', async () => {
+  await sharedBoard();
+  await assertSucceeds(updateDoc(doc(db(C), 'boards', BID), {
+    mb: [A, B], rl: { [A]: 'owner', [B]: 'editor' }, up: serverTimestamp(),
+  }));
+  await assertFails(getDoc(doc(db(C), 'boards', BID)));
+  // Боб не может выгнать Алису.
+  await assertFails(updateDoc(doc(db(B), 'boards', BID), {
+    mb: [B], rl: { [B]: 'editor' }, up: serverTimestamp(),
+  }));
+  // Передача владения Бобу.
+  await assertSucceeds(updateDoc(doc(db(A), 'boards', BID), {
+    ow: B, rl: { [A]: 'editor', [B]: 'owner' }, up: serverTimestamp(),
+  }));
+  await assertSucceeds(updateDoc(doc(db(A), 'boards', BID), {
+    mb: [B], rl: { [B]: 'owner' }, up: serverTimestamp(),
+  }));
+  await assertFails(deleteDoc(doc(db(A), 'boards', BID)));
+  await assertSucceeds(deleteDoc(doc(db(B), 'boards', BID)));
+});
+
+test('карточки: редактор и владелец пишут, наблюдатель только читает', async () => {
+  await sharedBoard();
+  const ref = doc(collection(db(B), 'boards', BID, 'cards'));
+  await assertSucceeds(setDoc(ref, cardData(B)));
+  await assertSucceeds(getDocs(collection(db(C), 'boards', BID, 'cards')));
+  await assertFails(setDoc(doc(collection(db(C), 'boards', BID, 'cards')), cardData(C)));
+  await assertFails(updateDoc(doc(db(C), 'boards', BID, 'cards', ref.id), { col: 'c2', up: serverTimestamp() }));
+  await assertSucceeds(updateDoc(doc(db(A), 'boards', BID, 'cards', ref.id), {
+    col: 'c2', o: 2048, dn: serverTimestamp(), up: serverTimestamp(),
+  }));
+  await assertFails(getDocs(collection(db(NOPROFILE), 'boards', BID, 'cards')));
+  await assertFails(deleteDoc(doc(db(C), 'boards', BID, 'cards', ref.id)));
+  await assertSucceeds(deleteDoc(doc(db(B), 'boards', BID, 'cards', ref.id)));
+});
+
+test('карточки: проверка полей', async () => {
+  await sharedBoard();
+  const col = collection(db(B), 'boards', BID, 'cards');
+  await assertFails(setDoc(doc(col), cardData(B, { t: '' })));
+  await assertFails(setDoc(doc(col), cardData(B, { t: 'x'.repeat(201) })));
+  await assertFails(setDoc(doc(col), cardData(B, { p: 7 })));
+  await assertFails(setDoc(doc(col), cardData(A))); // от чужого имени
+  await assertFails(setDoc(doc(col), cardData(B, { hack: 1 })));
+  await assertFails(setDoc(doc(col), cardData(B, { up: Timestamp.fromMillis(0) })));
+  await assertSucceeds(setDoc(doc(col), cardData(B, { due: Timestamp.now(), p: 3, as: [A, B] })));
+});
+
+test('комментарии и история: пишут редакторы, читают участники', async () => {
+  await sharedBoard();
+  const card = doc(collection(db(B), 'boards', BID, 'cards'));
+  await setDoc(card, cardData(B));
+  const cm = (who) => ({ by: who, t: 'Готово к проверке', at: serverTimestamp() });
+  await assertSucceeds(setDoc(doc(collection(db(B), 'boards', BID, 'cards', card.id, 'comments')), cm(B)));
+  await assertFails(setDoc(doc(collection(db(C), 'boards', BID, 'cards', card.id, 'comments')), cm(C)));
+  await assertSucceeds(getDocs(collection(db(C), 'boards', BID, 'cards', card.id, 'comments')));
+  const act = (who) => ({ by: who, k: 'move', card: card.id, ct: 'Обзор', from: 'Идеи', to: 'Готово', at: serverTimestamp() });
+  await assertSucceeds(setDoc(doc(collection(db(B), 'boards', BID, 'activity')), act(B)));
+  await assertFails(setDoc(doc(collection(db(C), 'boards', BID, 'activity')), act(C)));
+  await assertFails(setDoc(doc(collection(db(B), 'boards', BID, 'activity')), act(A)));
+  await assertSucceeds(getDocs(collection(db(C), 'boards', BID, 'activity')));
+});

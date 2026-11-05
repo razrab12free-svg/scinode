@@ -4,6 +4,7 @@ import 'strings_extra.dart';
 import 'strings_grants.dart';
 import 'strings_library.dart';
 import 'strings_map.dart';
+import 'strings_board.dart';
 import 'strings_chat.dart';
 import 'strings_pdf.dart';
 import 'strings_science.dart';
@@ -54,7 +55,8 @@ class Strings extends ChangeNotifier {
         grantStrings[key] ??
         libraryStrings[key] ??
         mapStrings[key] ??
-        chatStrings[key];
+        chatStrings[key] ??
+        boardStrings[key];
 
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {
