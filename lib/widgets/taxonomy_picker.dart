@@ -131,8 +131,8 @@ class _TaxSheetState extends State<_TaxSheet> {
   int _countIn(SciField f) {
     final subs = _tax?.subfields[f.id] ?? const <SciSubfield>[];
     return _sel
-        .where((e) =>
-            e.tag == 'f${f.id}' || subs.any((s) => 's${s.id}' == e.tag))
+        .where(
+            (e) => e.tag == 'f${f.id}' || subs.any((s) => 's${s.id}' == e.tag))
         .length;
   }
 
@@ -151,8 +151,7 @@ class _TaxSheetState extends State<_TaxSheet> {
                   textAlign: TextAlign.center),
               const SizedBox(height: 12),
               FilledButton(
-                style:
-                    FilledButton.styleFrom(minimumSize: const Size(160, 48)),
+                style: FilledButton.styleFrom(minimumSize: const Size(160, 48)),
                 onPressed: _load,
                 child: Text(t('search.retry')),
               ),
@@ -175,8 +174,9 @@ class _TaxSheetState extends State<_TaxSheet> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (n > 0)
-                  CircleAvatar(radius: 11, child: Text('$n',
-                      style: const TextStyle(fontSize: 12))),
+                  CircleAvatar(
+                      radius: 11,
+                      child: Text('$n', style: const TextStyle(fontSize: 12))),
                 const Icon(Icons.chevron_right),
               ],
             ),
@@ -271,8 +271,8 @@ class _TaxSheetState extends State<_TaxSheet> {
             ),
           if (widget.multi)
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                  16, 8, 16, 12 + mq.viewPadding.bottom),
+              padding:
+                  EdgeInsets.fromLTRB(16, 8, 16, 12 + mq.viewPadding.bottom),
               child: FilledButton(
                 onPressed: () => Navigator.pop(context, _sel),
                 child: Text(t('tax.done')),

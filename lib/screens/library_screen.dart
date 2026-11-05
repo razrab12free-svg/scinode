@@ -98,8 +98,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                   IconButton(
                                     visualDensity: VisualDensity.compact,
                                     icon: const Icon(Icons.menu_book),
-                                    onPressed: () =>
-                                        Navigator.of(context).push(
+                                    onPressed: () => Navigator.of(context).push(
                                       MaterialPageRoute<void>(
                                         builder: (_) => PdfReaderScreen(
                                           paper: p,

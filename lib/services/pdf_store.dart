@@ -232,7 +232,8 @@ class PdfStore extends ChangeNotifier {
     try {
       res = await client.send(req).timeout(const Duration(seconds: 30));
     } catch (_) {
-      throw DownloadException(_cancelled.contains(id) ? 'cancelled' : 'network');
+      throw DownloadException(
+          _cancelled.contains(id) ? 'cancelled' : 'network');
     }
     if (res.statusCode != 200) throw DownloadException('http');
 
@@ -277,7 +278,8 @@ class PdfStore extends ChangeNotifier {
         if (await tmp.exists()) await tmp.delete();
       } catch (_) {}
       if (e is DownloadException) rethrow;
-      throw DownloadException(_cancelled.contains(id) ? 'cancelled' : 'network');
+      throw DownloadException(
+          _cancelled.contains(id) ? 'cancelled' : 'network');
     }
 
     if (received < 1024) {

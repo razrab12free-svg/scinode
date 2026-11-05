@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths-ignore:
       - "docs/**"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
   workflow_dispatch:
 
 permissions:
@@ -50,6 +54,15 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
       - name: Draw app icon
         run: |
           pip install pillow
@@ -86,6 +99,7 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Publish GitHub Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v0.1.${{ github.run_number }}

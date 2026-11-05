@@ -32,8 +32,14 @@ class _LogoPainter extends CustomPainter {
     Color(0xFFFBBF24),
   ];
   static const _edges = [
-    (0, 1), (0, 2), (0, 3), (0, 4),
-    (1, 2), (2, 3), (3, 4), (4, 1),
+    (0, 1),
+    (0, 2),
+    (0, 3),
+    (0, 4),
+    (1, 2),
+    (2, 3),
+    (3, 4),
+    (4, 1),
   ];
 
   @override

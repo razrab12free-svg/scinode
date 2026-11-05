@@ -17,7 +17,11 @@ const Map<String, List<String>> extraStrings = {
     'Found: {n}',
   ],
   'search.more': ['Показать ещё', 'Yana ko‘rsatish', 'Show more'],
-  'search.empty': ['Ничего не найдено', 'Hech narsa topilmadi', 'Nothing found'],
+  'search.empty': [
+    'Ничего не найдено',
+    'Hech narsa topilmadi',
+    'Nothing found'
+  ],
   'search.retry': ['Повторить', 'Qayta urinish', 'Retry'],
   'search.err.limit': [
     'Дневной лимит бесплатных запросов исчерпан. Добавьте свой бесплатный ключ OpenAlex в Профиле или попробуйте позже.',
@@ -61,7 +65,11 @@ const Map<String, List<String>> extraStrings = {
     'Could not open the link',
   ],
   'paper.et_al': ['и др.', 'va boshq.', 'et al.'],
-  'lib.empty_title': ['Библиотека пуста', 'Kutubxona bo‘sh', 'Library is empty'],
+  'lib.empty_title': [
+    'Библиотека пуста',
+    'Kutubxona bo‘sh',
+    'Library is empty'
+  ],
   'lib.empty_text': [
     'Сохраняйте статьи из поиска, и они появятся здесь.',
     'Qidiruvdan maqolalarni saqlang, ular shu yerda paydo bo‘ladi.',

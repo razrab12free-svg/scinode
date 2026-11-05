@@ -201,7 +201,8 @@ class _TopicViewState extends State<_TopicView> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 20),
       children: [
-        _padded(Text(t('net.topic.intro'), style: const TextStyle(fontSize: 14))),
+        _padded(
+            Text(t('net.topic.intro'), style: const TextStyle(fontSize: 14))),
         _padded(_PickerButton(
           icon: Icons.category_outlined,
           label: _tag?.label ?? t('net.any_field'),
@@ -224,11 +225,11 @@ class _TopicViewState extends State<_TopicView> {
         )),
         _padded(_PickerButton(
           icon: Icons.public,
-          label: _country.isEmpty
-              ? t('net.country.any')
-              : countryName(_country),
+          label:
+              _country.isEmpty ? t('net.country.any') : countryName(_country),
           onTap: _pickCountry,
-          onClear: _country.isEmpty ? null : () => setState(() => _country = ''),
+          onClear:
+              _country.isEmpty ? null : () => setState(() => _country = ''),
         )),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -337,7 +338,8 @@ class _NameViewState extends State<_NameView> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 20),
       children: [
-        _padded(Text(t('net.name.intro'), style: const TextStyle(fontSize: 14))),
+        _padded(
+            Text(t('net.name.intro'), style: const TextStyle(fontSize: 14))),
         _padded(TextField(
           controller: _q,
           textInputAction: TextInputAction.search,
@@ -458,7 +460,8 @@ class _MembersViewState extends State<_MembersView> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 20),
       children: [
-        _padded(Text(t('net.members.intro'), style: const TextStyle(fontSize: 14))),
+        _padded(
+            Text(t('net.members.intro'), style: const TextStyle(fontSize: 14))),
         _padded(_PickerButton(
           icon: Icons.category_outlined,
           label: _tag?.label ?? t('net.any_field'),
@@ -472,9 +475,8 @@ class _MembersViewState extends State<_MembersView> {
         )),
         _padded(_PickerButton(
           icon: Icons.public,
-          label: _country.isEmpty
-              ? t('net.country.any')
-              : countryName(_country),
+          label:
+              _country.isEmpty ? t('net.country.any') : countryName(_country),
           onTap: _pickCountry,
           onClear: _country.isEmpty
               ? null
