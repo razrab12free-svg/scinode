@@ -1,21 +1,31 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../models/formula_templates.dart';
 import '../models/note.dart';
 import '../models/paper.dart';
 import '../services/library_service.dart';
+import '../services/note_export.dart';
 import '../services/note_service.dart';
+import '../services/report_pdf.dart' show loadReportFonts;
 import '../strings.dart';
 import '../utils.dart';
 import '../widgets/board_widgets.dart' show fireAndReport, confirmDanger;
 import '../widgets/grant_card.dart' show dateLabel;
+import '../widgets/formula_sheet.dart';
 import '../widgets/math_markdown.dart';
 import '../widgets/math_toolbar.dart';
 import 'card_sheet.dart';
 import 'paper_actions.dart';
 import 'paper_sheet.dart';
+import 'pdf_share_screen.dart';
 
 // ------------------------------------------------------------- переходы
 
@@ -101,6 +111,57 @@ void _toast(BuildContext context, String text) =>
     ScaffoldMessenger.maybeOf(context)
       ?..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(text)));
+
+// ------------------------------------------------------------- выгрузка
+
+/// Рисует формулу в PNG через Flutter (flutter_math_fork + screenshot).
+MathRenderer appMathRenderer(BuildContext context) {
+  final ctrl = ScreenshotController();
+  const ratio = 3.0;
+  return (tex, display) async {
+    if (texError(tex) != null) return null;
+    try {
+      final png = await ctrl.captureFromLongWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Padding(
+            padding: const EdgeInsets.all(1),
+            child: Math.tex(
+              tex,
+              mathStyle: display ? MathStyle.display : MathStyle.text,
+              textStyle:
+                  const TextStyle(fontSize: 11, color: Color(0xFF1C1B2E)),
+            ),
+          ),
+        ),
+        pixelRatio: ratio,
+        delay: const Duration(milliseconds: 20),
+        context: context,
+      );
+      final size = pngSize(png);
+      if (size == null) return null;
+      return MathImage(png, size.$1 / ratio, size.$2 / ratio);
+    } catch (_) {
+      return null;
+    }
+  };
+}
+
+/// Отправляет текстовый файл через «Поделиться» (Telegram, почта, файлы).
+Future<void> shareTextFile(
+    BuildContext context, String name, String text, String mime) async {
+  try {
+    final dir = await getTemporaryDirectory();
+    final f = File('${dir.path}/$name');
+    await f.writeAsString(text);
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(f.path, mimeType: mime)],
+      title: name,
+    ));
+  } catch (_) {
+    if (context.mounted) _toast(context, t('nt.share_err'));
+  }
+}
 
 // --------------------------------------------------------------- список
 
@@ -552,6 +613,26 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     Navigator.of(context).pop();
   }
 
+  Future<void> _templates() async {
+    var mine = <String>[];
+    if (_svc.available) {
+      try {
+        final all =
+            await _svc.notes().first.timeout(const Duration(seconds: 3));
+        mine = myFormulas([
+          ...allFormulas(_body.text),
+          for (final n in all)
+            if (n.id != _id) ...allFormulas(n.body),
+        ]);
+      } catch (_) {
+        mine = myFormulas(allFormulas(_body.text));
+      }
+    }
+    if (!mounted) return;
+    await showFormulaSheet(context, controller: _body, mine: mine);
+    _bodyFocus.requestFocus();
+  }
+
   Future<void> _menu() async {
     final formulas = allFormulas(_body.text);
     final action = await showModalBottomSheet<String>(
@@ -572,6 +653,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                item('pdf', Icons.picture_as_pdf_outlined, t('nt.export_pdf')),
+                item('tex', Icons.functions, t('nt.export_tex')),
+                item('md', Icons.description_outlined, t('nt.export_md')),
                 item('copy', Icons.copy, t('nt.copy_text')),
                 if (formulas.isNotEmpty)
                   item('formulas', Icons.functions,
@@ -589,7 +673,46 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       },
     );
     if (!mounted || action == null) return;
+    final now = DateTime.now();
+    final lang = Strings.instance.lang;
+    final name = Note(id: '', owner: '', title: _title.text, body: _body.text)
+        .displayTitle;
     switch (action) {
+      case 'pdf':
+        _save();
+        final render = appMathRenderer(context);
+        await Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => PdfShareScreen(
+            title: t('nt.export_pdf'),
+            fileName: noteFileName(name, now, 'pdf'),
+            build: () async => buildNotePdf(
+              title: _title.text,
+              body: _body.text,
+              paper: _paper,
+              date: now,
+              lang: lang,
+              fonts: await loadReportFonts(),
+              render: render,
+            ),
+          ),
+        ));
+      case 'tex':
+        await shareTextFile(
+            context,
+            noteFileName(name, now, 'tex'),
+            noteToLatex(
+                title: _title.text,
+                body: _body.text,
+                paper: _paper,
+                date: now,
+                lang: lang),
+            'application/x-tex');
+      case 'md':
+        await shareTextFile(
+            context,
+            noteFileName(name, now, 'md'),
+            noteToMarkdown(title: _title.text, body: _body.text, paper: _paper),
+            'text/markdown');
       case 'copy':
         await _copy(_body.text, t('nt.copied'));
       case 'formulas':
@@ -723,7 +846,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                           ),
                   ),
                   if (!_preview)
-                    MathToolbar(controller: _body)
+                    MathToolbar(controller: _body, onTemplates: _templates)
                   else
                     SizedBox(height: MediaQuery.of(context).viewPadding.bottom),
                   if (!_preview && !keyboard)

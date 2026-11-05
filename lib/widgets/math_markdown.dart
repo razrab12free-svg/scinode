@@ -4,6 +4,8 @@ import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_math_fork/tex.dart' show TexParser;
 import 'package:markdown/markdown.dart' as md;
 
+import '../models/note.dart' show findFormulas;
+
 /// Текст с Markdown и формулами LaTeX.
 ///
 /// Формулы: `$…$` и `\(…\)` в строке, `$$…$$` и `\[…\]` отдельным блоком
@@ -103,7 +105,7 @@ class MathView extends StatelessWidget {
       tex,
       mathStyle: display ? MathStyle.display : MathStyle.text,
       textStyle: (style ?? DefaultTextStyle.of(context).style)
-          .copyWith(color: scheme.onSurface),
+          .copyWith(color: style?.color ?? scheme.onSurface),
       onErrorFallback: (e) => Text(
         tex,
         style: TextStyle(
@@ -123,6 +125,32 @@ class MathView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Center(child: scroll),
     );
+  }
+}
+
+/// Обычный текст, в котором отрисованы только формулы (без Markdown):
+/// для сообщений чата и комментариев, чтобы `*` и `_` не меняли текст.
+class MathText extends StatelessWidget {
+  const MathText(this.text, {super.key, this.style});
+  final String text;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final f = findFormulas(text);
+    if (f.isEmpty) return SelectableText(text, style: style);
+    final spans = <InlineSpan>[];
+    var at = 0;
+    for (final x in f) {
+      if (x.start > at) spans.add(TextSpan(text: text.substring(at, x.start)));
+      spans.add(WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: MathView(x.texOf(text), display: x.display, style: style),
+      ));
+      at = x.end;
+    }
+    if (at < text.length) spans.add(TextSpan(text: text.substring(at)));
+    return Text.rich(TextSpan(style: style, children: spans));
   }
 }
 

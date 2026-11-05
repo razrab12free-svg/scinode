@@ -88,8 +88,11 @@ void applyMathKey(TextEditingController c, MathKey k) {
 
 /// Полоса над клавиатурой: живой просмотр формулы под курсором и кнопки.
 class MathToolbar extends StatelessWidget {
-  const MathToolbar({super.key, required this.controller});
+  const MathToolbar({super.key, required this.controller, this.onTemplates});
   final TextEditingController controller;
+
+  /// Кнопка «Шаблоны формул» (null — не показывать).
+  final VoidCallback? onTemplates;
 
   @override
   Widget build(BuildContext context) {
@@ -105,40 +108,57 @@ class MathToolbar extends StatelessWidget {
           ),
           SizedBox(
             height: 52,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              itemCount: mathKeys.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 4),
-              itemBuilder: (_, i) {
-                final k = mathKeys[i];
-                final child = k.tex
-                    ? MathView(k.label)
-                    : Text(k.label,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w800));
-                final btn = Material(
-                  color: scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(10),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () => applyMathKey(controller, k),
-                    child: ConstrainedBox(
-                      constraints:
-                          const BoxConstraints(minWidth: 48, minHeight: 44),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Center(
-                          child: MediaQuery.withNoTextScaling(
-                              child: FittedBox(child: child)),
-                        ),
-                      ),
+            child: Row(
+              children: [
+                if (onTemplates != null)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: IconButton.filledTonal(
+                      tooltip: t('nt.templates'),
+                      icon: const Icon(Icons.auto_awesome_mosaic_outlined),
+                      onPressed: onTemplates,
                     ),
                   ),
-                );
-                final tip = k.tip;
-                return tip == null ? btn : Tooltip(message: t(tip), child: btn);
-              },
+                Expanded(
+                    child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  itemCount: mathKeys.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 4),
+                  itemBuilder: (_, i) {
+                    final k = mathKeys[i];
+                    final child = k.tex
+                        ? MathView(k.label)
+                        : Text(k.label,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w800));
+                    final btn = Material(
+                      color: scheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(10),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () => applyMathKey(controller, k),
+                        child: ConstrainedBox(
+                          constraints:
+                              const BoxConstraints(minWidth: 48, minHeight: 44),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Center(
+                              child: MediaQuery.withNoTextScaling(
+                                  child: FittedBox(child: child)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                    final tip = k.tip;
+                    return tip == null
+                        ? btn
+                        : Tooltip(message: t(tip), child: btn);
+                  },
+                )),
+              ],
             ),
           ),
         ],

@@ -742,7 +742,7 @@ class _CardSheetState extends State<CardSheet> {
                                   ],
                                 ],
                               ),
-                              SelectableText(cm.text),
+                              MathText(cm.text),
                             ],
                           ),
                         ),
