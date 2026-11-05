@@ -51,6 +51,24 @@ jobs:
           grep -n "minSdk" android/app/build.gradle* || true
           echo "Step finished"
 
+      - name: App lock (fingerprint / PIN) setup
+        run: |
+          # local_auth: окно отпечатка/PIN работает только во FragmentActivity,
+          # а на Android 8 и ниже — только с темой AppCompat.
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#<application#<uses-permission android:name="android.permission.USE_BIOMETRIC"/>\n    <application#' $M
+          A=$(find android/app/src/main -name 'MainActivity.kt' -o -name 'MainActivity.java' | head -1)
+          sed -i 's/\bFlutterActivity\b/FlutterFragmentActivity/g' "$A"
+          for S in android/app/src/main/res/values/styles.xml android/app/src/main/res/values-night/styles.xml; do
+            sed -i 's#@android:style/Theme.Light.NoTitleBar#Theme.AppCompat.Light.NoActionBar#g; s#@android:style/Theme.Black.NoTitleBar#Theme.AppCompat.NoActionBar#g' "$S"
+          done
+          G=android/app/build.gradle.kts
+          printf '\ndependencies {\n    implementation("androidx.appcompat:appcompat:1.7.0")\n}\n' >> $G
+          grep -c FlutterFragmentActivity "$A"
+          grep -c USE_BIOMETRIC $M
+          grep -h "parent=" android/app/src/main/res/values*/styles.xml
+          tail -4 $G
+
       - name: Install dependencies
         run: flutter pub get
 

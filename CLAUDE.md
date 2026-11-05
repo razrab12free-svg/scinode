@@ -37,7 +37,8 @@ Scinode — мобильное приложение для коллаборац�
   `chat_service` — чат; `board_service` — канбан-доски; `report_pdf` — PDF-отчёт
   по доске; `motivation_service` — серия дней и недельная цель, на телефоне;
   `zotero_service` — Zotero Web API v3, ключ в flutter_secure_storage;
-  `note_service` — заметки с формулами).
+  `note_service` — заметки с формулами; `app_lock_service` — замок приложения
+  через local_auth, настройка только на телефоне).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
   `grant` — конкурсы, проекты, даты, суммы; `board`, `board_report` — доски и
   статистика отчёта).
@@ -105,6 +106,12 @@ Scinode — мобильное приложение для коллаборац�
   прогнать тесты эмулятора (`firestore_tests/`, нужны Node и Java) и прислать
   владельцу ПОЛНЫЙ текст файла для вставки в консоль Firebase.
 - Для тестов Dart-кода с Firestore — `fake_cloud_firestore`.
+
+## Замок приложения
+- `local_auth` требует `FlutterFragmentActivity` и тему AppCompat — это делает шаг
+  «App lock» в `build.yml` (sed по MainActivity и styles.xml + зависимость appcompat).
+- Экран замка — поверх всего в `MaterialApp.builder` (`main.dart`), экраны под ним
+  не пересоздаются. Уход в окно PIN во время проверки не считается выходом.
 
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой
