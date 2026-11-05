@@ -22,6 +22,8 @@ dependencies:
   flutter_map: ^8.3.2
   latlong2: ^0.9.1
   flutter_map_marker_cluster: ^8.2.2
+  pdf: ^3.13.1
+  printing: ^5.15.1
 
 dev_dependencies:
   flutter_test:
@@ -39,3 +41,7 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  assets:
+    # Шрифт для PDF-отчётов (кириллица и узбекская латиница), лицензия OFL.
+    - assets/fonts/NotoSans-Regular.ttf
+    - assets/fonts/NotoSans-Bold.ttf

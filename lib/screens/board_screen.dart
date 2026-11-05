@@ -5,9 +5,12 @@ import 'package:flutter/services.dart';
 
 import '../models/board.dart';
 import '../services/board_service.dart';
+import '../services/motivation_service.dart';
 import '../strings.dart';
 import '../widgets/board_widgets.dart';
+import '../widgets/celebration.dart';
 import 'board_settings_screen.dart';
+import 'board_summary_screen.dart';
 import 'card_sheet.dart';
 
 /// Доска: колонки с карточками, перетаскивание, фильтры.
@@ -66,6 +69,11 @@ class _BoardScreenState extends State<BoardScreen> {
     final count = cardsIn(all, colId).where((x) => x.id != c.id).length;
     fireAndReport(context, _svc.moveCard(b, all, c, colId, index));
     HapticFeedback.lightImpact();
+    if (col.done && !b.isDoneColumn(c.column)) {
+      celebrateDone(context, b.id, c.id);
+    } else if (c.column != colId) {
+      MotivationService.instance.active();
+    }
     if (col.limit > 0 && count + 1 > col.limit && c.column != colId) {
       toast(context, t('bd.limit_warn', {'col': col.name, 'max': col.limit}));
     }
@@ -75,7 +83,7 @@ class _BoardScreenState extends State<BoardScreen> {
     final n = b.nextColumn(c.column);
     if (n == null) return;
     _move(b, all, c, n.id, cardsIn(all, n.id).length);
-    toast(context, t('bd.moved', {'col': n.name}));
+    if (!n.done) toast(context, t('bd.moved', {'col': n.name}));
   }
 
   // ------------------------------------------------------------- действия
@@ -88,6 +96,7 @@ class _BoardScreenState extends State<BoardScreen> {
     if (title == null || !mounted) return;
     final r = _svc.addCard(b, all, colId, title);
     fireAndReport(context, r.done);
+    MotivationService.instance.active();
     HapticFeedback.lightImpact();
   }
 
@@ -388,6 +397,15 @@ class _BoardScreenState extends State<BoardScreen> {
               ],
             ),
             actions: [
+              IconButton(
+                tooltip: t('rp.summary'),
+                icon: const Icon(Icons.insights),
+                onPressed: () =>
+                    Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => BoardSummaryScreen(
+                      boardId: widget.boardId, service: _svc),
+                )),
+              ),
               IconButton(
                 tooltip: t('bd.filter'),
                 isSelected: !_filter.isEmpty,

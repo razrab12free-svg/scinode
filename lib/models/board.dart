@@ -314,6 +314,7 @@ class TaskCard {
     this.created,
     this.updated,
     this.doneAt,
+    this.focus = const {},
   });
 
   final String id;
@@ -335,6 +336,11 @@ class TaskCard {
 
   /// Когда карточка попала в колонку «Готово» (для отчётов).
   final DateTime? doneAt;
+
+  /// Время фокуса (секунды) по участникам: uid → секунды (поле `ft`).
+  final Map<String, int> focus;
+
+  int get focusTotal => focus.values.fold(0, (a, b) => a + b);
 
   int get checkDone => checklist.where((c) => c.done).length;
 
@@ -368,9 +374,21 @@ class TaskCard {
       created: readTime(m['cr']),
       updated: readTime(m['up']),
       doneAt: readTime(m['dn']),
+      focus: readFocus(m['ft']),
     );
   }
 }
+
+/// Разбор поля `ft` (uid → секунды), мусорные значения отбрасываются.
+Map<String, int> readFocus(dynamic v) => {
+      if (v is Map)
+        for (final e in v.entries)
+          if (e.value is num && (e.value as num) > 0)
+            '${e.key}': (e.value as num).toInt(),
+    };
+
+/// Один сеанс фокуса не длиннее 4 часов (защита от сбоев часов).
+const maxFocusSession = 4 * 3600;
 
 class CardComment {
   const CardComment({

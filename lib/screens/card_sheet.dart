@@ -5,11 +5,14 @@ import '../models/board.dart';
 import '../models/paper.dart';
 import '../services/board_service.dart';
 import '../services/library_service.dart';
+import '../services/motivation_service.dart';
 import '../services/pdf_store.dart';
 import '../services/reading_progress.dart';
 import '../strings.dart';
 import '../utils.dart';
 import '../widgets/board_widgets.dart';
+import '../widgets/celebration.dart';
+import '../widgets/focus_timer.dart';
 import '../widgets/grant_card.dart' show dateLabel;
 import 'chat_screen.dart';
 import 'paper_actions.dart';
@@ -124,6 +127,23 @@ class _CardSheetState extends State<CardSheet> {
   void _setChecklist(List<ChecklistItem> items) => fireAndReport(
       context, _svc.setChecklist(widget.boardId, widget.cardId, items));
 
+  /// Отмечает пункт; если закрыт весь чек-лист — праздник.
+  void _tick(TaskCard c, int index, bool done) {
+    final items = [
+      for (var j = 0; j < c.checklist.length; j++)
+        j == index
+            ? ChecklistItem(c.checklist[j].text, done: done)
+            : c.checklist[j],
+    ];
+    _setChecklist(items);
+    if (!done) return;
+    MotivationService.instance.active();
+    final wasAll = c.checklist.every((i) => i.done);
+    if (!wasAll && items.every((i) => i.done)) {
+      celebrate(context, t('mo.checklist'));
+    }
+  }
+
   void _addItem(TaskCard c) {
     final v = _newItem.text.trim();
     if (v.isEmpty || c.checklist.length >= maxChecklist) return;
@@ -215,12 +235,7 @@ class _CardSheetState extends State<CardSheet> {
       ),
     );
     if (idx == null || !mounted) return;
-    _setChecklist([
-      for (var i = 0; i < c.checklist.length; i++)
-        i == idx
-            ? ChecklistItem(c.checklist[i].text, done: true)
-            : c.checklist[i],
-    ]);
+    _tick(c, idx, true);
   }
 
   Future<void> _moveTo(Board b, List<TaskCard> all, TaskCard c) async {
@@ -252,6 +267,11 @@ class _CardSheetState extends State<CardSheet> {
     fireAndReport(
         context, _svc.moveCard(b, all, c, col, cardsIn(all, col).length));
     HapticFeedback.lightImpact();
+    if (b.isDoneColumn(col) && !b.isDoneColumn(c.column)) {
+      celebrateDone(context, b.id, c.id);
+    } else {
+      MotivationService.instance.active();
+    }
   }
 
   Future<void> _delete(Board b, TaskCard c) async {
@@ -423,6 +443,30 @@ class _CardSheetState extends State<CardSheet> {
           ],
         ),
 
+        // Время фокуса.
+        _section(t('fo.section')),
+        Text(
+          c.focusTotal == 0
+              ? t('fo.none')
+              : t('fo.total', {
+                  't': focusLabel(c.focusTotal),
+                  'm': focusLabel(c.focus[me] ?? 0),
+                }),
+          style: muted,
+        ),
+        if (edit && !done)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48)),
+              onPressed: () => showFocusTimer(context,
+                  service: _svc, boardId: b.id, card: c),
+              icon: const Icon(Icons.play_arrow),
+              label: Text(t('fo.start')),
+            ),
+          ),
+
         // Описание.
         _section(t('bd.c.desc'),
             trailing: edit
@@ -541,13 +585,7 @@ class _CardSheetState extends State<CardSheet> {
             onChanged: edit
                 ? (v) {
                     HapticFeedback.selectionClick();
-                    _setChecklist([
-                      for (var j = 0; j < c.checklist.length; j++)
-                        j == i
-                            ? ChecklistItem(c.checklist[j].text,
-                                done: v == true)
-                            : c.checklist[j],
-                    ]);
+                    _tick(c, i, v == true);
                   }
                 : null,
             title: Text(c.checklist[i].text,

@@ -34,13 +34,17 @@ Scinode — мобильное приложение для коллаборац�
   `taxonomy_service`, `profile_service`, `library_service`, `pdf_store`,
   `grants_service` — 4 источника грантов, каждый грузится независимо;
   `map_service` — карта науки; `reading_progress` — прогресс чтения PDF;
-  `chat_service` — чат; `board_service` — канбан-доски).
+  `chat_service` — чат; `board_service` — канбан-доски; `report_pdf` — PDF-отчёт
+  по доске; `motivation_service` — серия дней и недельная цель, на телефоне).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
-  `grant` — конкурсы, проекты, даты, суммы).
+  `grant` — конкурсы, проекты, даты, суммы; `board`, `board_report` — доски и
+  статистика отчёта).
 - `widgets/` — переиспользуемые виджеты (`paper_card`, `scientist_card`,
   `taxonomy_picker`, `logo`).
 - `test/` — юнит-тесты; `test/fixtures/` — реальные образцы ответов API.
 - `tools/make_icon.py` — рисует иконку приложения в CI.
+- `assets/fonts/` — шрифт Noto Sans (OFL) для PDF-отчётов: без встроенного шрифта
+  кириллица и узбекские буквы в PDF превращаются в квадратики.
 
 ## Заметки по API грантов
 - EU (SEDIA): `POST https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=SEDIA`,
@@ -68,6 +72,7 @@ Scinode — мобильное приложение для коллаборац�
 - Коллекции: `profiles/{uid}`, `conversations/{uid1_uid2}` (+ `messages`), `reports`,
   `boards/{id}` (+ `cards` → `comments`, `activity`). Роли досок: владелец (поле `ow`),
   редактор, наблюдатель. Порядок карточек — дробное поле `o` (см. `models/board.dart`).
+  Время фокуса — поле карточки `ft` (uid → секунды); каждый прибавляет только своё.
 - Записи в Firestore не ждать в интерфейсе (`fireAndReport`): без сети они
   сохраняются локально и завершаются позже.
 - Правила — файл `firestore.rules` в корне (источник правды). После изменения:
