@@ -81,6 +81,30 @@ class ProfileService extends ChangeNotifier {
     }
   }
 
+  /// Удаляет опубликованный профиль и черновик на телефоне.
+  /// Возвращает текст ошибки или null.
+  Future<String?> deleteAll() async {
+    String? err;
+    final uid = AuthService.instance.user?.uid;
+    if (AuthService.instance.ready && uid != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('profiles')
+            .doc(uid)
+            .delete();
+      } catch (e) {
+        err = _cloudError(e);
+      }
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_key);
+    } catch (_) {}
+    mine = null;
+    notifyListeners();
+    return err;
+  }
+
   Future<MembersResult> searchMembers(
       {String? tag, String country = ''}) async {
     if (!AuthService.instance.ready) {

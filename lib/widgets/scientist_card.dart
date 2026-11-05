@@ -297,7 +297,9 @@ class MemberCard extends StatelessWidget {
   }
 }
 
-Future<void> showMemberSheet(BuildContext context, UserProfile p) {
+/// [onMessage] — открыть переписку (null — кнопку «Написать» не показываем).
+Future<void> showMemberSheet(BuildContext context, UserProfile p,
+    {VoidCallback? onMessage}) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -349,6 +351,17 @@ Future<void> showMemberSheet(BuildContext context, UserProfile p) {
               Text(p.bio, style: const TextStyle(fontSize: 15, height: 1.4)),
             ],
             const SizedBox(height: 16),
+            if (onMessage != null) ...[
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onMessage();
+                },
+                icon: const Icon(Icons.chat_bubble_outline),
+                label: Text(t('chat.write')),
+              ),
+              const SizedBox(height: 8),
+            ],
             if (p.oaId.isNotEmpty)
               FilledButton.icon(
                 onPressed: () =>
