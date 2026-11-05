@@ -19,9 +19,6 @@ from . import metrics as m
 from .client import OpenAlexClient, OpenAlexError
 
 SCHEMA = 1
-FWCI_FULL_LIMIT = 5000  # до стольких работ FWCI берём у всех, больше — выборка
-FWCI_SAMPLE = 5000
-FWCI_SEED = "42"
 EXCLUDED_TYPES = {"company"}
 INST_FIELDS = (
     "id,display_name,display_name_acronyms,display_name_alternatives,type,ror,"
@@ -59,43 +56,19 @@ def _batch(client, path: str, ids: list[str], select: str) -> dict[str, dict]:
     return out
 
 
+def _count(client, flt: str) -> int:
+    r = client.get("/works", {"filter": flt, "per_page": "1", "select": "id"})
+    n = (r.get("meta") or {}).get("count")
+    return n if isinstance(n, int) else 0
+
+
 def _fwci(client, flt: str) -> dict:
-    first = client.get(
-        "/works", {"filter": flt, "select": "id,fwci", "per_page": "200", "cursor": "*"}
+    """Доли работ по FWCI — фильтрами, без скачивания списков работ."""
+    return m.fwci_shares(
+        known=_count(client, flt + ",fwci:>-1"),
+        cited=_count(client, flt + ",fwci:>0"),
+        above1=_count(client, flt + ",fwci:>1"),
     )
-    total = (first.get("meta") or {}).get("count") or 0
-    if total <= FWCI_FULL_LIMIT:
-        vals = [w.get("fwci") for w in first.get("results") or []]
-        cur = (first.get("meta") or {}).get("next_cursor")
-        while cur and first.get("results"):
-            r = client.get(
-                "/works",
-                {"filter": flt, "select": "id,fwci", "per_page": "200", "cursor": cur},
-            )
-            res = r.get("results") or []
-            if not res:
-                break
-            vals += [w.get("fwci") for w in res]
-            cur = (r.get("meta") or {}).get("next_cursor")
-        return m.fwci_stats(vals, False, total)
-    vals = []
-    for page in range(1, FWCI_SAMPLE // 200 + 1):
-        r = client.get(
-            "/works",
-            {
-                "filter": flt,
-                "select": "id,fwci",
-                "per_page": "200",
-                "sample": str(FWCI_SAMPLE),
-                "seed": FWCI_SEED,
-                "page": str(page),
-            },
-        )
-        res = r.get("results") or []
-        if not res:
-            break
-        vals += [w.get("fwci") for w in res]
-    return m.fwci_stats(vals, True, total)
 
 
 def build_report(
@@ -368,8 +341,6 @@ def build_all(
     index = {
         **common,
         "min_works": min_works,
-        "fwci_full_limit": FWCI_FULL_LIMIT,
-        "fwci_sample": FWCI_SAMPLE,
         "min_topic_works": m.MIN_TOPIC_WORKS,
         "national": national is not None,
         "orgs": done,
@@ -390,7 +361,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--only", nargs="*", help="только эти организации (I…)")
     p.add_argument("--limit", type=int)
     p.add_argument("--record", help="записать ответы OpenAlex в папку (образцы)")
-    p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--workers", type=int, default=6)
     a = p.parse_args(argv)
 
     client = OpenAlexClient(record_dir=Path(a.record) if a.record else None)

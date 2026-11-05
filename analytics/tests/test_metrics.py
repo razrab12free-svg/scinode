@@ -48,13 +48,10 @@ def test_group_parsing():
     assert m.group_list({}) == [] and m.group_list({"group_by": "x"}) == []
 
 
-def test_fwci_stats_median_not_mean():
-    s = m.fwci_stats([0, 0, 0.5, 1.2, 40.0, None], sampled=False, total=6)
-    assert s["n"] == 5
-    assert s["median"] == 0.5  # одна «звёздная» статья не тянет медиану
-    assert s["mean"] == 8.34
-    assert s["above1"] == 0.4
-    assert m.fwci_stats([], True, 0)["median"] is None
+def test_fwci_shares():
+    s = m.fwci_shares(known=200, cited=50, above1=20)
+    assert s["cited_share"] == 0.25 and s["above1_share"] == 0.1
+    assert m.fwci_shares(0, 0, 0)["cited_share"] is None
 
 
 def test_topics_strong_needs_enough_works():
@@ -113,8 +110,9 @@ def test_org_report(built):
     assert sum(years[y]["all"] for y in range(2021, 2026)) == d["works"] == 93
     c = d["citation"]
     assert c["known"] == 93 and c["top10"] == 2 and c["pp_top10"] == 0.0215
-    assert c["fwci"]["n"] == 93 and not c["fwci"]["sampled"]
-    assert c["fwci"]["median"] == 0.0
+    f = c["fwci"]
+    assert (f["known"], f["cited"], f["above1"]) == (93, 5, 2)
+    assert f["above1_share"] == 0.0215
     # Своя страна не считается партнёром, сама организация — тоже.
     assert all(x["id"] != "UZ" for x in d["collab"]["countries"])
     assert all(x["id"] != ORG for x in d["collab"]["partners"])
@@ -127,13 +125,16 @@ def test_org_report(built):
     assert d["topics"][0]["name"] == "Education"
 
 
-def test_national_report_uses_sample(built):
-    _, base, _ = built
+def test_national_report(built):
+    _, base, client = built
     d = json.loads((base / "orgs" / "UZ.json").read_text(encoding="utf-8"))
-    f = d["citation"]["fwci"]
-    assert f["sampled"] and f["n"] > 4000 and f["total"] > 100000
-    assert d["works"] > 100000
     assert d["org"]["type"] == "country"
+    assert d["works"] == 181345
+    f = d["citation"]["fwci"]
+    assert f["known"] > 170000 and 0 < f["above1"] < f["cited"] < f["known"]
+    assert d["citation"]["pp_top10"] == 0.0594
+    # Весь расчёт (список, вуз, страна) — 47 запросов: без скачивания списков работ.
+    assert client.calls == 47
 
 
 def test_replay_unknown_request_fails():

@@ -5,14 +5,13 @@
 - PP(top 10%) и PP(top 1%) — доля работ в мировом топе своей области
   (поле citation_normalized_percentile), как в Лейденском рейтинге (CWTS);
   знаменатель — работы, для которых OpenAlex посчитал процентиль;
-- FWCI — нормированная цитируемость; показываем медиану и среднее (MNCS);
+- FWCI — нормированная цитируемость: доли работ с FWCI > 0 (процитированы)
+  и FWCI > 1 (выше мирового уровня); медиана почти всегда 0 и не показывается;
 - сильное направление — раздел (subfield), где PP(top 10%) выше 10 %
   (мирового уровня) и работ не меньше MIN_TOPIC_WORKS.
 """
 
 from __future__ import annotations
-
-from statistics import mean, median
 
 MIN_TOPIC_WORKS = 30
 
@@ -91,15 +90,19 @@ def years_table(
     return rows
 
 
-def fwci_stats(values: list[object], sampled: bool, total: int) -> dict:
-    v = [float(x) for x in values if isinstance(x, (int, float))]
+def fwci_shares(known: int, cited: int, above1: int) -> dict:
+    """FWCI: сколько работ хоть раз процитировано (FWCI > 0) и сколько
+    цитируется выше мирового уровня своей области (FWCI > 1).
+
+    Медиану не показываем: у большинства организаций больше половины работ
+    ещё не цитировались, и медиана равна 0 — она ничего не различает.
+    """
     return {
-        "n": len(v),
-        "total": total,
-        "sampled": sampled,
-        "median": round(median(v), 3) if v else None,
-        "mean": round(mean(v), 3) if v else None,
-        "above1": share(sum(1 for x in v if x > 1), len(v)),
+        "known": known,
+        "cited": cited,
+        "above1": above1,
+        "cited_share": share(cited, known),
+        "above1_share": share(above1, known),
     }
 
 
