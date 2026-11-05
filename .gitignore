@@ -4,7 +4,6 @@
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
-pubspec.lock
 
 # Папка android/ генерируется в CI командой flutter create
 android/

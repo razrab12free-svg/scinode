@@ -64,36 +64,41 @@ class _HomeShellState extends State<HomeShell> {
           ProfileScreen(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: t('tab.home'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.search),
-            selectedIcon: const Icon(Icons.search),
-            label: t('tab.search'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.library_books_outlined),
-            selectedIcon: const Icon(Icons.library_books),
-            label: t('tab.library'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.hub_outlined),
-            selectedIcon: const Icon(Icons.hub),
-            label: t('tab.network'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outline),
-            selectedIcon: const Icon(Icons.person),
-            label: t('tab.profile'),
-          ),
-        ],
+      // Подписи нижней панели не увеличиваем, иначе на узких экранах
+      // они переносятся на две строки.
+      bottomNavigationBar: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.0,
+        child: NavigationBar(
+          selectedIndex: _tab,
+          onDestinationSelected: (i) => setState(() => _tab = i),
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home),
+              label: t('tab.home'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.search),
+              selectedIcon: const Icon(Icons.search),
+              label: t('tab.search'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.library_books_outlined),
+              selectedIcon: const Icon(Icons.library_books),
+              label: t('tab.library'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.hub_outlined),
+              selectedIcon: const Icon(Icons.hub),
+              label: t('tab.network'),
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.person_outline),
+              selectedIcon: const Icon(Icons.person),
+              label: t('tab.profile'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -170,7 +175,10 @@ class HomeTab extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.05,
+            // При крупном системном шрифте плитки становятся выше,
+            // чтобы подпись не вылезала за край.
+            childAspectRatio: 1.05 /
+                MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0),
             children: [
               _Tile(
                 icon: Icons.article_outlined,
