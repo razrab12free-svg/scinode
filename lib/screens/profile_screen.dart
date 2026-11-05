@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../auth_service.dart';
 import '../models/board.dart';
+import '../services/app_lock_service.dart';
 import '../services/data_deletion.dart';
 import '../services/openalex_service.dart';
 import '../services/pdf_store.dart';
@@ -199,6 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         OpenAlexService.instance,
         PdfStore.instance,
         ProfileService.instance,
+        AppLockService.instance,
       ]),
       builder: (context, _) {
         final st = Strings.instance;
@@ -337,6 +339,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: _editKey,
                 ),
               ),
+              const SizedBox(height: 10),
+              const _LockCard(),
               const SizedBox(height: 20),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
@@ -367,6 +371,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Замок приложения: включение и время до блокировки.
+class _LockCard extends StatelessWidget {
+  const _LockCard();
+
+  Future<void> _toggle(BuildContext context, bool on) async {
+    final lock = AppLockService.instance;
+    final messenger = ScaffoldMessenger.of(context);
+    void say(String text) => messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+    if (!on) {
+      await lock.disable();
+      say(t('lock.off_done'));
+      return;
+    }
+    final r = await lock.enable();
+    if (!context.mounted) return;
+    switch (r) {
+      case LockResult.ok:
+        say(t('lock.on_done'));
+      case LockResult.noScreenLock:
+        await showDialog<void>(
+          context: context,
+          builder: (d) => AlertDialog(
+            icon: const Icon(Icons.lock_open_outlined),
+            title: Text(t('lock.no_screen_title')),
+            content:
+                SingleChildScrollView(child: Text(t('lock.no_screen_text'))),
+            actions: [
+              FilledButton(
+                style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+                onPressed: () => Navigator.pop(d),
+                child: Text(t('lock.ok')),
+              ),
+            ],
+          ),
+        );
+      case LockResult.lockedOut:
+        say(t('lock.locked_out'));
+      case LockResult.error:
+        say(t('lock.error'));
+      case LockResult.canceled:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final lock = AppLockService.instance;
+    return Card(
+      elevation: 0,
+      color: scheme.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SwitchListTile(
+            key: const Key('lock.switch'),
+            secondary: const Icon(Icons.fingerprint),
+            title: Text(t('lock.setting')),
+            subtitle: Text(t('lock.setting_sub')),
+            value: lock.enabled,
+            onChanged: lock.busy ? null : (v) => _toggle(context, v),
+          ),
+          if (lock.enabled)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t('lock.after'), style: const TextStyle(fontSize: 13)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final m in AppLockService.delays)
+                        ChoiceChip(
+                          label: Text(
+                              m == 0 ? t('lock.now') : t('lock.min', {'n': m})),
+                          selected: lock.delayMinutes == m,
+                          showCheckmark: false,
+                          materialTapTargetSize: MaterialTapTargetSize.padded,
+                          onSelected: (_) => lock.setDelay(m),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

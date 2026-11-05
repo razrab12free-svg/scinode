@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'auth_service.dart';
 import 'screens/home_shell.dart';
+import 'screens/lock_screen.dart';
 import 'screens/login_screen.dart';
+import 'services/app_lock_service.dart';
 import 'services/library_service.dart';
 import 'services/openalex_service.dart';
 import 'strings.dart';
@@ -28,6 +30,7 @@ class _ScinodeAppState extends State<ScinodeApp> {
     Strings.instance.load();
     AuthService.instance.init();
     OpenAlexService.instance.load();
+    AppLockService.instance.load();
     AuthService.instance.addListener(_onAuth);
   }
 
@@ -44,12 +47,16 @@ class _ScinodeAppState extends State<ScinodeApp> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: Listenable.merge([Strings.instance, AuthService.instance]),
+      listenable: Listenable.merge(
+          [Strings.instance, AuthService.instance, AppLockService.instance]),
       builder: (context, _) {
         final s = Strings.instance;
         final a = AuthService.instance;
+        final lock = AppLockService.instance;
+        // Замок закрывает приложение только у вошедшего человека.
+        final locked = lock.locked && a.user != null;
         final Widget home;
-        if (!s.loaded || !a.initDone) {
+        if (!s.loaded || !a.initDone || !lock.loaded) {
           home = const _Splash();
         } else if (a.user == null) {
           home = LoginScreen();
@@ -71,7 +78,17 @@ class _ScinodeAppState extends State<ScinodeApp> {
                   maxScaleFactor: 1.2,
                 ),
               ),
-              child: child!,
+              // Обёртки есть всегда, чтобы экраны под замком не теряли
+              // своё состояние; пока замок закрыт, они не видны и не активны.
+              child: Stack(
+                children: [
+                  TickerMode(
+                    enabled: !locked,
+                    child: ExcludeSemantics(excluding: locked, child: child!),
+                  ),
+                  if (locked) const Positioned.fill(child: LockScreen()),
+                ],
+              ),
             );
           },
           home: home,

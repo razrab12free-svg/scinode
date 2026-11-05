@@ -30,6 +30,8 @@ dependencies:
   markdown: ^7.3.1
   share_plus: ^13.3.1
   screenshot: ^3.0.0
+  local_auth: ^3.0.2
+  local_auth_android: ^2.3.0
 
 dev_dependencies:
   flutter_test:

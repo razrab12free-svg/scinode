@@ -4,6 +4,7 @@ import 'package:scinode/strings_chat.dart';
 import 'package:scinode/strings_extra.dart';
 import 'package:scinode/strings_grants.dart';
 import 'package:scinode/strings_library.dart';
+import 'package:scinode/strings_lock.dart';
 import 'package:scinode/strings_map.dart';
 import 'package:scinode/strings_pdf.dart';
 import 'package:scinode/strings_report.dart';
@@ -19,6 +20,7 @@ void main() {
     'extra': extraStrings,
     'grants': grantStrings,
     'library': libraryStrings,
+    'lock': lockStrings,
     'map': mapStrings,
     'pdf': pdfStrings,
     'report': reportStrings,

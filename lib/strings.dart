@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'strings_extra.dart';
 import 'strings_grants.dart';
 import 'strings_library.dart';
+import 'strings_lock.dart';
 import 'strings_map.dart';
 import 'strings_board.dart';
 import 'strings_chat.dart';
@@ -62,7 +63,8 @@ class Strings extends ChangeNotifier {
         boardStrings[key] ??
         reportStrings[key] ??
         zoteroStrings[key] ??
-        noteStrings[key];
+        noteStrings[key] ??
+        lockStrings[key];
 
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {
