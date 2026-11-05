@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import '../models/analytics.dart';
 import '../models/grant.dart' show formatDate, formatMoney;
 import '../models/taxonomy.dart';
+import '../services/analytics_pdf.dart';
 import '../services/analytics_service.dart';
+import '../services/report_pdf.dart' show loadReportFonts;
 import '../strings.dart';
 import '../utils.dart';
 import '../widgets/analytics_charts.dart';
 import '../widgets/grant_card.dart' show InfoNote;
+import 'pdf_share_screen.dart';
 
 String _num(int n) => formatMoney(n, '', Strings.instance.lang);
 String _pct(double? v) => formatShare(v, Strings.instance.lang);
@@ -26,6 +29,36 @@ String _typeLabel(String type) {
 String _tr(String key, String fallback) {
   final s = t(key);
   return s == key ? fallback : s;
+}
+
+/// Открыть готовый PDF по организации (с кнопками «Сохранить» и «Поделиться»).
+void openOrgPdf(BuildContext context, OrgReport r, OrgReport? country) {
+  final lang = Strings.instance.lang;
+  Navigator.of(context).push(MaterialPageRoute<void>(
+    builder: (_) => PdfShareScreen(
+      title: t('ap.pdf'),
+      fileName: analyticsFileName(
+          analyticsOrgName(r.org, 'en'), r.generated ?? DateTime.now()),
+      build: () async => buildOrgPdf(r,
+          country: country, fonts: await loadReportFonts(), lang: lang),
+    ),
+  ));
+}
+
+void openComparePdf(BuildContext context, OrgReport a, OrgReport b) {
+  final lang = Strings.instance.lang;
+  final name = [a.org, b.org]
+      .map((o) => o.acronyms.isNotEmpty ? o.acronyms.first : o.id)
+      .join('_');
+  Navigator.of(context).push(MaterialPageRoute<void>(
+    builder: (_) => PdfShareScreen(
+      title: t('ap.pdf'),
+      fileName: analyticsFileName(
+          '${t('ap.file_compare')}_$name', a.generated ?? DateTime.now()),
+      build: () async =>
+          buildComparePdf(a, b, fonts: await loadReportFonts(), lang: lang),
+    ),
+  ));
 }
 
 // ---------------------------------------------------------------------------
@@ -341,6 +374,13 @@ class _OrgReportScreenState extends State<OrgReportScreen> {
               actions: [
                 if (data != null)
                   IconButton(
+                    key: const Key('an.pdf_btn'),
+                    tooltip: t('ap.pdf'),
+                    icon: const Icon(Icons.picture_as_pdf_outlined),
+                    onPressed: () => openOrgPdf(context, data.$1, data.$2),
+                  ),
+                if (data != null)
+                  IconButton(
                     key: const Key('an.compare_btn'),
                     tooltip: t('an.compare'),
                     icon: const Icon(Icons.compare_arrows),
@@ -493,15 +533,29 @@ class _ReportBody extends StatelessWidget {
                     _Stat(_num(o.citationsTotal), t('an.stat.cites')),
                 ],
               ),
-              if (o.url.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                TextButton.icon(
-                  style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
-                  onPressed: () => openLink(context, o.url),
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: Text(t('an.open_site')),
-                ),
-              ],
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  FilledButton.tonalIcon(
+                    key: const Key('an.pdf_inline'),
+                    style:
+                        FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                    onPressed: () => openOrgPdf(context, r, country),
+                    icon: const Icon(Icons.picture_as_pdf_outlined),
+                    label: Text(t('ap.pdf')),
+                  ),
+                  if (o.url.isNotEmpty)
+                    TextButton.icon(
+                      style:
+                          TextButton.styleFrom(minimumSize: const Size(0, 48)),
+                      onPressed: () => openLink(context, o.url),
+                      icon: const Icon(Icons.open_in_new, size: 18),
+                      label: Text(t('an.open_site')),
+                    ),
+                ],
+              ),
             ],
           ),
         ),
@@ -983,26 +1037,43 @@ class _CompareScreenState extends State<CompareScreen> {
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: Strings.instance,
-      builder: (context, _) => Scaffold(
-        appBar: AppBar(title: Text(t('an.s.compare'))),
-        body: FutureBuilder<List<OrgReport>>(
-          future: _f,
-          builder: (context, snap) {
-            if (snap.hasError) {
-              return _ErrorView(
-                text: _err(snap.error!),
-                onRetry: () => setState(() => _f = _load()),
-              );
-            }
-            final d = snap.data;
-            if (d == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return _CompareBody(a: d[0], b: d[1]);
-          },
+      builder: (context, _) => FutureBuilder<List<OrgReport>>(
+        future: _f,
+        builder: (context, snap) => Scaffold(
+          appBar: AppBar(
+            title: Text(t('an.s.compare')),
+            actions: [
+              if (snap.data != null)
+                IconButton(
+                  key: const Key('an.cmp_pdf_btn'),
+                  tooltip: t('ap.pdf'),
+                  icon: const Icon(Icons.picture_as_pdf_outlined),
+                  onPressed: () =>
+                      openComparePdf(context, snap.data![0], snap.data![1]),
+                ),
+            ],
+          ),
+          body: _compareBody(context, snap),
         ),
       ),
     );
+  }
+
+  Widget _compareBody(
+      BuildContext context, AsyncSnapshot<List<OrgReport>> snap) {
+    {
+      if (snap.hasError) {
+        return _ErrorView(
+          text: _err(snap.error!),
+          onRetry: () => setState(() => _f = _load()),
+        );
+      }
+      final d = snap.data;
+      if (d == null) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return _CompareBody(a: d[0], b: d[1]);
+    }
   }
 }
 

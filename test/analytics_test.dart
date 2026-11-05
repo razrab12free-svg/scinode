@@ -230,6 +230,8 @@ void main() {
           () => Future<void>.delayed(const Duration(milliseconds: 100)));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('an.compare_btn')), findsOneWidget);
+      expect(find.byKey(const Key('an.pdf_btn')), findsOneWidget);
+      expect(find.byKey(const Key('an.pdf_inline')), findsOneWidget);
       expect(find.text('Национальный университет Узбекистана'), findsWidgets);
       expect(tester.takeException(), isNull);
     });
@@ -309,6 +311,7 @@ void main() {
           () => Future<void>.delayed(const Duration(milliseconds: 100)));
       await tester.pumpAndSettle();
       expect(find.text(t('an.s.compare')), findsOneWidget);
+      expect(find.byKey(const Key('an.cmp_pdf_btn')), findsOneWidget);
       expect(find.text('9${_nb}059'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.scrollUntilVisible(find.text(t('an.cmp.years')), 300,
