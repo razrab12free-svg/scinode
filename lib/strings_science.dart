@@ -189,9 +189,41 @@ const Map<String, List<String>> scienceStrings = {
   ],
   'tax.done': ['Готово', 'Tayyor', 'Done'],
   'tax.hint_en': [
-    'Названия поддисциплин даны на английском (классификация OpenAlex).',
-    'Kichik yo‘nalishlar nomi inglizcha (OpenAlex tasnifi).',
-    'Subfield names are in English (OpenAlex classification).',
+    'Темы — на английском, как в OpenAlex: при выборе темы выбирается её раздел.',
+    'Mavzular inglizcha, OpenAlex’dagidek: mavzu tanlansa, uning bo‘limi tanlanadi.',
+    'Topics are in English, as in OpenAlex: choosing a topic selects its subfield.',
+  ],
+  'tax.search': [
+    'Поиск: педагогика, химия, machine learning…',
+    'Qidiruv: pedagogika, kimyo, machine learning…',
+    'Search: education, chemistry, machine learning…',
+  ],
+  'tax.no_results': [
+    'Ничего не нашлось. Попробуйте другое слово или английское название.',
+    'Hech narsa topilmadi. Boshqa so‘z yoki inglizcha nomni sinab ko‘ring.',
+    'Nothing found. Try another word or the English name.',
+  ],
+  'tax.topic_in': [
+    'Тема в разделе «{name}»',
+    '«{name}» bo‘limidagi mavzu',
+    'Topic in “{name}”'
+  ],
+  'tax.field': ['Область науки', 'Fan sohasi', 'Research field'],
+  'tax.d.1': ['Науки о жизни', 'Hayot haqidagi fanlar', 'Life Sciences'],
+  'tax.d.2': [
+    'Социальные и гуманитарные науки',
+    'Ijtimoiy va gumanitar fanlar',
+    'Social Sciences'
+  ],
+  'tax.d.3': [
+    'Точные, естественные и технические науки',
+    'Aniq, tabiiy va texnika fanlari',
+    'Physical Sciences'
+  ],
+  'tax.d.4': [
+    'Медицина и здоровье',
+    'Tibbiyot va salomatlik',
+    'Health Sciences'
   ],
   'pf.err.rules': [
     'Сервер отклонил запрос. Проверьте правила Firestore',

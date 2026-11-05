@@ -84,6 +84,9 @@ Scinode — мобильное приложение для коллаборац�
 - Без ключа все пользователи с одного IP делят $0.10/день; с бесплатным ключом —
   $1/день, запрос стоит около $0.0001. Ключ берётся из переменной окружения
   `OPENALEX_API_KEY` (в коде и в репозитории его быть не должно).
+- Дерево направлений встроено: `assets/taxonomy/openalex_v2.json` (официальный список
+  тем OpenAlex v2 из github.com/ourresearch/openalex-topic-classification), переводы
+  разделов и синонимы — `lib/strings_subfields.dart`, поиск — `searchTaxonomy`.
 - `/institutions` не фильтруется по координатам: только `country_code`, `continent`,
   `type`, `topics.field.id`. Активность по направлению — `works` с
   `group_by=authorships.institutions.id`. Ответы кэшируются на телефоне на 24 часа.

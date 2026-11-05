@@ -1,5 +1,6 @@
 import '../strings.dart';
 import '../strings_science.dart';
+import '../strings_subfields.dart';
 
 class SciField {
   const SciField(this.id, this.name);
@@ -22,7 +23,8 @@ class TagRef {
 
   bool get isField => tag.startsWith('f');
   String get rawId => tag.substring(1);
-  String get label => isField ? localFieldName(name) : name;
+  String get label =>
+      isField ? localFieldName(name) : localSubfieldName(rawId, name);
 
   Map<String, dynamic> toJson() => {'t': tag, 'n': name};
 
@@ -32,6 +34,20 @@ class TagRef {
 
 String localFieldName(String en) {
   final row = fieldNamesLocal[en];
+  if (row == null) return en;
+  switch (Strings.instance.lang) {
+    case 'ru':
+      return row[0];
+    case 'uz':
+      return row[1];
+    default:
+      return en;
+  }
+}
+
+/// Название раздела (поддисциплины) на языке интерфейса.
+String localSubfieldName(String id, String en) {
+  final row = subfieldNamesLocal[id];
   if (row == null) return en;
   switch (Strings.instance.lang) {
     case 'ru':

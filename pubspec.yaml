@@ -51,3 +51,5 @@ flutter:
     # Шрифт для PDF-отчётов (кириллица и узбекская латиница), лицензия OFL.
     - assets/fonts/NotoSans-Regular.ttf
     - assets/fonts/NotoSans-Bold.ttf
+    # Официальный список направлений OpenAlex (4 516 тем), см. taxonomy_service.
+    - assets/taxonomy/openalex_v2.json

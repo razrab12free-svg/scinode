@@ -7,6 +7,7 @@ import '../services/openalex_service.dart';
 import '../services/pdf_store.dart';
 import '../services/profile_service.dart';
 import '../strings.dart';
+import '../utils.dart';
 import '../widgets/board_widgets.dart';
 import 'profile_edit_screen.dart';
 
@@ -91,6 +92,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _signOut() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: Text(t('profile.signout')),
+        content: Text(t('profile.signout_q')),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(d, false),
+              child: Text(t('bd.cancel'))),
+          FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+            onPressed: () => Navigator.pop(d, true),
+            child: Text(t('profile.signout')),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) await AuthService.instance.signOut();
   }
 
   Future<void> _deleteData() async {
@@ -322,7 +344,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
-                onPressed: () => AuthService.instance.signOut(),
+                onPressed: _signOut,
                 icon: const Icon(Icons.logout),
                 label: Text(t('profile.signout')),
               ),
@@ -378,7 +400,17 @@ class _KeyDialogState extends State<_KeyDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(t('key.text'), style: const TextStyle(fontSize: 13)),
-          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
+              onPressed: () =>
+                  openLink(context, 'https://openalex.org/settings/api'),
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: const Text('openalex.org/settings/api'),
+            ),
+          ),
+          const SizedBox(height: 4),
           TextField(
             controller: _ctrl,
             decoration: InputDecoration(

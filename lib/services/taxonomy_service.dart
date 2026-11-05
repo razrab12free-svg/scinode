@@ -1,142 +1,190 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/taxonomy.dart';
-import 'openalex_service.dart';
+import '../strings_science.dart' show fieldNamesLocal;
+import '../strings_subfields.dart';
 
-class Taxonomy {
-  const Taxonomy(this.fields, this.subfields);
-  final List<SciField> fields;
-  final Map<String, List<SciSubfield>> subfields;
+/// Тема OpenAlex (самый подробный уровень, 4 516 тем) — для поиска.
+class SciTopic {
+  const SciTopic(this.id, this.name, this.subfieldId, this.keywords);
+  final String id;
+  final String name;
+  final String subfieldId;
+  final List<String> keywords;
 }
 
-/// Дерево направлений науки (области и поддисциплины OpenAlex).
+class SciDomain {
+  const SciDomain(this.id, this.name);
+  final String id;
+  final String name;
+}
+
+class Taxonomy {
+  const Taxonomy(this.fields, this.subfields,
+      {this.domains = const [],
+      this.fieldDomain = const {},
+      this.topics = const []});
+  final List<SciField> fields;
+  final Map<String, List<SciSubfield>> subfields;
+  final List<SciDomain> domains;
+
+  /// id области → id домена.
+  final Map<String, String> fieldDomain;
+  final List<SciTopic> topics;
+
+  SciSubfield? subfield(String id) {
+    for (final l in subfields.values) {
+      for (final s in l) {
+        if (s.id == id) return s;
+      }
+    }
+    return null;
+  }
+
+  SciField? field(String id) {
+    for (final f in fields) {
+      if (f.id == id) return f;
+    }
+    return null;
+  }
+}
+
+/// Результат поиска направлений: область, раздел или тема (→ её раздел).
+class TaxHit {
+  const TaxHit({required this.tag, this.topic, this.score = 0});
+
+  /// Что выбирается при нажатии (область или раздел).
+  final TagRef tag;
+
+  /// Найденная тема (если совпала тема, а не сам раздел).
+  final SciTopic? topic;
+  final int score;
+}
+
+/// Приводит строку к виду для поиска: нижний регистр, ё→е, без апострофов.
+String normTax(String s) => s
+    .toLowerCase()
+    .replaceAll('ё', 'е')
+    .replaceAll(RegExp('[‘’ʻʼ\'`]'), '')
+    .replaceAll(RegExp(r'\s+'), ' ')
+    .trim();
+
+/// Поиск по всем уровням дерева на русском, узбекском и английском,
+/// включая привычные названия специальностей (taxonomyAliases).
+List<TaxHit> searchTaxonomy(Taxonomy tx, String query, {int limit = 40}) {
+  final q = normTax(query);
+  if (q.length < 2) return const [];
+  final words = q.split(' ');
+  int score(String text) {
+    final s = normTax(text);
+    if (s == q) return 100;
+    if (s.startsWith(q)) return 80;
+    if (RegExp('(^|[\\s,(/-])${RegExp.escape(q)}').hasMatch(s)) return 60;
+    if (words.every(s.contains)) return 40;
+    return 0;
+  }
+
+  final best = <String, TaxHit>{};
+  void add(TaxHit h) {
+    final key = '${h.tag.tag}|${h.topic?.id ?? ''}';
+    final old = best[key];
+    if (old == null || old.score < h.score) best[key] = h;
+  }
+
+  for (final f in tx.fields) {
+    final row = fieldNamesLocal[f.name] ?? const <String>[];
+    final s = [f.name, ...row].map(score).fold(0, (a, b) => a > b ? a : b);
+    if (s > 0)
+      add(TaxHit(tag: TagRef(tag: 'f${f.id}', name: f.name), score: s + 5));
+  }
+  for (final l in tx.subfields.values) {
+    for (final sf in l) {
+      final names = [
+        sf.name,
+        ...?subfieldNamesLocal[sf.id],
+      ];
+      var s = names.map(score).fold(0, (a, b) => a > b ? a : b);
+      for (final a in taxonomyAliases[sf.id] ?? const <String>[]) {
+        final v = score(a);
+        if (v > s) s = v;
+      }
+      if (s > 0) {
+        add(TaxHit(tag: TagRef(tag: 's${sf.id}', name: sf.name), score: s + 3));
+      }
+    }
+  }
+  for (final tp in tx.topics) {
+    var s = score(tp.name);
+    for (final k in tp.keywords) {
+      final v = score(k) - 10;
+      if (v > s) s = v;
+    }
+    if (s <= 0) continue;
+    final sf = tx.subfield(tp.subfieldId);
+    if (sf == null) continue;
+    add(TaxHit(
+        tag: TagRef(tag: 's${sf.id}', name: sf.name), topic: tp, score: s));
+  }
+  final out = best.values.toList()
+    ..sort((a, b) {
+      final c = b.score.compareTo(a.score);
+      if (c != 0) return c;
+      // Сначала области и разделы, потом темы.
+      final ta = a.topic == null ? 0 : 1, tb = b.topic == null ? 0 : 1;
+      return ta.compareTo(tb);
+    });
+  return out.take(limit).toList();
+}
+
+/// Разбор встроенного справочника (официальный список тем OpenAlex v2).
+Taxonomy parseTaxonomy(Map<String, dynamic> m) {
+  final domains = [
+    for (final d in (m['domains'] as List? ?? const []))
+      SciDomain('${d['id']}', '${d['n']}'),
+  ];
+  final fieldDomain = <String, String>{};
+  final fields = <SciField>[];
+  for (final f in (m['fields'] as List? ?? const [])) {
+    fields.add(SciField('${f['id']}', '${f['n']}'));
+    fieldDomain['${f['id']}'] = '${f['d']}';
+  }
+  final subs = <String, List<SciSubfield>>{};
+  for (final s in (m['subfields'] as List? ?? const [])) {
+    final sf = SciSubfield('${s['id']}', '${s['n']}', '${s['f']}');
+    subs.putIfAbsent(sf.fieldId, () => []).add(sf);
+  }
+  final topics = [
+    for (final t in (m['topics'] as List? ?? const []))
+      SciTopic('${t['id']}', '${t['n']}', '${t['s']}',
+          [for (final k in (t['k'] as List? ?? const [])) '$k']),
+  ];
+  fields
+      .sort((a, b) => localFieldName(a.name).compareTo(localFieldName(b.name)));
+  for (final l in subs.values) {
+    l.sort((a, b) => localSubfieldName(a.id, a.name)
+        .compareTo(localSubfieldName(b.id, b.name)));
+  }
+  return Taxonomy(fields, subs,
+      domains: domains, fieldDomain: fieldDomain, topics: topics);
+}
+
+/// Дерево направлений науки: 4 домена → 26 областей → 252 раздела → 4 516 тем.
+/// Встроено в приложение: работает без интернета и не тратит лимит OpenAlex.
 class TaxonomyService {
   TaxonomyService._();
   static final TaxonomyService instance = TaxonomyService._();
 
-  static const _key = 'taxonomy_v1';
-  static const _maxAge = Duration(days: 30);
+  static const asset = 'assets/taxonomy/openalex_v2.json';
 
-  Taxonomy? _cached;
+  Future<Taxonomy>? _loading;
 
-  String _last(String url) => url.split('/').last;
-
-  Future<Taxonomy> load() async {
-    final c = _cached;
-    if (c != null) return c;
-
-    SharedPreferences? prefs;
-    try {
-      prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString(_key);
-      if (raw != null) {
-        final m = jsonDecode(raw) as Map<String, dynamic>;
-        final at = DateTime.fromMillisecondsSinceEpoch(m['at'] as int);
-        if (DateTime.now().difference(at) < _maxAge) {
-          final tx = _fromJson(m);
-          if (tx.fields.isNotEmpty) {
-            _cached = tx;
-            return tx;
-          }
-        }
-      }
-    } catch (_) {}
-
-    final tx = await _fetch();
-    _cached = tx;
-    try {
-      await prefs?.setString(_key, jsonEncode(_toJson(tx)));
-    } catch (_) {}
-    return tx;
-  }
-
-  Future<Taxonomy> _fetch() async {
-    final svc = OpenAlexService.instance;
-
-    final fj = await svc.getJson(
-      '/fields',
-      {'per-page': '50', 'select': 'id,display_name'},
-    );
-    final fields = <SciField>[];
-    final fr = fj['results'];
-    if (fr is List) {
-      for (final r in fr) {
-        if (r is Map) {
-          final id = r['id']?.toString();
-          final n = r['display_name']?.toString();
-          if (id != null && n != null) fields.add(SciField(_last(id), n));
-        }
-      }
-    }
-
-    final subs = <SciSubfield>[];
-    for (var page = 1; page <= 4; page++) {
-      final sj = await svc.getJson('/subfields', {
-        'per-page': '100',
-        'page': '$page',
-        'select': 'id,display_name,field',
+  Future<Taxonomy> load() => _loading ??= Future(() async {
+        final raw = await rootBundle.loadString(asset);
+        return parseTaxonomy(jsonDecode(raw) as Map<String, dynamic>);
+      }).catchError((Object e) {
+        _loading = null;
+        throw e;
       });
-      final sr = sj['results'];
-      if (sr is! List || sr.isEmpty) break;
-      for (final r in sr) {
-        if (r is Map) {
-          final id = r['id']?.toString();
-          final n = r['display_name']?.toString();
-          final f = r['field'];
-          final fid = f is Map ? f['id']?.toString() : null;
-          if (id != null && n != null && fid != null) {
-            subs.add(SciSubfield(_last(id), n, _last(fid)));
-          }
-        }
-      }
-      if (sr.length < 100) break;
-    }
-
-    if (fields.isEmpty || subs.isEmpty) throw SearchException('other');
-    return _build(fields, subs);
-  }
-
-  Taxonomy _build(List<SciField> fields, List<SciSubfield> subs) {
-    fields.sort((a, b) => a.name.compareTo(b.name));
-    final map = <String, List<SciSubfield>>{};
-    for (final s in subs) {
-      map.putIfAbsent(s.fieldId, () => []).add(s);
-    }
-    for (final l in map.values) {
-      l.sort((a, b) => a.name.compareTo(b.name));
-    }
-    return Taxonomy(fields, map);
-  }
-
-  Map<String, dynamic> _toJson(Taxonomy t) => {
-        'at': DateTime.now().millisecondsSinceEpoch,
-        'fields': [
-          for (final f in t.fields) {'id': f.id, 'n': f.name},
-        ],
-        'subs': [
-          for (final l in t.subfields.values)
-            for (final s in l) {'id': s.id, 'n': s.name, 'f': s.fieldId},
-        ],
-      };
-
-  Taxonomy _fromJson(Map<String, dynamic> m) {
-    final fields = <SciField>[
-      for (final f in (m['fields'] as List? ?? const []))
-        SciField(
-          (f as Map)['id'].toString(),
-          f['n'].toString(),
-        ),
-    ];
-    final subs = <SciSubfield>[
-      for (final s in (m['subs'] as List? ?? const []))
-        SciSubfield(
-          (s as Map)['id'].toString(),
-          s['n'].toString(),
-          s['f'].toString(),
-        ),
-    ];
-    return _build(fields, subs);
-  }
 }

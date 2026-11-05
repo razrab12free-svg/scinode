@@ -112,6 +112,21 @@ const Map<String, List<String>> _db = {
     'Kirib bo‘lmadi',
     'Sign-in failed',
   ],
+  'login.failed_hint': [
+    'Не удалось войти через Google. Попробуйте ещё раз или выберите другой аккаунт.',
+    'Google orqali kirib bo‘lmadi. Qayta urinib ko‘ring yoki boshqa hisobni tanlang.',
+    'Could not sign in with Google. Try again or choose another account.',
+  ],
+  'login.err.network': [
+    'Нет связи с интернетом. Проверьте сеть и попробуйте ещё раз.',
+    'Internet aloqasi yo‘q. Tarmoqni tekshirib, qayta urinib ko‘ring.',
+    'No internet connection. Check your network and try again.',
+  ],
+  'profile.signout_q': [
+    'Выйти из аккаунта на этом телефоне? Библиотека и заметки сохранятся и вернутся при следующем входе.',
+    'Bu telefonda hisobdan chiqasizmi? Kutubxona va qaydlar saqlanadi va keyingi kirishda qaytadi.',
+    'Sign out on this phone? Your library and notes are kept and come back next time you sign in.',
+  ],
   'tab.home': ['Главная', 'Asosiy', 'Home'],
   'tab.search': ['Поиск', 'Qidiruv', 'Search'],
   'tab.library': ['Библиотека', 'Kutubxona', 'Library'],
