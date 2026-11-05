@@ -39,7 +39,7 @@ Scinode — мобильное приложение для коллаборац�
   `zotero_service` — Zotero Web API v3, ключ в flutter_secure_storage;
   `note_service` — заметки с формулами; `app_lock_service` — замок приложения
   через local_auth, настройка только на телефоне; `orcid_service` — заполнение
-  профиля по ORCID).
+  профиля по ORCID; `analytics_service` — отчёты Аналитики с GitHub Pages, кэш 24 ч).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
   `grant` — конкурсы, проекты, даты, суммы; `board`, `board_report` — доски и
   статистика отчёта).
@@ -132,7 +132,12 @@ Scinode — мобильное приложение для коллаборац�
   `orgs/<id>.json` (`UZ.json` — вся страна). Методика и формат — `analytics/README.md`.
 - Тесты: `cd analytics && python -m pytest -q tests` — на записанных настоящих ответах
   (`--record` записывает новые образцы; ключ в них не попадает).
-- Менять формат JSON — только с повышением `SCHEMA` и папки `v<N>`.
+- Менять формат JSON — только с повышением `SCHEMA` и папки `v<N>` (в приложении —
+  `analyticsSchema` в `models/analytics.dart`; более новая схема → «обновите Scinode»).
+- В приложении: плитка «Аналитика» на Главной → `screens/analytics_screen.dart`
+  (список, отчёт из 8 разделов, сравнение двух организаций и со страной), диаграммы —
+  `widgets/analytics_charts.dart`. Образцы — `test/fixtures/analytics/` (настоящий расчёт).
+- Числа и проценты — с неразрывным пробелом (`formatMoney`, `formatShare`).
 
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой

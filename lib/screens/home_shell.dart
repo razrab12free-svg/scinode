@@ -11,6 +11,7 @@ import 'library_screen.dart';
 import 'my_tasks_screen.dart';
 import 'network_screen.dart';
 import 'profile_screen.dart';
+import 'analytics_screen.dart';
 import 'science_map_screen.dart';
 import 'search_screen.dart';
 
@@ -259,13 +260,25 @@ class HomeTab extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: _WideTile(
             icon: Icons.travel_explore,
             label: t('map.title'),
             sub: t('map.tile_sub'),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const ScienceMapScreen()),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: _WideTile(
+            key: const Key('home.analytics'),
+            icon: Icons.query_stats,
+            label: t('an.tile'),
+            sub: t('an.tile_sub'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const AnalyticsScreen()),
             ),
           ),
         ),
@@ -277,6 +290,7 @@ class HomeTab extends StatelessWidget {
 /// Широкая плитка во всю ширину (карта науки).
 class _WideTile extends StatelessWidget {
   const _WideTile({
+    super.key,
     required this.icon,
     required this.label,
     required this.sub,

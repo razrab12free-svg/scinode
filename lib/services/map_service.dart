@@ -15,15 +15,17 @@ abstract class JsonCache {
 
 /// Кэш в файлах (закрытая папка кэша приложения), срок жизни — 24 часа.
 class FileJsonCache implements JsonCache {
-  FileJsonCache({this.ttl = const Duration(hours: 24)});
+  FileJsonCache(
+      {this.ttl = const Duration(hours: 24), this.folder = 'openalex_map'});
   final Duration ttl;
+  final String folder;
   Directory? _dir;
 
   Future<Directory> _folder() async {
     final d = _dir;
     if (d != null) return d;
     final base = await getApplicationCacheDirectory();
-    final dir = Directory('${base.path}/openalex_map');
+    final dir = Directory('${base.path}/$folder');
     if (!await dir.exists()) await dir.create(recursive: true);
     return _dir = dir;
   }

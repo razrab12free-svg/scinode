@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:scinode/strings_analytics.dart';
 import 'package:scinode/strings_board.dart';
 import 'package:scinode/strings_chat.dart';
 import 'package:scinode/strings_extra.dart';
@@ -16,6 +17,7 @@ import 'package:scinode/strings_science.dart';
 void main() {
   // Правило проекта: каждый текст интерфейса — на трёх языках (ru, uz, en).
   final maps = {
+    'analytics': analyticsStrings,
     'board': boardStrings,
     'chat': chatStrings,
     'extra': extraStrings,
