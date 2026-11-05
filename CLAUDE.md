@@ -38,6 +38,7 @@ Scinode — мобильное приложение для коллаборац�
 - `widgets/` — переиспользуемые виджеты (`paper_card`, `scientist_card`,
   `taxonomy_picker`, `logo`).
 - `test/` — юнит-тесты; `test/fixtures/` — реальные образцы ответов API.
+- `tools/make_icon.py` — рисует иконку приложения в CI.
 
 ## Заметки по API грантов
 - EU (SEDIA): `POST https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=SEDIA`,
@@ -50,7 +51,6 @@ Scinode — мобильное приложение для коллаборац�
   Обязательная фраза-дисклеймер — строка `gr.disclaimer`.
 - NIH: `POST /v2/projects/search`, `advanced_text_search` с operator `and`.
 - NSF: `GET /services/v1/awards.json`; слова в `keyword` соединять через `AND`.
-- `tools/make_icon.py` — рисует иконку приложения в CI.
 
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой
