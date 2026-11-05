@@ -1,0 +1,192 @@
+{
+ "meta": {
+  "count": 18748,
+  "db_response_time_ms": 385,
+  "page": 1,
+  "per_page": 200,
+  "groups_count": 200,
+  "x_query": {
+   "oql": "get works where institution country is [Uzbekistan](UZ)\n  and field is [Computer Science](17)\n  and published after 2020;\nthen, group those works by exact institution",
+   "x_new_oql": "get works where institution country is [Uzbekistan](UZ)\n  and field is [Computer Science](17)\n  and published after 2020;\nthen, group those works by exact institution",
+   "oqo": {
+    "get_rows": "works",
+    "filter_rows": [
+     {
+      "column_id": "authorships.institutions.country_code",
+      "value": "UZ"
+     },
+     {
+      "column_id": "primary_topic.field.id",
+      "value": "17"
+     },
+     {
+      "column_id": "publication_year",
+      "value": 2020,
+      "operator": ">"
+     }
+    ],
+    "group_by": [
+     {
+      "column_id": "authorships.institutions.id"
+     }
+    ]
+   },
+   "url": "/works?filter=authorships.institutions.country_code:UZ,primary_topic.field.id:17,publication_year:%3E2020&group_by=authorships.institutions.id",
+   "order": "most works first",
+   "order_default": true
+  },
+  "cost_usd": 0.0001
+ },
+ "group_by": [
+  {
+   "key": "https://openalex.org/I21256249",
+   "key_display_name": "Tashkent University of Information Technology",
+   "count": 1801
+  },
+  {
+   "key": "https://openalex.org/I55383850",
+   "key_display_name": "Tashkent State University of Economics",
+   "count": 986
+  },
+  {
+   "key": "https://openalex.org/I4210104713",
+   "key_display_name": "Ferghana State University",
+   "count": 973
+  },
+  {
+   "key": "https://openalex.org/I47151758",
+   "key_display_name": "National University of Uzbekistan",
+   "count": 835
+  },
+  {
+   "key": "https://openalex.org/I14916453",
+   "key_display_name": "Urgench State University",
+   "count": 628
+  },
+  {
+   "key": "https://openalex.org/I4405254457",
+   "key_display_name": "Termez University of Economics and Service",
+   "count": 614
+  },
+  {
+   "key": "https://openalex.org/I4210102006",
+   "key_display_name": "Uzbek State University of World Languages",
+   "count": 578
+  },
+  {
+   "key": "https://openalex.org/I4210159566",
+   "key_display_name": "National Pedagogical University of Uzbekistan named after Nizami",
+   "count": 569
+  },
+  {
+   "key": "https://openalex.org/I3131790217",
+   "key_display_name": "Bukhara State University",
+   "count": 546
+  },
+  {
+   "key": "https://openalex.org/I1299170990",
+   "key_display_name": "Samarkand State University named after Sharof Rashidov",
+   "count": 516
+  },
+  {
+   "key": "https://openalex.org/I4405254315",
+   "key_display_name": "Chirchik State Pedagogical University",
+   "count": 479
+  },
+  {
+   "key": "https://openalex.org/I4405255828",
+   "key_display_name": "Mamun University",
+   "count": 469
+  },
+  {
+   "key": "https://openalex.org/I4210154340",
+   "key_display_name": "Jizzakh State Pedagogical University",
+   "count": 456
+  },
+  {
+   "key": "https://openalex.org/I126419327",
+   "key_display_name": "Tashkent State Transport University",
+   "count": 449
+  },
+  {
+   "key": "https://openalex.org/I4405257638",
+   "key_display_name": "Asia International University",
+   "count": 437
+  },
+  {
+   "key": "https://openalex.org/I4405254966",
+   "key_display_name": "University of Tashkent for Applied Sciences",
+   "count": 420
+  },
+  {
+   "key": "https://openalex.org/I4210159709",
+   "key_display_name": "Termez State University",
+   "count": 383
+  },
+  {
+   "key": "https://openalex.org/I4210109462",
+   "key_display_name": "Tashkent Institute of Irrigation and Agricultural Mechanization Engineers",
+   "count": 374
+  },
+  {
+   "key": "https://openalex.org/I4405255934",
+   "key_display_name": "Shakhrisabz State Pedagogical Institute",
+   "count": 370
+  },
+  {
+   "key": "https://openalex.org/I4405263222",
+   "key_display_name": "Termez State Pedagogical Institute",
+   "count": 355
+  },
+  {
+   "key": "https://openalex.org/I4210128068",
+   "key_display_name": "Karshi State University",
+   "count": 330
+  },
+  {
+   "key": "https://openalex.org/I3020809043",
+   "key_display_name": "Tashkent State Technical University named after Islam Karimov",
+   "count": 322
+  },
+  {
+   "key": "https://openalex.org/I4405255639",
+   "key_display_name": "Alisher Navo'i Tashkent State University of Uzbek Language and Literature",
+   "count": 313
+  },
+  {
+   "key": "https://openalex.org/I4210134088",
+   "key_display_name": "Gulistan State University",
+   "count": 311
+  },
+  {
+   "key": "https://openalex.org/I160547875",
+   "key_display_name": "Namangan State University",
+   "count": 310
+  },
+  {
+   "key": "https://openalex.org/I4210146373",
+   "key_display_name": "Samarkand State Institute of Foreign Languages",
+   "count": 297
+  },
+  {
+   "key": "https://openalex.org/I4210139342",
+   "key_display_name": "Navoi State University",
+   "count": 291
+  },
+  {
+   "key": "https://openalex.org/I4405261140",
+   "key_display_name": "Fergana State Technical University",
+   "count": 283
+  },
+  {
+   "key": "https://openalex.org/I4392021094",
+   "key_display_name": "Jizzakh branch of the National University of Uzbekistan named after Mirzo Ulugbek",
+   "count": 275
+  },
+  {
+   "key": "https://openalex.org/I4392738097",
+   "key_display_name": "Andijon Davlat Pedagogika instituti",
+   "count": 273
+  }
+ ]
+}

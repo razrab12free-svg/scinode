@@ -1,0 +1,188 @@
+{
+ "meta": {
+  "count": 12688,
+  "db_response_time_ms": 69,
+  "page": 1,
+  "per_page": 200,
+  "groups_count": 200,
+  "x_query": {
+   "oql": "get works where exact institution is (I47151758) and published after 2020;\nthen, group those works by exact institution",
+   "x_new_oql": "get works where exact institution is (I47151758) and published after 2020;\nthen, group those works by exact institution",
+   "oqo": {
+    "get_rows": "works",
+    "filter_rows": [
+     {
+      "column_id": "authorships.institutions.id",
+      "value": "I47151758"
+     },
+     {
+      "column_id": "publication_year",
+      "value": 2020,
+      "operator": ">"
+     }
+    ],
+    "group_by": [
+     {
+      "column_id": "authorships.institutions.id"
+     }
+    ]
+   },
+   "url": "/works?filter=authorships.institutions.id:I47151758,publication_year:%3E2020&group_by=authorships.institutions.id",
+   "order": "most works first",
+   "order_default": true
+  },
+  "cost_usd": 0.0001
+ },
+ "group_by": [
+  {
+   "key": "https://openalex.org/I47151758",
+   "key_display_name": "National University of Uzbekistan",
+   "count": 12688
+  },
+  {
+   "key": "https://openalex.org/I1302269238",
+   "key_display_name": "Academy of Sciences Republic of Uzbekistan",
+   "count": 955
+  },
+  {
+   "key": "https://openalex.org/I4210109462",
+   "key_display_name": "Tashkent Institute of Irrigation and Agricultural Mechanization Engineers",
+   "count": 630
+  },
+  {
+   "key": "https://openalex.org/I4392021094",
+   "key_display_name": "Jizzakh branch of the National University of Uzbekistan named after Mirzo Ulugbek",
+   "count": 611
+  },
+  {
+   "key": "https://openalex.org/I4387155254",
+   "key_display_name": "New Uzbekistan University",
+   "count": 574
+  },
+  {
+   "key": "https://openalex.org/I3020809043",
+   "key_display_name": "Tashkent State Technical University named after Islam Karimov",
+   "count": 490
+  },
+  {
+   "key": "https://openalex.org/I4405254966",
+   "key_display_name": "University of Tashkent for Applied Sciences",
+   "count": 459
+  },
+  {
+   "key": "https://openalex.org/I4210096951",
+   "key_display_name": "Central Asian University",
+   "count": 393
+  },
+  {
+   "key": "https://openalex.org/I14916453",
+   "key_display_name": "Urgench State University",
+   "count": 338
+  },
+  {
+   "key": "https://openalex.org/I4210149746",
+   "key_display_name": "Kimyo International University in Tashkent",
+   "count": 311
+  },
+  {
+   "key": "https://openalex.org/I4210103575",
+   "key_display_name": "Ulugh Beg Astronomical Institute",
+   "count": 288
+  },
+  {
+   "key": "https://openalex.org/I4405254406",
+   "key_display_name": "Alfraganus University",
+   "count": 231
+  },
+  {
+   "key": "https://openalex.org/I4210128068",
+   "key_display_name": "Karshi State University",
+   "count": 210
+  },
+  {
+   "key": "https://openalex.org/I21256249",
+   "key_display_name": "Tashkent University of Information Technology",
+   "count": 204
+  },
+  {
+   "key": "https://openalex.org/I1299170990",
+   "key_display_name": "Samarkand State University named after Sharof Rashidov",
+   "count": 197
+  },
+  {
+   "key": "https://openalex.org/I19820366",
+   "key_display_name": "Chinese Academy of Sciences",
+   "count": 154
+  },
+  {
+   "key": "https://openalex.org/I4405255828",
+   "key_display_name": "Mamun University",
+   "count": 148
+  },
+  {
+   "key": "https://openalex.org/I204983213",
+   "key_display_name": "Harbin Institute of Technology",
+   "count": 144
+  },
+  {
+   "key": "https://openalex.org/I4210154340",
+   "key_display_name": "Jizzakh State Pedagogical University",
+   "count": 144
+  },
+  {
+   "key": "https://openalex.org/I4210147448",
+   "key_display_name": "Yunusov Institute of the Chemistry of Plant Substances",
+   "count": 142
+  },
+  {
+   "key": "https://openalex.org/I1330688353",
+   "key_display_name": "Tashkent State Agrarian University",
+   "count": 141
+  },
+  {
+   "key": "https://openalex.org/I55383850",
+   "key_display_name": "Tashkent State University of Economics",
+   "count": 140
+  },
+  {
+   "key": "https://openalex.org/I1300976906",
+   "key_display_name": "Andijan State University",
+   "count": 138
+  },
+  {
+   "key": "https://openalex.org/I4210136103",
+   "key_display_name": "Tashkent Chemical-Technological Institute",
+   "count": 136
+  },
+  {
+   "key": "https://openalex.org/I113330528",
+   "key_display_name": "Khazar University",
+   "count": 135
+  },
+  {
+   "key": "https://openalex.org/I3130874397",
+   "key_display_name": "Western Caspian University",
+   "count": 126
+  },
+  {
+   "key": "https://openalex.org/I4210162459",
+   "key_display_name": "Karakalpak State University",
+   "count": 124
+  },
+  {
+   "key": "https://openalex.org/I4210142780",
+   "key_display_name": "Turin Polytechnic University",
+   "count": 117
+  },
+  {
+   "key": "https://openalex.org/I126419327",
+   "key_display_name": "Tashkent State Transport University",
+   "count": 116
+  },
+  {
+   "key": "https://openalex.org/I4210099818",
+   "key_display_name": "Institute of Nuclear Physics",
+   "count": 116
+  }
+ ]
+}

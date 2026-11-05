@@ -1,0 +1,614 @@
+{
+ "meta": {
+  "count": 196,
+  "db_response_time_ms": 28,
+  "page": 1,
+  "per_page": 5,
+  "groups_count": null,
+  "x_query": {
+   "oql": "get institutions in [Uzbekistan](UZ) where is_super_system is false",
+   "x_new_oql": "get institutions in [Uzbekistan](UZ) where is_super_system is false",
+   "oqo": {
+    "get_rows": "institutions",
+    "filter_rows": [
+     {
+      "column_id": "country_code",
+      "value": "UZ"
+     },
+     {
+      "column_id": "is_super_system",
+      "value": false
+     }
+    ],
+    "sort_by": [
+     {
+      "column_id": "works_count",
+      "direction": "desc"
+     }
+    ]
+   },
+   "url": "/institutions?filter=country_code:UZ,is_super_system:false&sort=works_count:desc&per_page=5",
+   "order": "most works first",
+   "order_default": true
+  },
+  "cost_usd": 0.0001
+ },
+ "results": [
+  {
+   "id": "https://openalex.org/I1302269238",
+   "display_name": "Academy of Sciences Republic of Uzbekistan",
+   "type": "government",
+   "geo": {
+    "city": "Tashkent",
+    "geonames_city_id": "1512569",
+    "region": "Tashkent",
+    "country_code": "UZ",
+    "country": "Uzbekistan",
+    "latitude": 41.26465,
+    "longitude": 69.21627
+   },
+   "works_count": 19784,
+   "cited_by_count": 232091,
+   "summary_stats": {
+    "2yr_mean_citedness": 1.491408167819683,
+    "h_index": 132,
+    "i10_index": 5597
+   },
+   "homepage_url": "https://gov.uz/oz/academy",
+   "ror": "https://ror.org/01xgfaw76",
+   "topics": [
+    {
+     "id": "https://openalex.org/T11973",
+     "display_name": "Plant chemical constituents analysis",
+     "count": 2737,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1110",
+      "display_name": "Plant Science"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/11",
+      "display_name": "Agricultural and Biological Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/1",
+      "display_name": "Life Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10225",
+     "display_name": "Essential Oils and Antimicrobial Activity",
+     "count": 1704,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1106",
+      "display_name": "Food Science"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/11",
+      "display_name": "Agricultural and Biological Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/1",
+      "display_name": "Life Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10909",
+     "display_name": "Edible Oils Quality and Analysis",
+     "count": 1673,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1605",
+      "display_name": "Organic Chemistry"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/16",
+      "display_name": "Chemistry"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/3",
+      "display_name": "Physical Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T12618",
+     "display_name": "Botany and Plant Ecology Studies",
+     "count": 979,
+     "score": 0.9965999722480774,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1110",
+      "display_name": "Plant Science"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/11",
+      "display_name": "Agricultural and Biological Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/1",
+      "display_name": "Life Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T11613",
+     "display_name": "Phytochemistry and Biological Activities",
+     "count": 958,
+     "score": 0.9984999895095825,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1110",
+      "display_name": "Plant Science"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/11",
+      "display_name": "Agricultural and Biological Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/1",
+      "display_name": "Life Sciences"
+     }
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/I47151758",
+   "display_name": "National University of Uzbekistan",
+   "type": "education",
+   "geo": {
+    "city": "Tashkent",
+    "geonames_city_id": "1512569",
+    "region": "Tashkent",
+    "country_code": "UZ",
+    "country": "Uzbekistan",
+    "latitude": 41.26465,
+    "longitude": 69.21627
+   },
+   "works_count": 16966,
+   "cited_by_count": 84898,
+   "summary_stats": {
+    "2yr_mean_citedness": 1.007413805513568,
+    "h_index": 95,
+    "i10_index": 2153
+   },
+   "homepage_url": "https://nuu.uz/",
+   "ror": "https://ror.org/011647w73",
+   "topics": [
+    {
+     "id": "https://openalex.org/T12373",
+     "display_name": "Linguistic research and analysis",
+     "count": 582,
+     "score": 0.9940999746322632,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1203",
+      "display_name": "Language and Linguistics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/12",
+      "display_name": "Arts and Humanities"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T12589",
+     "display_name": "Differential Equations and Boundary Problems",
+     "count": 528,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/2604",
+      "display_name": "Applied Mathematics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/26",
+      "display_name": "Mathematics"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/3",
+      "display_name": "Physical Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10744",
+     "display_name": "Astrophysical Phenomena and Observations",
+     "count": 521,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3103",
+      "display_name": "Astronomy and Astrophysics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/31",
+      "display_name": "Physics and Astronomy"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/3",
+      "display_name": "Physical Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T11070",
+     "display_name": "Soviet and Russian History",
+     "count": 472,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3320",
+      "display_name": "Political Science and International Relations"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/33",
+      "display_name": "Social Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T12658",
+     "display_name": "Language and Culture",
+     "count": 458,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3310",
+      "display_name": "Linguistics and Language"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/33",
+      "display_name": "Social Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/I55383850",
+   "display_name": "Tashkent State University of Economics",
+   "type": "education",
+   "geo": {
+    "city": "Tashkent",
+    "geonames_city_id": "1512569",
+    "region": "Tashkent",
+    "country_code": "UZ",
+    "country": "Uzbekistan",
+    "latitude": 41.26465,
+    "longitude": 69.21627
+   },
+   "works_count": 15085,
+   "cited_by_count": 43183,
+   "summary_stats": {
+    "2yr_mean_citedness": 1.2338481618446813,
+    "h_index": 76,
+    "i10_index": 1089
+   },
+   "homepage_url": "https://tsue.uz",
+   "ror": "https://ror.org/029t9db68",
+   "topics": [
+    {
+     "id": "https://openalex.org/T13547",
+     "display_name": "Economic and Industrial Development",
+     "count": 1335,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/2002",
+      "display_name": "Economics and Econometrics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/20",
+      "display_name": "Economics, Econometrics and Finance"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T13042",
+     "display_name": "Economic and Fiscal Studies",
+     "count": 903,
+     "score": 0.9984999895095825,
+     "subfield": {
+      "id": "https://openalex.org/subfields/2002",
+      "display_name": "Economics and Econometrics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/20",
+      "display_name": "Economics, Econometrics and Finance"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T13509",
+     "display_name": "Accounting and Financial Management",
+     "count": 841,
+     "score": 0.9970999956130981,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1402",
+      "display_name": "Accounting"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/14",
+      "display_name": "Business, Management and Accounting"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10127",
+     "display_name": "Banking stability, regulation, efficiency",
+     "count": 813,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/2003",
+      "display_name": "Finance"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/20",
+      "display_name": "Economics, Econometrics and Finance"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T13366",
+     "display_name": "Accounting Theory and Financial Reporting",
+     "count": 767,
+     "score": 0.9984999895095825,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1402",
+      "display_name": "Accounting"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/14",
+      "display_name": "Business, Management and Accounting"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/I4210104713",
+   "display_name": "Ferghana State University",
+   "type": "education",
+   "geo": {
+    "city": "Fergana",
+    "geonames_city_id": "1514019",
+    "region": "Fergana",
+    "country_code": "UZ",
+    "country": "Uzbekistan",
+    "latitude": 40.38421,
+    "longitude": 71.78432
+   },
+   "works_count": 12144,
+   "cited_by_count": 7070,
+   "summary_stats": {
+    "2yr_mean_citedness": 0.19094724220623502,
+    "h_index": 25,
+    "i10_index": 189
+   },
+   "homepage_url": "https://fdu.uz/",
+   "ror": "https://ror.org/0190ze463",
+   "topics": [
+    {
+     "id": "https://openalex.org/T12373",
+     "display_name": "Linguistic research and analysis",
+     "count": 938,
+     "score": 0.9916999936103821,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1203",
+      "display_name": "Language and Linguistics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/12",
+      "display_name": "Arts and Humanities"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T13122",
+     "display_name": "Turkic and Altaic Linguistics",
+     "count": 748,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1203",
+      "display_name": "Language and Linguistics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/12",
+      "display_name": "Arts and Humanities"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T12658",
+     "display_name": "Language and Culture",
+     "count": 715,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3310",
+      "display_name": "Linguistics and Language"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/33",
+      "display_name": "Social Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T10021",
+     "display_name": "EFL/ESL Teaching and Learning",
+     "count": 559,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1203",
+      "display_name": "Language and Linguistics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/12",
+      "display_name": "Arts and Humanities"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T13189",
+     "display_name": "Physical Education and Training Studies",
+     "count": 461,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3612",
+      "display_name": "Physical Therapy, Sports Therapy and Rehabilitation"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/36",
+      "display_name": "Health Professions"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/4",
+      "display_name": "Health Sciences"
+     }
+    }
+   ]
+  },
+  {
+   "id": "https://openalex.org/I1299170990",
+   "display_name": "Samarkand State University named after Sharof Rashidov",
+   "type": "education",
+   "geo": {
+    "city": "Samarkand",
+    "geonames_city_id": "1216265",
+    "region": null,
+    "country_code": "UZ",
+    "country": "Uzbekistan",
+    "latitude": 39.654170989990234,
+    "longitude": 66.959716796875
+   },
+   "works_count": 9792,
+   "cited_by_count": 35628,
+   "summary_stats": {
+    "2yr_mean_citedness": 1.2410307675219372,
+    "h_index": 57,
+    "i10_index": 1066
+   },
+   "homepage_url": "https://www.samdu.uz",
+   "ror": "https://ror.org/02b6gy972",
+   "topics": [
+    {
+     "id": "https://openalex.org/T13122",
+     "display_name": "Turkic and Altaic Linguistics",
+     "count": 562,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1203",
+      "display_name": "Language and Linguistics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/12",
+      "display_name": "Arts and Humanities"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T13450",
+     "display_name": "Turkish Literature and Culture",
+     "count": 329,
+     "score": 0.9994999766349792,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1208",
+      "display_name": "Literature and Literary Theory"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/12",
+      "display_name": "Arts and Humanities"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T12373",
+     "display_name": "Linguistic research and analysis",
+     "count": 303,
+     "score": 0.9932000041007996,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1203",
+      "display_name": "Language and Linguistics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/12",
+      "display_name": "Arts and Humanities"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T12890",
+     "display_name": "Eurasian Exchange Networks",
+     "count": 275,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/3314",
+      "display_name": "Anthropology"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/33",
+      "display_name": "Social Sciences"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/2",
+      "display_name": "Social Sciences"
+     }
+    },
+    {
+     "id": "https://openalex.org/T11974",
+     "display_name": "Lepidoptera: Biology and Taxonomy",
+     "count": 238,
+     "score": 1.0,
+     "subfield": {
+      "id": "https://openalex.org/subfields/1311",
+      "display_name": "Genetics"
+     },
+     "field": {
+      "id": "https://openalex.org/fields/13",
+      "display_name": "Biochemistry, Genetics and Molecular Biology"
+     },
+     "domain": {
+      "id": "https://openalex.org/domains/1",
+      "display_name": "Life Sciences"
+     }
+    }
+   ]
+  }
+ ],
+ "group_by": []
+}
