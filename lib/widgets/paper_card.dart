@@ -10,11 +10,21 @@ class PaperCard extends StatelessWidget {
     required this.onTap,
     this.trailing,
     this.hasPdf = false,
+    this.pdfLabel,
+    this.onLongPress,
+    this.footer,
   });
   final Paper paper;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final Widget? trailing;
   final bool hasPdf;
+
+  /// Подпись значка PDF (например, размер файла).
+  final String? pdfLabel;
+
+  /// Дополнительная строка внизу карточки (прогресс чтения или скачивания).
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +42,7 @@ class PaperCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
         onTap: onTap,
+        onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.all(14),
           child: Column(
@@ -90,11 +101,15 @@ class PaperCard extends StatelessWidget {
                   if (hasPdf)
                     _Badge(
                       icon: Icons.picture_as_pdf,
-                      text: t('pdf.badge'),
+                      text: pdfLabel ?? t('pdf.badge'),
                       color: const Color(0xFFDC2626),
                     ),
                 ],
               ),
+              if (footer != null) ...[
+                const SizedBox(height: 10),
+                footer!,
+              ],
             ],
           ),
         ),
@@ -122,9 +137,13 @@ class _Badge extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
-          Text(text,
-              style: TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+          Flexible(
+            child: Text(text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+          ),
         ],
       ),
     );

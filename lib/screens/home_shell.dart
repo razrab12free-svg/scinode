@@ -38,17 +38,42 @@ void showSoonSheet(BuildContext context, String title, String text) {
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
+  /// Номер вкладки библиотеки.
+  static const libraryTab = 2;
+
+  /// Текущая вкладка. Её можно сменить из любого экрана.
+  static final ValueNotifier<int> tab = ValueNotifier<int>(0);
+
+  /// Закрывает открытые поверх экраны и переключает вкладку.
+  static void goTo(BuildContext context, int index) {
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    tab.value = index;
+  }
+
   @override
   State<HomeShell> createState() => _HomeShellState();
 }
 
 class _HomeShellState extends State<HomeShell> {
-  int _tab = 0;
+  int get _tab => HomeShell.tab.value;
+  set _tab(int v) => HomeShell.tab.value = v;
 
   @override
   void initState() {
     super.initState();
+    HomeShell.tab.value = 0;
+    HomeShell.tab.addListener(_onTab);
     LibraryService.instance.ensureLoaded();
+  }
+
+  void _onTab() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    HomeShell.tab.removeListener(_onTab);
+    super.dispose();
   }
 
   @override

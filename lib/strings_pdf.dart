@@ -1,9 +1,9 @@
 // Тексты для PDF. Порядок: русский, узбекский, английский.
 const Map<String, List<String>> pdfStrings = {
   'pdf.download': [
-    'Скачать в приложение',
-    'Ilovaga yuklab olish',
-    'Download to app',
+    'Скачать в библиотеку',
+    'Kutubxonaga yuklab olish',
+    'Download to library',
   ],
   'pdf.downloading': [
     'Скачивание… {p}%',

@@ -22,9 +22,10 @@ class LibraryService extends ChangeNotifier {
     return 'library_$uid';
   }
 
-  Future<void> ensureLoaded() async {
+  /// Загружает данные текущего аккаунта ([force] — перечитать заново).
+  Future<void> ensureLoaded({bool force = false}) async {
     final k = _key;
-    if (_loaded && _loadedFor == k) return;
+    if (!force && _loaded && _loadedFor == k) return;
     _loaded = true;
     _loadedFor = k;
     _items.clear();
@@ -49,6 +50,23 @@ class LibraryService extends ChangeNotifier {
     } else {
       _items.insert(0, p);
     }
+    notifyListeners();
+    await _save();
+  }
+
+  /// Добавляет статью (если её ещё нет) в начало библиотеки.
+  Future<void> add(Paper p) async {
+    if (contains(p.id)) return;
+    _items.insert(0, p);
+    notifyListeners();
+    await _save();
+  }
+
+  /// Убирает статью из библиотеки.
+  Future<void> remove(String id) async {
+    final before = _items.length;
+    _items.removeWhere((e) => e.id == id);
+    if (_items.length == before) return;
     notifyListeners();
     await _save();
   }

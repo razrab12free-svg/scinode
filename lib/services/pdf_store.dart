@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../auth_service.dart';
 import '../models/paper.dart';
+import 'library_service.dart';
 
 String formatBytes(int b) {
   if (b < 1024) return '$b B';
@@ -68,6 +69,26 @@ class PdfStore extends ChangeNotifier {
   }
 
   bool has(String id) => _files.containsKey(id);
+
+  /// Проверяет, что файл на месте. Если файл пропал (например, система
+  /// очистила память), тихо забывает о нём и возвращает false.
+  bool verify(String id) {
+    final s = _files[id];
+    if (s == null) return false;
+    bool ok;
+    try {
+      ok = File(s.path).existsSync();
+    } catch (_) {
+      ok = false;
+    }
+    if (!ok) {
+      _files.remove(id);
+      notifyListeners();
+      _save();
+    }
+    return ok;
+  }
+
   String? pathOf(String id) => _files[id]?.path;
   int sizeOf(String id) => _files[id]?.size ?? 0;
   bool isDownloading(String id) => _clients.containsKey(id);
@@ -75,9 +96,10 @@ class PdfStore extends ChangeNotifier {
   /// Прогресс 0..1, либо -1 если размер неизвестен.
   double progressOf(String id) => _progress[id] ?? 0;
 
-  Future<void> ensureLoaded() async {
+  /// Загружает данные текущего аккаунта ([force] — перечитать заново).
+  Future<void> ensureLoaded({bool force = false}) async {
     final k = _key;
-    if (_loaded && _loadedFor == k) return;
+    if (!force && _loaded && _loadedFor == k) return;
     _loaded = true;
     _loadedFor = k;
     _files.clear();
@@ -186,6 +208,8 @@ class PdfStore extends ChangeNotifier {
       }
 
       if (!ok) throw last ?? DownloadException('nosource');
+      // Всё скачанное автоматически попадает в библиотеку.
+      await LibraryService.instance.add(p);
     } finally {
       client.close();
       _clients.remove(id);
