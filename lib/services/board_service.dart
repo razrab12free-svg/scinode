@@ -482,6 +482,13 @@ class BoardService {
         'gr': [for (final g in grants) g.toMap()]
       });
 
+  /// Прибавляет [seconds] моего времени фокуса к карточке (поле `ft.<uid>`).
+  Future<void> addFocus(String bid, String cid, int seconds) {
+    final s = seconds.clamp(0, maxFocusSession);
+    if (s <= 0) return Future.value();
+    return updateCard(bid, cid, {'ft.$me': FieldValue.increment(s)});
+  }
+
   /// Перемещает карточку в колонку [colId] на позицию [index].
   /// Если места между соседями не осталось — перенумеровывает колонку.
   Future<void> moveCard(

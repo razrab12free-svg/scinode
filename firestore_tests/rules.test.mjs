@@ -6,7 +6,7 @@ import {
 } from '@firebase/rules-unit-testing';
 import {
   doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch, collection, getDocs,
-  query, where, serverTimestamp, arrayUnion, arrayRemove, Timestamp,
+  query, where, serverTimestamp, arrayUnion, arrayRemove, Timestamp, increment,
 } from 'firebase/firestore';
 
 let env;
@@ -341,4 +341,26 @@ test('комментарии и история: пишут редакторы, �
   await assertFails(setDoc(doc(collection(db(C), 'boards', BID, 'activity')), act(C)));
   await assertFails(setDoc(doc(collection(db(B), 'boards', BID, 'activity')), act(A)));
   await assertSucceeds(getDocs(collection(db(C), 'boards', BID, 'activity')));
+});
+
+test('время фокуса: каждый прибавляет только своё, не больше 4 часов за раз', async () => {
+  await sharedBoard();
+  const card = doc(collection(db(B), 'boards', BID, 'cards'));
+  await assertFails(setDoc(doc(collection(db(B), 'boards', BID, 'cards')), cardData(B, { ft: { [B]: 600 } })));
+  await assertSucceeds(setDoc(card, cardData(B)));
+  const ref = (u) => doc(db(u), 'boards', BID, 'cards', card.id);
+  await assertSucceeds(updateDoc(ref(B), { [`ft.${B}`]: increment(1500), up: serverTimestamp() }));
+  await assertSucceeds(updateDoc(ref(A), { [`ft.${A}`]: increment(300), up: serverTimestamp() }));
+  // Чужое время менять нельзя.
+  await assertFails(updateDoc(ref(A), { [`ft.${B}`]: increment(60), up: serverTimestamp() }));
+  // Уменьшать нельзя, больше 4 часов за раз нельзя, не число нельзя.
+  await assertFails(updateDoc(ref(B), { [`ft.${B}`]: 10, up: serverTimestamp() }));
+  await assertFails(updateDoc(ref(B), { [`ft.${B}`]: increment(14401), up: serverTimestamp() }));
+  await assertFails(updateDoc(ref(B), { [`ft.${B}`]: 'много', up: serverTimestamp() }));
+  // Наблюдатель не пишет.
+  await assertFails(updateDoc(ref(C), { [`ft.${C}`]: increment(60), up: serverTimestamp() }));
+  // Остальные правки карточки не задевают время.
+  await assertSucceeds(updateDoc(ref(B), { col: 'c2', o: 2048, dn: serverTimestamp(), up: serverTimestamp() }));
+  const snap = await getDoc(ref(C));
+  if (snap.data().ft[B] !== 1500 || snap.data().ft[A] !== 300) throw new Error('ft');
 });

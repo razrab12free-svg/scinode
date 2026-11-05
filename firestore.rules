@@ -272,7 +272,7 @@ service cloud.firestore {
         function validCard() {
           return c().keys().hasOnly(
                  ['t', 'd', 'col', 'o', 'due', 'p', 'lb', 'as', 'ck', 'pp', 'gr',
-                  'by', 'cr', 'up', 'dn'])
+                  'by', 'cr', 'up', 'dn', 'ft'])
             && c().t is string && c().t.size() > 0 && c().t.size() <= 200
             && isStr(c().d, 5000)
             && isStr(c().col, 40)
@@ -285,16 +285,32 @@ service cloud.firestore {
             && c().pp is list && c().pp.size() <= 20
             && c().gr is list && c().gr.size() <= 10
             && (c().dn == null || c().dn is timestamp)
+            && c().get('ft', {}) is map && c().get('ft', {}).size() <= 20
             && c().up == request.time;
+        }
+
+        // Время фокуса ft: uid → секунды. Каждый меняет только своё время,
+        // только в сторону увеличения и не больше чем на 4 часа за раз.
+        function validFocus() {
+          let old = resource.data.get('ft', {});
+          let now = c().get('ft', {});
+          let me = request.auth.uid;
+          return now.diff(old).affectedKeys().hasOnly([me])
+            && (!(me in now)
+                || (now[me] is int
+                    && now[me] >= old.get(me, 0)
+                    && now[me] - old.get(me, 0) <= 14400));
         }
 
         allow read: if canRead();
         allow create: if canEdit() && validCard()
           && c().by == request.auth.uid
-          && c().cr == request.time;
+          && c().cr == request.time
+          && c().get('ft', {}).size() == 0;
         allow update: if canEdit() && validCard()
           && c().by == resource.data.by
-          && c().cr == resource.data.cr;
+          && c().cr == resource.data.cr
+          && validFocus();
         allow delete: if canEdit();
 
         match /comments/{mid} {

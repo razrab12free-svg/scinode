@@ -7,6 +7,7 @@ import 'strings_map.dart';
 import 'strings_board.dart';
 import 'strings_chat.dart';
 import 'strings_pdf.dart';
+import 'strings_report.dart';
 import 'strings_science.dart';
 
 /// Язык приложения: uz (латиница), ru, en.
@@ -56,7 +57,8 @@ class Strings extends ChangeNotifier {
         libraryStrings[key] ??
         mapStrings[key] ??
         chatStrings[key] ??
-        boardStrings[key];
+        boardStrings[key] ??
+        reportStrings[key];
 
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {
