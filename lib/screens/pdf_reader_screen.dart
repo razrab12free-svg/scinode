@@ -192,7 +192,10 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
       },
       child: Scaffold(
         backgroundColor: _night ? Colors.black : scheme.surfaceContainer,
+        // Stack растягиваем на весь экран: иначе он принимал высоту верхней
+        // панели, и от страницы PDF была видна только узкая полоска.
         body: Stack(
+          fit: StackFit.expand,
           children: [
             Positioned.fill(
               child: Padding(
@@ -200,13 +203,18 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                 child: viewer,
               ),
             ),
-            AnimatedSlide(
-              duration: _anim,
-              offset: _full ? const Offset(0, -1) : Offset.zero,
-              child: AnimatedOpacity(
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: AnimatedSlide(
                 duration: _anim,
-                opacity: _full ? 0 : 1,
-                child: IgnorePointer(ignoring: _full, child: bar),
+                offset: _full ? const Offset(0, -1) : Offset.zero,
+                child: AnimatedOpacity(
+                  duration: _anim,
+                  opacity: _full ? 0 : 1,
+                  child: IgnorePointer(ignoring: _full, child: bar),
+                ),
               ),
             ),
             if (_pages > 0)
