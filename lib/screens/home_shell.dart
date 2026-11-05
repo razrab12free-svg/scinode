@@ -4,6 +4,7 @@ import '../auth_service.dart';
 import '../services/library_service.dart';
 import '../strings.dart';
 import '../widgets/logo.dart';
+import 'grants_screen.dart';
 import 'library_screen.dart';
 import 'network_screen.dart';
 import 'profile_screen.dart';
@@ -189,9 +190,9 @@ class HomeTab extends StatelessWidget {
               _Tile(
                 icon: Icons.payments_outlined,
                 label: t('qa.grants'),
-                soon: true,
-                onTap: () =>
-                    showSoonSheet(context, t('qa.grants'), t('soon.grants')),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const GrantsScreen()),
+                ),
               ),
             ],
           ),
@@ -206,12 +207,10 @@ class _Tile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
-    this.soon = false,
   });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  final bool soon;
 
   @override
   Widget build(BuildContext context) {
@@ -248,14 +247,6 @@ class _Tile extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w800),
                   ),
-                  if (soon)
-                    Text(
-                      t('soon'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
                 ],
               ),
             ],

@@ -1,0 +1,763 @@
+{
+ "errorcode": 0,
+ "msg": "Webservice Succeeds",
+ "token": "",
+ "data": {
+  "searchParams": {
+   "resultType": "json",
+   "searchOnly": false,
+   "oppNum": "",
+   "cfda": "",
+   "sortBy": "openDate|desc",
+   "oppStatuses": "forecasted",
+   "startRecordNum": 0,
+   "eligibilities": "",
+   "fundingInstruments": "",
+   "fundingCategories": "",
+   "agencies": "",
+   "rows": 2,
+   "keyword": "",
+   "keywordEncoded": false
+  },
+  "hitCount": 588,
+  "startRecord": 0,
+  "oppHits": [
+   {
+    "id": "364173",
+    "number": "TI-27-006",
+    "title": "First Responders-Comprehensive Addiction and Recovery Act",
+    "agencyCode": "HHS-SAMHS-SAMHSA",
+    "agency": "Substance Abuse and Mental Health Services Adminis",
+    "openDate": "10/30/2026",
+    "closeDate": "",
+    "oppStatus": "forecasted",
+    "docType": "forecast",
+    "cfdaList": [
+     "93.490"
+    ]
+   },
+   {
+    "id": "364156",
+    "number": "HHS-2027-ACL-AOA-LMRC-0019",
+    "title": "National Center for Law and Elder Rights",
+    "agencyCode": "HHS-ACL",
+    "agency": "Administration for Community Living",
+    "openDate": "10/27/2026",
+    "closeDate": "",
+    "oppStatus": "forecasted",
+    "docType": "forecast",
+    "cfdaList": [
+     "93.048"
+    ]
+   }
+  ],
+  "oppStatusOptions": [
+   {
+    "label": "posted",
+    "value": "posted",
+    "count": 870
+   },
+   {
+    "label": "closed",
+    "value": "closed",
+    "count": 8667
+   },
+   {
+    "label": "archived",
+    "value": "archived",
+    "count": 73546
+   },
+   {
+    "label": "forecasted",
+    "value": "forecasted",
+    "count": 588
+   }
+  ],
+  "dateRangeOptions": [
+   {
+    "label": "Posted Date - Last 1 Week",
+    "value": "7",
+    "count": 1
+   },
+   {
+    "label": "Posted Date - Last 2 Weeks",
+    "value": "14",
+    "count": 6
+   },
+   {
+    "label": "Posted Date - Last 3 Weeks",
+    "value": "21",
+    "count": 19
+   },
+   {
+    "label": "Posted Date - Last 4 Weeks",
+    "value": "28",
+    "count": 22
+   },
+   {
+    "label": "Posted Date - Last 5 Weeks",
+    "value": "35",
+    "count": 28
+   },
+   {
+    "label": "Posted Date - Last 6 Weeks",
+    "value": "42",
+    "count": 54
+   },
+   {
+    "label": "Posted Date - Last 7 Weeks",
+    "value": "49",
+    "count": 57
+   },
+   {
+    "label": "Posted Date - Last 8 Weeks",
+    "value": "56",
+    "count": 87
+   }
+  ],
+  "suggestion": "",
+  "eligibilities": [
+   {
+    "label": "City or township governments",
+    "value": "02",
+    "count": 339
+   },
+   {
+    "label": "County governments",
+    "value": "01",
+    "count": 389
+   },
+   {
+    "label": "For profit organizations other than small businesses",
+    "value": "22",
+    "count": 354
+   },
+   {
+    "label": "Independent school districts",
+    "value": "05",
+    "count": 346
+   },
+   {
+    "label": "Individuals",
+    "value": "21",
+    "count": 7
+   },
+   {
+    "label": "Native American tribal governments (Federally recognized)",
+    "value": "07",
+    "count": 410
+   },
+   {
+    "label": "Native American tribal organizations (other than Federally recognized tribal governments)",
+    "value": "11",
+    "count": 391
+   },
+   {
+    "label": "Nonprofits having a 501(c)(3) status with the IRS, other than institutions of higher education",
+    "value": "12",
+    "count": 409
+   },
+   {
+    "label": "Nonprofits that do not have a 501(c)(3) status with the IRS, other than institutions of higher education",
+    "value": "13",
+    "count": 337
+   },
+   {
+    "label": "Others (see text field entitled \"Additional Information on Eligibility\" for clarification)",
+    "value": "25",
+    "count": 391
+   },
+   {
+    "label": "Private institutions of higher education",
+    "value": "20",
+    "count": 397
+   },
+   {
+    "label": "Public and State controlled institutions of higher education",
+    "value": "06",
+    "count": 404
+   },
+   {
+    "label": "Public housing authorities/Indian housing authorities",
+    "value": "08",
+    "count": 346
+   },
+   {
+    "label": "Small businesses",
+    "value": "23",
+    "count": 351
+   },
+   {
+    "label": "Special district governments",
+    "value": "04",
+    "count": 331
+   },
+   {
+    "label": "State governments",
+    "value": "00",
+    "count": 400
+   },
+   {
+    "label": "Unrestricted (i.e., open to any type of entity above), subject to any clarification in text field entitled \"Additional Information on Eligibility\"",
+    "value": "99",
+    "count": 85
+   }
+  ],
+  "fundingCategories": [
+   {
+    "label": "Agriculture",
+    "value": "AG",
+    "count": 39
+   },
+   {
+    "label": "Arts",
+    "value": "AR",
+    "count": 4
+   },
+   {
+    "label": "Business and Commerce",
+    "value": "BC",
+    "count": 1
+   },
+   {
+    "label": "Community Development",
+    "value": "CD",
+    "count": 11
+   },
+   {
+    "label": "Consumer Protection",
+    "value": "CP",
+    "count": 41
+   },
+   {
+    "label": "Disaster Prevention and Relief",
+    "value": "DPR",
+    "count": 4
+   },
+   {
+    "label": "Education",
+    "value": "ED",
+    "count": 10
+   },
+   {
+    "label": "Employment, Labor and Training",
+    "value": "ELT",
+    "count": 4
+   },
+   {
+    "label": "Food and Nutrition",
+    "value": "FN",
+    "count": 44
+   },
+   {
+    "label": "Health",
+    "value": "HL",
+    "count": 424
+   },
+   {
+    "label": "Housing",
+    "value": "HO",
+    "count": 10
+   },
+   {
+    "label": "Humanities",
+    "value": "HU",
+    "count": 4
+   },
+   {
+    "label": "Income Security and Social Services",
+    "value": "ISS",
+    "count": 18
+   },
+   {
+    "label": "Information and Statistics",
+    "value": "IS",
+    "count": 3
+   },
+   {
+    "label": "Natural Resources",
+    "value": "NR",
+    "count": 1
+   },
+   {
+    "label": "Opportunity Zone Benefits",
+    "value": "OZ",
+    "count": 1
+   },
+   {
+    "label": "Other (see text field entitled \"Explanation of Other Category of Funding Activity\" for clarification)",
+    "value": "O",
+    "count": 43
+   },
+   {
+    "label": "Regional Development",
+    "value": "RD",
+    "count": 1
+   },
+   {
+    "label": "Science and Technology and other Research and Development",
+    "value": "ST",
+    "count": 26
+   },
+   {
+    "label": "Transportation",
+    "value": "T",
+    "count": 1
+   }
+  ],
+  "fundingInstruments": [
+   {
+    "label": "Cooperative Agreement",
+    "value": "CA",
+    "count": 302
+   },
+   {
+    "label": "Grant",
+    "value": "G",
+    "count": 294
+   },
+   {
+    "label": "Other",
+    "value": "O",
+    "count": 10
+   },
+   {
+    "label": "Procurement Contract",
+    "value": "PC",
+    "count": 2
+   }
+  ],
+  "agencies": [
+   {
+    "subAgencyOptions": [
+     {
+      "label": "AFRL Kirtland AFB",
+      "value": "DOD-AFRL-AFRLDET8",
+      "count": 1
+     },
+     {
+      "label": "Air Force -- Research Lab",
+      "value": "DOD-AFRL",
+      "count": 1
+     },
+     {
+      "label": "Army Contracting Command Rock Island",
+      "value": "DOD-AMC-ACCRI",
+      "count": 1
+     },
+     {
+      "label": "Defense Health Agency Contracting Activity - DHACA",
+      "value": "DOD-AMRAA",
+      "count": 1
+     },
+     {
+      "label": "Department of Defense",
+      "value": "DOD",
+      "count": 2
+     },
+     {
+      "label": "Dept of the Army -- Materiel Command",
+      "value": "DOD-AMC",
+      "count": 2
+     },
+     {
+      "label": "Munitions Directorate",
+      "value": "DOD-AFRL-RW",
+      "count": 1
+     },
+     {
+      "label": "NAVAIR",
+      "value": "DOD-ONR-AIR",
+      "count": 1
+     },
+     {
+      "label": "NSWC Dahlgren",
+      "value": "DOD-ONR-SEA-N00178",
+      "count": 1
+     },
+     {
+      "label": "Office of Local Defense Community Cooperation",
+      "value": "DOD-OEA",
+      "count": 1
+     },
+     {
+      "label": "Washington Headquarters Services",
+      "value": "DOD-WHS",
+      "count": 1
+     }
+    ],
+    "label": "Department of Defense",
+    "value": "DOD",
+    "count": 13
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Admin for Strategic Preparedness and Response",
+      "value": "HHS-ASPR",
+      "count": 1
+     },
+     {
+      "label": "Administration for Children and Families",
+      "value": "HHS-ACF",
+      "count": 1
+     },
+     {
+      "label": "Administration for Children and Families - OHS",
+      "value": "HHS-ACF-OHS",
+      "count": 2
+     },
+     {
+      "label": "Administration for Children and Families-IOAS-OTIP",
+      "value": "HHS-ACF-OTIP",
+      "count": 1
+     },
+     {
+      "label": "Administration for Community Living",
+      "value": "HHS-ACL",
+      "count": 29
+     },
+     {
+      "label": "Assistant Secretary for Preparedness and Response",
+      "value": "HHS-OS-ASPR",
+      "count": 1
+     },
+     {
+      "label": "Center for Medicare and Medicaid Services",
+      "value": "HHS-CMS",
+      "count": 1
+     },
+     {
+      "label": "CENTERS FOR DISEASE CONTROL  CSTLTS",
+      "value": "HHS-CDC-CSTLTS",
+      "count": 1
+     },
+     {
+      "label": "Centers for Disease Control - NCBDDD",
+      "value": "HHS-CDC-NCBDDD",
+      "count": 2
+     },
+     {
+      "label": "Centers for Disease Control - NCCDPHP",
+      "value": "HHS-CDC-NCCDPHP",
+      "count": 6
+     },
+     {
+      "label": "Centers for Disease Control - NCEH",
+      "value": "HHS-CDC-NCEH",
+      "count": 1
+     },
+     {
+      "label": "Centers for Disease Control - NCEZID",
+      "value": "HHS-CDC-NCEZID",
+      "count": 3
+     },
+     {
+      "label": "Centers for Disease Control - NCHHSTP",
+      "value": "HHS-CDC-NCHHSTP",
+      "count": 9
+     },
+     {
+      "label": "Centers for Disease Control - NCIPC",
+      "value": "HHS-CDC-NCIPC",
+      "count": 7
+     },
+     {
+      "label": "Centers for Disease Control - OD",
+      "value": "HHS-CDC-OD",
+      "count": 1
+     },
+     {
+      "label": "Centers for Disease Control and Prevention - ERA",
+      "value": "HHS-CDC-HHSCDCERA",
+      "count": 28
+     },
+     {
+      "label": "Centers for Disease Control-GHC",
+      "value": "HHS-CDC-GHC",
+      "count": 3
+     },
+     {
+      "label": "Food and Drug Administration",
+      "value": "HHS-FDA",
+      "count": 46
+     },
+     {
+      "label": "Health Resources and Services Administration",
+      "value": "HHS-HRSA",
+      "count": 47
+     },
+     {
+      "label": "Indian Health Service",
+      "value": "HHS-IHS",
+      "count": 17
+     },
+     {
+      "label": "National Institutes of Health",
+      "value": "HHS-NIH11",
+      "count": 274
+     },
+     {
+      "label": "Office of the Assistant Secretary for Health",
+      "value": "HHS-OPHS",
+      "count": 9
+     },
+     {
+      "label": "Office of the National Coordinator",
+      "value": "HHS-OS-ONC",
+      "count": 1
+     },
+     {
+      "label": "Substance Abuse and Mental Health Services Adminis",
+      "value": "HHS-SAMHS-SAMHSA",
+      "count": 9
+     }
+    ],
+    "label": "Department of Health and Human Services",
+    "value": "HHS",
+    "count": 500
+   },
+   {
+    "subAgencyOptions": [],
+    "label": "Department of Housing and Urban Development",
+    "value": "HUD",
+    "count": 11
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Bureau of International Labor Affairs",
+      "value": "DOL-ILAB",
+      "count": 1
+     },
+     {
+      "label": "Employment and Training Administration",
+      "value": "DOL-ETA",
+      "count": 1
+     },
+     {
+      "label": "Veterans Employment and Training Service",
+      "value": "DOL-VETS",
+      "count": 1
+     }
+    ],
+    "label": "Department of Labor",
+    "value": "DOL",
+    "count": 3
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Bureau of Population Refugees and Migration",
+      "value": "DOS-PRM",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Albania",
+      "value": "DOS-ALB",
+      "count": 6
+     },
+     {
+      "label": "U.S. Mission to Angola",
+      "value": "DOS-AGO",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Azerbaijan",
+      "value": "DOS-AZE",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Bangladesh",
+      "value": "DOS-BGD",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Benin",
+      "value": "DOS-BEN",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Cambodia",
+      "value": "DOS-KHM",
+      "count": 6
+     },
+     {
+      "label": "U.S. Mission to China",
+      "value": "DOS-CHN",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Cyprus",
+      "value": "DOS-CYP",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Djibouti",
+      "value": "DOS-DJI",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Egypt",
+      "value": "DOS-EGY",
+      "count": 3
+     },
+     {
+      "label": "U.S. Mission to Greece",
+      "value": "DOS-GRC",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Italy",
+      "value": "DOS-ITA",
+      "count": 6
+     },
+     {
+      "label": "U.S. Mission to Latvia",
+      "value": "DOS-LVA",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Mozambique",
+      "value": "DOS-MOZ",
+      "count": 2
+     },
+     {
+      "label": "U.S. Mission to Niger",
+      "value": "DOS-NER",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to North Macedonia",
+      "value": "DOS-MKD",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Serbia",
+      "value": "DOS-SRB",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Sierra Leone",
+      "value": "DOS-SLE",
+      "count": 2
+     },
+     {
+      "label": "U.S. Mission to Spain",
+      "value": "DOS-ESP",
+      "count": 2
+     },
+     {
+      "label": "U.S. Mission to the Democratic Republic of Congo",
+      "value": "DOS-COD",
+      "count": 2
+     },
+     {
+      "label": "U.S. Mission to the Dominican Republic",
+      "value": "DOS-DOM",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to the European Union",
+      "value": "DOS-USEU",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to the Netherlands",
+      "value": "DOS-NLD",
+      "count": 3
+     },
+     {
+      "label": "U.S. Mission to the Philippines",
+      "value": "DOS-PHL",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Tunisia",
+      "value": "DOS-TUN",
+      "count": 2
+     },
+     {
+      "label": "U.S. Mission to Zimbabwe",
+      "value": "DOS-ZWE",
+      "count": 2
+     }
+    ],
+    "label": "Department of State",
+    "value": "DOS",
+    "count": 52
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Bureau of Indian Affairs",
+      "value": "DOI-BIA",
+      "count": 1
+     },
+     {
+      "label": "Bureau of Land Management",
+      "value": "DOI-BLM",
+      "count": 1
+     }
+    ],
+    "label": "Department of the Interior",
+    "value": "DOI",
+    "count": 2
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "SIPPRA",
+      "value": "USDOT-DO-SIPPRA",
+      "count": 1
+     }
+    ],
+    "label": "Department of the Treasury",
+    "value": "USDOT",
+    "count": 1
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "69A345 Office of the Under Secretary for Policy",
+      "value": "DOT-DOT X-50",
+      "count": 1
+     },
+     {
+      "label": "National Highway Traffic Safety Administration",
+      "value": "DOT-NHTSA",
+      "count": 1
+     }
+    ],
+    "label": "Department of Transportation",
+    "value": "DOT",
+    "count": 2
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Homeless Providers Grant and Per Diem Program",
+      "value": "VA-HPGPDP",
+      "count": 1
+     },
+     {
+      "label": "Veterans Legacy Grants Program",
+      "value": "VA-VLGP",
+      "count": 1
+     }
+    ],
+    "label": "Department of Veterans Affairs",
+    "value": "VA",
+    "count": 2
+   },
+   {
+    "subAgencyOptions": [],
+    "label": "Millennium Challenge Corporation",
+    "value": "MCC",
+    "count": 2
+   }
+  ],
+  "accessKey": "",
+  "errorMsgs": []
+ }
+}

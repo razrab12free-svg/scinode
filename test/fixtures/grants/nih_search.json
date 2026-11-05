@@ -1,0 +1,172 @@
+{
+    "meta": {
+        "search_id": "vqm-EJejRE2O17OnEK2OyQ",
+        "total": 336,
+        "offset": 0,
+        "limit": 3,
+        "sort_field": null,
+        "sort_order": "ASC",
+        "sorted_by_relevance": true,
+        "properties": {
+            "URL": "https:/reporter.nih.gov/search/vqm-EJejRE2O17OnEK2OyQ/projects"
+        }
+    },
+    "results": [
+        {
+            "appl_id": 11320635,
+            "fiscal_year": 2026,
+            "project_num": "1R21EB036894-01A1",
+            "organization": {
+                "org_name": "SCRIPPS RESEARCH INSTITUTE, THE",
+                "city": null,
+                "country": null,
+                "org_city": "LA JOLLA",
+                "org_country": "UNITED STATES",
+                "org_state": "CA",
+                "org_state_name": null,
+                "dept_type": null,
+                "fips_country_code": null,
+                "org_duns": [
+                    "781613492"
+                ],
+                "org_ueis": [
+                    "PHZJFZ32NKH4"
+                ],
+                "primary_duns": "781613492",
+                "primary_uei": "PHZJFZ32NKH4",
+                "org_fips": "US",
+                "org_ipf_code": "7375802",
+                "org_zipcode": "920371000",
+                "external_org_id": 7375802
+            },
+            "award_amount": 276000,
+            "principal_investigators": [
+                {
+                    "profile_id": 7034889,
+                    "first_name": "Ashok",
+                    "middle_name": "A",
+                    "last_name": "Deniz",
+                    "is_contact_pi": true,
+                    "full_name": "Ashok A Deniz",
+                    "title": "PROFESSOR"
+                }
+            ],
+            "agency_ic_admin": {
+                "code": "EB",
+                "abbreviation": "NIBIB",
+                "name": "National Institute of Biomedical Imaging and Bioengineering",
+                "admin_org_id": "12500035",
+                "admin_funding_url": ""
+            },
+            "project_start_date": "2026-08-01T00:00:00",
+            "project_end_date": "2028-07-31T00:00:00",
+            "abstract_text": "Quantum sensing technologies that leverage special physics of quantum mechanics\nshow great promise to result in substantial improvements in biomedical sensing. FRET\nis widely used for a broad range of sensing across scales in biology and biomedical\napplications. Here, we will leverage our long-standing expertise in high-sensitivity\nfluorescence methods along with recent technical developments in the quantum sensing\nfield to develop and apply novel FRET sensing using entangled photons. We will\nexplore the capabilities of these methods in proof-of-principle applications to sensing\nbinding and conformation of biomolecules, as well as in sensing of membrane\nproperties. These timely advancements will represent essential steps that would be\ntransformative in opening the door to immediate and longer-term next steps in a number\nof biomedical sensing directions, with substantial implications for human health.",
+            "project_title": "Exploring Entangled Photons for Biomedical Quantum Sensing",
+            "project_detail_url": "https://reporter.nih.gov/project-details/11320635"
+        },
+        {
+            "appl_id": 11381907,
+            "fiscal_year": 2026,
+            "project_num": "5R35GM156309-02",
+            "organization": {
+                "org_name": "UNIVERSITY OF WISCONSIN-MADISON",
+                "city": null,
+                "country": null,
+                "org_city": "MADISON",
+                "org_country": "UNITED STATES",
+                "org_state": "WI",
+                "org_state_name": null,
+                "dept_type": "BIOMEDICAL ENGINEERING",
+                "fips_country_code": null,
+                "org_duns": [
+                    "161202122"
+                ],
+                "org_ueis": [
+                    "LCLSJAGTNZQ7"
+                ],
+                "primary_duns": "161202122",
+                "primary_uei": "LCLSJAGTNZQ7",
+                "org_fips": "US",
+                "org_ipf_code": "578503",
+                "org_zipcode": "537151218",
+                "external_org_id": 578503
+            },
+            "award_amount": 375430,
+            "principal_investigators": [
+                {
+                    "profile_id": 16448077,
+                    "first_name": "Filiz",
+                    "middle_name": "",
+                    "last_name": "Yesilkoy",
+                    "is_contact_pi": true,
+                    "full_name": "Filiz  Yesilkoy",
+                    "title": "ASSOCIATE PROFESSOR"
+                }
+            ],
+            "agency_ic_admin": {
+                "code": "GM",
+                "abbreviation": "NIGMS",
+                "name": "National Institute of General Medical Sciences",
+                "admin_org_id": "12500024",
+                "admin_funding_url": ""
+            },
+            "project_start_date": "2025-08-01T00:00:00",
+            "project_end_date": "2030-05-31T00:00:00",
+            "abstract_text": "Project Summary/Abstract\nFrom everyday clinical practice to fundamental research, the biomedical field is in constant need of accurate\nmeasurement technologies. Moreover, non-destructive manipulation of live biological systems has been the\naspiration of biomedical scientists. Recent progress in quantum information science, especially in the\ndevelopment of quantum optics and sensing techniques, provides enticing opportunities for biomedical sciences.\nWhen quantum mechanical principles like superposition and entanglement are applied to light-matter interactions\nat extremely small length scales, on the order of single molecules and atomic bonds, unparalleled precision and\naccuracy can be introduced to biological systems. However, practical implementations of quantum metrology in\nthe biomedical field are usually hindered by their low efficiency and demanding environmental conditions.\nDr. Yesilkoy\u2019s research focuses on the development of nanophotonic devices that can manipulate light at the\nnanoscale beyond the diffraction limit and enhance light-matter interactions. The lab\u2019s approach is key to\nsatisfying the demanding requirements of quantum metrology and enabling its practical applications in the\nbiomedical field. Specifically, in this research program, Dr. Yesilkoy\u2019s team will work on the following two thrusts:\nThrust 1: Quantum biochemistry to manipulate intracellular processes: Noninvasive regulation of\nintracellular chemical processes, such as gene expression, protein, and metabolic pathway, is critical in\nbiomedical sciences. Here, Dr. Yesilkoy\u2019s lab will implement the powerful photonic cavities generated by our\nnanophotonic devices to achieve vibrational strong coupling, underpinned by the entanglement of infrared cavity\nresonance and biomolecules\u2019 quantum stares. Her team will demonstrate regulation over kinase activities in live\ncells.\nThrust 2: Quantum-enhanced nanophotonic biosensors: Biomolecular sensors capable of detecting\nbiomarkers at the single molecule level can provide high accuracy, sensitivity, and real-time detection\ncapabilities, which are urgently needed for early disease diagnosis, personalized medicine, drug development,\nand fundamental biomedical research. Here, Dr. Yesilkoy and her team will combine the precision of quantum\nmetrology with powerful nanophotonic sensors to reach single molecule detection limits in complex biological\nsamples.\nThe proposed technologies are significant for biomedicine because 1) ultrasensitive label-free biomarker\ndetection beyond the detection limits of commercially available assays (<10-12M) can enable early detection of\ncancer and make population screening initiatives more effective. 2) non-destructive control over intracellular\nprocesses can lead to groundbreaking opportunities in biomanufacturing of biological drugs and cell therapies.",
+            "project_title": "Sensing and manipulating biological systems with quantum photonic technologies.",
+            "project_detail_url": "https://reporter.nih.gov/project-details/11381907"
+        },
+        {
+            "appl_id": 11360430,
+            "fiscal_year": 2026,
+            "project_num": "1R15GM164941-01",
+            "organization": {
+                "org_name": "FLORIDA INSTITUTE OF TECHNOLOGY",
+                "city": null,
+                "country": null,
+                "org_city": "MELBOURNE",
+                "org_country": "UNITED STATES",
+                "org_state": "FL",
+                "org_state_name": null,
+                "dept_type": "CHEMISTRY",
+                "fips_country_code": null,
+                "org_duns": [
+                    "053396669"
+                ],
+                "org_ueis": [
+                    "WNN6VH618X58"
+                ],
+                "primary_duns": "053396669",
+                "primary_uei": "WNN6VH618X58",
+                "org_fips": "US",
+                "org_ipf_code": "323301",
+                "org_zipcode": "329016975",
+                "external_org_id": 323301
+            },
+            "award_amount": 527392,
+            "principal_investigators": [
+                {
+                    "profile_id": 12344699,
+                    "first_name": "Robert",
+                    "middle_name": "",
+                    "last_name": "Usselman",
+                    "is_contact_pi": true,
+                    "full_name": "Robert  Usselman",
+                    "title": "ASSISTANT PROFESSOR"
+                }
+            ],
+            "agency_ic_admin": {
+                "code": "GM",
+                "abbreviation": "NIGMS",
+                "name": "National Institute of General Medical Sciences",
+                "admin_org_id": "12500024",
+                "admin_funding_url": ""
+            },
+            "project_start_date": "2026-05-01T00:00:00",
+            "project_end_date": "2029-04-30T00:00:00",
+            "abstract_text": "PROJECT SUMMARY\n Oxidative stress caused by dysregulated reactive oxygen species (ROS) plays a critical role in\nneurodegenerative diseases, cancer, and aging. Despite its importance, the boundary between ROS beneficial\nsignaling and harmful oxidative stress remains poorly defined, in part due to limited tools for precise, real-\ntime measurement of redox dynamics in live cells. Clarifying how cells respond to different ROS levels is\nessential to understanding redox regulation and developing strategies to mitigate oxidative damage. A better\ngrasp of these mechanisms could impact diverse fields including neuroscience, cancer biology, and metabolic\ndisease.\n The Usselman Lab at Florida Tech brings a unique combination of redox biology, hyperspectral imaging,\nand quantum sensing expertise. As a teaching-intensive institution, we also engage undergraduates directly in\nhands-on research, building the next generation of STEM leaders through immersive, high-impact training.\nWe will engineer chemogenetic systems using D-amino acid oxidase (DAAO) to generate H\u2082O\u2082 with spatial\nand dose control in mammalian cells. Redox dynamics will be quantified using ratiometric biosensors,\nSeahorse metabolic assays, and a novel optically detected magnetic resonance microscopy (ODMRM)\nplatform with nanodiamond quantum sensors. These tools will allow us to define oxidative thresholds, measure\nmitochondrial responses, and track real-time redox changes with subcellular resolution. This multidisciplinary\napproach offers a powerful framework for understanding redox adaptation and stress, with broad implications\nfor human health.",
+            "project_title": "Nanodiamond quantum sensing in redox cell biology by hyperspectral microscopy",
+            "project_detail_url": "https://reporter.nih.gov/project-details/11360430"
+        }
+    ]
+}
