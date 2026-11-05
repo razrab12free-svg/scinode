@@ -8,6 +8,7 @@ import 'grants_screen.dart';
 import 'library_screen.dart';
 import 'network_screen.dart';
 import 'profile_screen.dart';
+import 'science_map_screen.dart';
 import 'search_screen.dart';
 
 void showSoonSheet(BuildContext context, String title, String text) {
@@ -230,7 +231,84 @@ class HomeTab extends StatelessWidget {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: _WideTile(
+            icon: Icons.travel_explore,
+            label: t('map.title'),
+            sub: t('map.tile_sub'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const ScienceMapScreen()),
+            ),
+          ),
+        ),
       ],
+    );
+  }
+}
+
+/// Широкая плитка во всю ширину (карта науки).
+class _WideTile extends StatelessWidget {
+  const _WideTile({
+    required this.icon,
+    required this.label,
+    required this.sub,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String label;
+  final String sub;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      color: scheme.primaryContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: scheme.primary.withAlpha(40),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: scheme.primary, size: 30),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label,
+                        style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: scheme.onPrimaryContainer)),
+                    const SizedBox(height: 2),
+                    Text(sub,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: scheme.onPrimaryContainer.withAlpha(210))),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: scheme.onPrimaryContainer),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -32,7 +32,8 @@ Scinode — мобильное приложение для коллаборац�
   `profile_edit_screen`, `pdf_reader_screen`, `paper_sheet`, `login_screen`).
 - `services/` — работа с сетью и хранилищем (`openalex_service`, `scientist_service`,
   `taxonomy_service`, `profile_service`, `library_service`, `pdf_store`,
-  `grants_service` — 4 источника грантов, каждый грузится независимо).
+  `grants_service` — 4 источника грантов, каждый грузится независимо;
+  `map_service` — карта науки; `reading_progress` — прогресс чтения PDF).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
   `grant` — конкурсы, проекты, даты, суммы).
 - `widgets/` — переиспользуемые виджеты (`paper_card`, `scientist_card`,
@@ -51,6 +52,16 @@ Scinode — мобильное приложение для коллаборац�
   Обязательная фраза-дисклеймер — строка `gr.disclaimer`.
 - NIH: `POST /v2/projects/search`, `advanced_text_search` с operator `and`.
 - NSF: `GET /services/v1/awards.json`; слова в `keyword` соединять через `AND`.
+
+## Заметки по OpenAlex и карте
+- Без ключа все пользователи с одного IP делят $0.10/день; с бесплатным ключом —
+  $1/день, запрос стоит около $0.0001. Ключ берётся из переменной окружения
+  `OPENALEX_API_KEY` (в коде и в репозитории его быть не должно).
+- `/institutions` не фильтруется по координатам: только `country_code`, `continent`,
+  `type`, `topics.field.id`. Активность по направлению — `works` с
+  `group_by=authorships.institutions.id`. Ответы кэшируются на телефоне на 24 часа.
+- Тайлы OpenStreetMap: обязательны подпись «© OpenStreetMap contributors» и
+  `userAgentPackageName: app.scinode.scinode`.
 
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой

@@ -1,0 +1,188 @@
+{
+ "meta": {
+  "count": 12688,
+  "db_response_time_ms": 1390,
+  "page": 1,
+  "per_page": 200,
+  "groups_count": 200,
+  "x_query": {
+   "oql": "get the count of works since 2021 where exact institution is (I47151758) by author",
+   "x_new_oql": "get the count of works since 2021 where exact institution is (I47151758) by author",
+   "oqo": {
+    "get_rows": "works",
+    "filter_rows": [
+     {
+      "column_id": "authorships.institutions.id",
+      "value": "I47151758"
+     },
+     {
+      "column_id": "publication_year",
+      "value": 2020,
+      "operator": ">"
+     }
+    ],
+    "group_by": [
+     {
+      "column_id": "authorships.author.id"
+     }
+    ]
+   },
+   "url": "/works?filter=authorships.institutions.id:I47151758,publication_year:%3E2020&group_by=authorships.author.id",
+   "order": "most works first",
+   "order_default": true
+  },
+  "cost_usd": 0.0001
+ },
+ "group_by": [
+  {
+   "key": "https://openalex.org/A5114044612",
+   "key_display_name": "Elyor  Tukhliyevich Berdimurodov",
+   "count": 322
+  },
+  {
+   "key": "https://openalex.org/A5028638029",
+   "key_display_name": "Javlon Rayimbaev",
+   "count": 162
+  },
+  {
+   "key": "https://openalex.org/A5036692902",
+   "key_display_name": "Bobomurat J. Ahmedov",
+   "count": 131
+  },
+  {
+   "key": "https://openalex.org/A5058319559",
+   "key_display_name": "Ahmadjon Abdujabbarov",
+   "count": 111
+  },
+  {
+   "key": "https://openalex.org/A5005480819",
+   "key_display_name": "Farruh Atamurotov",
+   "count": 109
+  },
+  {
+   "key": "https://openalex.org/A5056467661",
+   "key_display_name": "Omar Dagdag",
+   "count": 107
+  },
+  {
+   "key": "https://openalex.org/A5049345221",
+   "key_display_name": "Khasan Berdimuradov",
+   "count": 90
+  },
+  {
+   "key": "https://openalex.org/A5118277577",
+   "key_display_name": "Dilfuza BEGMATOVA",
+   "count": 75
+  },
+  {
+   "key": "https://openalex.org/A5044618748",
+   "key_display_name": "Dilfuza Egamberdieva",
+   "count": 68
+  },
+  {
+   "key": "https://openalex.org/A5002784346",
+   "key_display_name": "Nilufar Z. Abdurakhmonova",
+   "count": 56
+  },
+  {
+   "key": "https://openalex.org/A5029124719",
+   "key_display_name": "Sharifa Bekmuradovna Utamuradova",
+   "count": 56
+  },
+  {
+   "key": "https://openalex.org/A5044476948",
+   "key_display_name": "Javlon Rayimbaev",
+   "count": 55
+  },
+  {
+   "key": "https://openalex.org/A5060504609",
+   "key_display_name": "Sanjar Shaymatov",
+   "count": 51
+  },
+  {
+   "key": "https://openalex.org/A5074922326",
+   "key_display_name": "Oybek Mamarakhimov",
+   "count": 50
+  },
+  {
+   "key": "https://openalex.org/A5081904563",
+   "key_display_name": "Мерсаид Арипов",
+   "count": 50
+  },
+  {
+   "key": "https://openalex.org/A5071831987",
+   "key_display_name": "Mohamed Rbaa",
+   "count": 47
+  },
+  {
+   "key": "https://openalex.org/A5005965154",
+   "key_display_name": "Tursun Kamaldinivich Yuldashev",
+   "count": 46
+  },
+  {
+   "key": "https://openalex.org/A5067151307",
+   "key_display_name": "Zаfаrjon Jаbbarov",
+   "count": 46
+  },
+  {
+   "key": "https://openalex.org/A5080800139",
+   "key_display_name": "Rajesh Haldhar",
+   "count": 46
+  },
+  {
+   "key": "https://openalex.org/A5006010357",
+   "key_display_name": "Dakeshwar Kumar Verma",
+   "count": 44
+  },
+  {
+   "key": "https://openalex.org/A5061475900",
+   "key_display_name": "Jamshid Ashurov",
+   "count": 43
+  },
+  {
+   "key": "https://openalex.org/A5122412260",
+   "key_display_name": "Worldly Knowledge Publishing Centre",
+   "count": 43
+  },
+  {
+   "key": "https://openalex.org/A5001188387",
+   "key_display_name": "Bakhtiyor Narzilloev",
+   "count": 42
+  },
+  {
+   "key": "https://openalex.org/A5006310749",
+   "key_display_name": "Komilova Nilufar Karshiboevna",
+   "count": 41
+  },
+  {
+   "key": "https://openalex.org/A5043865416",
+   "key_display_name": "Trobjon Kh. Makhkamov",
+   "count": 40
+  },
+  {
+   "key": "https://openalex.org/A5027981226",
+   "key_display_name": "Utkir Abdulloevich Rozikov",
+   "count": 39
+  },
+  {
+   "key": "https://openalex.org/A5068545689",
+   "key_display_name": "Bekchanov Davronbek",
+   "count": 39
+  },
+  {
+   "key": "https://openalex.org/A5025309031",
+   "key_display_name": "Sardor Murodov",
+   "count": 38
+  },
+  {
+   "key": "https://openalex.org/A5044469548",
+   "key_display_name": "Dilfuza Jabborova",
+   "count": 38
+  },
+  {
+   "key": "https://openalex.org/A5020086640",
+   "key_display_name": "Bаtirbаy Tоrаmbеtоv",
+   "count": 37
+  }
+ ]
+}

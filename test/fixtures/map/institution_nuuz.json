@@ -1,0 +1,115 @@
+{
+ "id": "https://openalex.org/I47151758",
+ "display_name": "National University of Uzbekistan",
+ "type": "education",
+ "geo": {
+  "city": "Tashkent",
+  "geonames_city_id": "1512569",
+  "region": "Tashkent",
+  "country_code": "UZ",
+  "country": "Uzbekistan",
+  "latitude": 41.26465,
+  "longitude": 69.21627
+ },
+ "works_count": 16966,
+ "cited_by_count": 84898,
+ "summary_stats": {
+  "2yr_mean_citedness": 1.007413805513568,
+  "h_index": 95,
+  "i10_index": 2153
+ },
+ "homepage_url": "https://nuu.uz/",
+ "ror": "https://ror.org/011647w73",
+ "topics": [
+  {
+   "id": "https://openalex.org/T12373",
+   "display_name": "Linguistic research and analysis",
+   "count": 582,
+   "score": 0.9940999746322632,
+   "subfield": {
+    "id": "https://openalex.org/subfields/1203",
+    "display_name": "Language and Linguistics"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/12",
+    "display_name": "Arts and Humanities"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/2",
+    "display_name": "Social Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T12589",
+   "display_name": "Differential Equations and Boundary Problems",
+   "count": 528,
+   "score": 1.0,
+   "subfield": {
+    "id": "https://openalex.org/subfields/2604",
+    "display_name": "Applied Mathematics"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/26",
+    "display_name": "Mathematics"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/3",
+    "display_name": "Physical Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T10744",
+   "display_name": "Astrophysical Phenomena and Observations",
+   "count": 521,
+   "score": 0.9994999766349792,
+   "subfield": {
+    "id": "https://openalex.org/subfields/3103",
+    "display_name": "Astronomy and Astrophysics"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/31",
+    "display_name": "Physics and Astronomy"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/3",
+    "display_name": "Physical Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T11070",
+   "display_name": "Soviet and Russian History",
+   "count": 472,
+   "score": 1.0,
+   "subfield": {
+    "id": "https://openalex.org/subfields/3320",
+    "display_name": "Political Science and International Relations"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/33",
+    "display_name": "Social Sciences"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/2",
+    "display_name": "Social Sciences"
+   }
+  },
+  {
+   "id": "https://openalex.org/T12658",
+   "display_name": "Language and Culture",
+   "count": 458,
+   "score": 0.9994999766349792,
+   "subfield": {
+    "id": "https://openalex.org/subfields/3310",
+    "display_name": "Linguistics and Language"
+   },
+   "field": {
+    "id": "https://openalex.org/fields/33",
+    "display_name": "Social Sciences"
+   },
+   "domain": {
+    "id": "https://openalex.org/domains/2",
+    "display_name": "Social Sciences"
+   }
+  }
+ ]
+}
