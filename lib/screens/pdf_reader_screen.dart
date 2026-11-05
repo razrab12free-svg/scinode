@@ -6,13 +6,18 @@ import '../models/paper.dart';
 import '../services/pdf_store.dart';
 import '../services/reading_progress.dart';
 import '../strings.dart';
+import 'notes_screen.dart';
 
 /// Читалка PDF: помнит последнюю страницу, ночной режим, переход к странице,
 /// полноэкранный режим по нажатию на страницу.
 class PdfReaderScreen extends StatefulWidget {
-  const PdfReaderScreen({super.key, required this.paper, required this.path});
+  const PdfReaderScreen(
+      {super.key, required this.paper, required this.path, this.initialPage});
   final Paper paper;
   final String path;
+
+  /// Открыть на этой странице (например, из заметки); иначе — на сохранённой.
+  final int? initialPage;
 
   @override
   State<PdfReaderScreen> createState() => _PdfReaderScreenState();
@@ -111,7 +116,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
         params: PdfViewerParams(
           backgroundColor: _night ? Colors.white : scheme.surfaceContainer,
           calculateInitialPageNumber: (doc, _) {
-            final p = saved?.page;
+            final p = widget.initialPage ?? saved?.page;
             if (p == null || p < 1 || p > doc.pages.length) return null;
             return p;
           },
@@ -162,6 +167,12 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
+              ),
+              IconButton(
+                tooltip: t('nt.for_page'),
+                icon: const Icon(Icons.edit_note),
+                onPressed: () =>
+                    openPaperNotes(context, widget.paper, page: _page),
               ),
               IconButton(
                 tooltip: t('pdf.goto'),

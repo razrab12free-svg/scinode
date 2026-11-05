@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/board.dart';
+import '../models/note.dart';
 import '../models/paper.dart';
 import '../services/board_service.dart';
 import '../services/library_service.dart';
 import '../services/motivation_service.dart';
+import '../services/note_service.dart';
 import '../services/pdf_store.dart';
 import '../services/reading_progress.dart';
 import '../strings.dart';
@@ -13,8 +15,10 @@ import '../utils.dart';
 import '../widgets/board_widgets.dart';
 import '../widgets/celebration.dart';
 import '../widgets/focus_timer.dart';
+import '../widgets/math_markdown.dart';
 import '../widgets/grant_card.dart' show dateLabel;
 import 'chat_screen.dart';
+import 'notes_screen.dart';
 import 'paper_actions.dart';
 
 /// Окно задачи (нижняя панель почти на весь экран).
@@ -65,6 +69,8 @@ class _CardSheetState extends State<CardSheet> {
       _svc.comments(widget.boardId, widget.cardId);
   late final Stream<List<BoardActivity>> _activity =
       _svc.activity(widget.boardId);
+  late final Stream<List<Note>>? _notes =
+      NoteService.instance.available ? NoteService.instance.notes() : null;
   final TextEditingController _comment = TextEditingController();
   final TextEditingController _newItem = TextEditingController();
 
@@ -485,14 +491,43 @@ class _CardSheetState extends State<CardSheet> {
               color: scheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              c.description.isEmpty ? t('bd.c.desc_hint') : c.description,
-              style: c.description.isEmpty
-                  ? muted
-                  : const TextStyle(fontSize: 15, height: 1.4),
-            ),
+            child: c.description.isEmpty
+                ? Text(t('bd.c.desc_hint'), style: muted)
+                : MathMarkdown(c.description),
           ),
         ),
+
+        // Мои заметки к задаче (с формулами).
+        if (_notes != null) ...[
+          _section(t('nt.title'),
+              trailing: IconButton(
+                tooltip: t('nt.new'),
+                icon: const Icon(Icons.note_add_outlined),
+                onPressed: () => openNewNote(context,
+                    card:
+                        NoteCard(boardId: b.id, cardId: c.id, title: c.title)),
+              )),
+          StreamBuilder<List<Note>>(
+            stream: _notes,
+            builder: (_, s) {
+              final mine = [
+                for (final n in s.data ?? const <Note>[])
+                  if (n.card?.cardId == c.id) n
+              ];
+              if (mine.isEmpty) return Text(t('nt.card_none'), style: muted);
+              return Column(
+                children: [
+                  for (final n in mine)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: NoteTile(
+                          note: n, onTap: () => openNote(context, n.id)),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
 
         // Исполнители.
         _section(t('bd.c.assignees')),

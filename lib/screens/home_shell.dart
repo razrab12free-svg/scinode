@@ -6,6 +6,7 @@ import '../strings.dart';
 import '../widgets/logo.dart';
 import 'boards_screen.dart';
 import 'grants_screen.dart';
+import 'notes_screen.dart';
 import 'library_screen.dart';
 import 'my_tasks_screen.dart';
 import 'network_screen.dart';
@@ -243,6 +244,17 @@ class HomeTab extends StatelessWidget {
             sub: t('bd.tile_sub'),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const BoardsScreen()),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: _WideTile(
+            icon: Icons.functions,
+            label: t('nt.tile'),
+            sub: t('nt.tile_sub'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const NotesScreen()),
             ),
           ),
         ),

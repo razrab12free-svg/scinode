@@ -403,3 +403,51 @@ test('удаление доски владельцем: комментарии, 
   await assertSucceeds(b.commit());
   await assertSucceeds(deleteDoc(doc(da, 'boards', BID)));
 });
+
+// ============================================================= заметки
+
+function noteData(owner, extra = {}) {
+  return {
+    o: owner, t: 'Вывод уравнения', b: 'Энергия: $E = mc^2$',
+    p: { id: 'https://openalex.org/W1', t: 'Статья', doi: '10.1/x', pg: 3 },
+    c: null, cr: serverTimestamp(), up: serverTimestamp(), ...extra,
+  };
+}
+
+test('заметки: только владелец создаёт, читает, меняет и удаляет', async () => {
+  const da = db(A), dbB = db(B);
+  const ref = doc(collection(da, 'notes'));
+  await assertSucceeds(setDoc(ref, noteData(A)));
+  await assertSucceeds(getDoc(doc(da, 'notes', ref.id)));
+  await assertSucceeds(getDocs(query(collection(da, 'notes'), where('o', '==', A))));
+  // Чужой не читает, не меняет и не удаляет.
+  await assertFails(getDoc(doc(dbB, 'notes', ref.id)));
+  await assertFails(getDocs(query(collection(dbB, 'notes'), where('o', '==', A))));
+  await assertFails(getDocs(collection(dbB, 'notes')));
+  await assertFails(updateDoc(doc(dbB, 'notes', ref.id), { t: 'взлом', up: serverTimestamp() }));
+  await assertFails(deleteDoc(doc(dbB, 'notes', ref.id)));
+  // Нельзя создать заметку от чужого имени и передать её другому.
+  await assertFails(setDoc(doc(collection(dbB, 'notes')), noteData(A)));
+  await assertFails(updateDoc(doc(da, 'notes', ref.id), { o: B, up: serverTimestamp() }));
+  // Владелец меняет текст, привязки и удаляет.
+  await assertSucceeds(updateDoc(doc(da, 'notes', ref.id), {
+    t: 'Новое', b: '$$\\int_0^1 x\\,dx$$', up: serverTimestamp(),
+  }));
+  await assertSucceeds(updateDoc(doc(da, 'notes', ref.id), {
+    p: null, c: { b: 'board1', c: 'card1', t: 'Задача' }, up: serverTimestamp(),
+  }));
+  await assertSucceeds(deleteDoc(doc(da, 'notes', ref.id)));
+});
+
+test('заметки: проверка полей и размеров', async () => {
+  const da = db(A);
+  const col = collection(da, 'notes');
+  await assertFails(setDoc(doc(col), noteData(A, { hack: 1 })));
+  await assertFails(setDoc(doc(col), noteData(A, { b: 'x'.repeat(20001) })));
+  await assertFails(setDoc(doc(col), noteData(A, { t: 'x'.repeat(201) })));
+  await assertFails(setDoc(doc(col), noteData(A, { p: { id: 'x', t: 'y', pg: 0 } })));
+  await assertFails(setDoc(doc(col), noteData(A, { p: { id: 'x', t: 'y', evil: 1 } })));
+  await assertFails(setDoc(doc(col), noteData(A, { c: { b: 'x', c: 'y', t: 'z', more: 1 } })));
+  await assertFails(setDoc(doc(col), noteData(A, { up: Timestamp.fromMillis(0) })));
+  await assertSucceeds(setDoc(doc(col), noteData(A, { b: 'x'.repeat(20000), p: null })));
+});

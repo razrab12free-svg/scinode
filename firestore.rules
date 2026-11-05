@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Правила Firestore для Scinode (профили, чат, жалобы, канбан-доски).
+// Правила Firestore для Scinode (профили, чат, жалобы, канбан-доски, заметки).
 // Вставлять целиком: консоль Firebase → Firestore Database → Rules → Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -352,6 +352,47 @@ service cloud.firestore {
         allow update: if false;
         allow delete: if signedIn() && board().ow == request.auth.uid;
       }
+    }
+
+    // ---------------------------------------------------------------
+    // Заметки с формулами. Видит и меняет только владелец (поле o).
+    // ---------------------------------------------------------------
+    match /notes/{nid} {
+      function n() {
+        return request.resource.data;
+      }
+
+      function validNote() {
+        return n().keys().hasOnly(['o', 't', 'b', 'p', 'c', 'cr', 'up'])
+          && isStr(n().t, 200)
+          && isStr(n().b, 20000)
+          && (n().p == null
+              || (n().p is map
+                  && n().p.keys().hasOnly(['id', 't', 'doi', 'pg'])
+                  && isStr(n().p.id, 300)
+                  && isStr(n().p.t, 300)
+                  && (!('doi' in n().p) || isStr(n().p.doi, 300))
+                  && (!('pg' in n().p) || (n().p.pg is int && n().p.pg > 0))))
+          && (n().c == null
+              || (n().c is map
+                  && n().c.keys().hasOnly(['b', 'c', 't'])
+                  && isStr(n().c.b, 40)
+                  && isStr(n().c.c, 40)
+                  && isStr(n().c.t, 200)))
+          && n().up == request.time;
+      }
+
+      allow read: if signedIn() && resource.data.o == request.auth.uid;
+      allow create: if signedIn()
+        && n().o == request.auth.uid
+        && n().cr == request.time
+        && validNote();
+      allow update: if signedIn()
+        && resource.data.o == request.auth.uid
+        && n().o == resource.data.o
+        && n().cr == resource.data.cr
+        && validNote();
+      allow delete: if signedIn() && resource.data.o == request.auth.uid;
     }
 
     // Всё остальное закрыто.

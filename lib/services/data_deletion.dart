@@ -6,12 +6,13 @@ import '../strings.dart';
 import 'board_service.dart';
 import 'chat_service.dart';
 import 'library_service.dart';
+import 'note_service.dart';
 import 'pdf_store.dart';
 import 'profile_service.dart';
 import 'reading_progress.dart';
 import 'zotero_service.dart';
 
-/// «Удалить мои данные»: доски, переписки, профиль, библиотека, PDF,
+/// «Удалить мои данные»: доски, переписки, заметки, профиль, библиотека, PDF,
 /// прогресс чтения, ключ Zotero. Для общих досок, которыми я владею, [decideBoard]
 /// возвращает uid нового владельца или null (удалить доску).
 /// Возвращает null при успехе или краткое описание того, что не удалось.
@@ -40,6 +41,18 @@ Future<String?> deleteMyData(
       errors.add(t('chat.err.${e.kind}'));
     } catch (_) {
       errors.add(t('chat.err.other'));
+    }
+  }
+
+  // 1б. Заметки.
+  final notes = NoteService.instance;
+  if (notes.available) {
+    try {
+      await notes.deleteAllMine();
+    } on BoardException catch (e) {
+      errors.add(t('bd.err.${e.kind}'));
+    } catch (_) {
+      errors.add(t('bd.err.other'));
     }
   }
 
