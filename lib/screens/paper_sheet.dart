@@ -6,6 +6,7 @@ import '../services/library_service.dart';
 import '../services/pdf_store.dart';
 import '../strings.dart';
 import '../utils.dart';
+import 'home_shell.dart';
 import 'pdf_reader_screen.dart';
 
 Future<void> showPaperSheet(BuildContext context, Paper p) {
@@ -49,11 +50,15 @@ class _PaperSheetState extends State<PaperSheet> {
 
   void _read(String path) {
     final nav = Navigator.of(context);
+    // Файл мог пропасть — тогда просто остаёмся в карточке без значка PDF.
+    if (!PdfStore.instance.verify(PdfStore.idOf(widget.paper))) return;
     nav.pop();
     nav.push(MaterialPageRoute<void>(
       builder: (_) => PdfReaderScreen(paper: widget.paper, path: path),
     ));
   }
+
+  void _openInLibrary() => HomeShell.goTo(context, HomeShell.libraryTab);
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +92,19 @@ class _PaperSheetState extends State<PaperSheet> {
                 icon: const Icon(Icons.menu_book),
                 label: Text(t('pdf.read')),
               ),
+              if (HomeShell.tab.value != HomeShell.libraryTab) ...[
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  onPressed: _openInLibrary,
+                  icon: const Icon(Icons.library_books_outlined),
+                  label: Text(t('lib.open_in_lib')),
+                ),
+              ],
               const SizedBox(height: 6),
               Row(
                 children: [

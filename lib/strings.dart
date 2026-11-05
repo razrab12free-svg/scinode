@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'strings_extra.dart';
 import 'strings_grants.dart';
+import 'strings_library.dart';
 import 'strings_pdf.dart';
 import 'strings_science.dart';
 
@@ -48,7 +49,8 @@ class Strings extends ChangeNotifier {
         extraStrings[key] ??
         pdfStrings[key] ??
         scienceStrings[key] ??
-        grantStrings[key];
+        grantStrings[key] ??
+        libraryStrings[key];
 
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {
