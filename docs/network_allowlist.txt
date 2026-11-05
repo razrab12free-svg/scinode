@@ -43,3 +43,4 @@ api.reporter.nih.gov
 api.nsf.gov
 api.tech.ec.europa.eu
 tile.openstreetmap.org
+x9096730-spec.github.io
