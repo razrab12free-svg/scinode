@@ -214,6 +214,11 @@ class _OpenCallsTabState extends State<OpenCallsTab>
     with AutomaticKeepAliveClientMixin, _MultiSource<OpenCallsTab, GrantCall> {
   DateTime _now = DateTime.now();
 
+  /// Последняя загруженная страница Grants.gov (для «Показать ещё»).
+  GrantsGovPage? _gg;
+  bool _ggMore = false;
+  String? _ggMoreError;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -221,12 +226,97 @@ class _OpenCallsTabState extends State<OpenCallsTab>
   List<GrantSource> get sources =>
       const [GrantSource.eu, GrantSource.grantsGov];
 
+  Future<List<GrantCall>> _ggFirst(String q) async {
+    setState(() {
+      _gg = null;
+      _ggMoreError = null;
+    });
+    final p = await GrantsService.instance.grantsGovPage(q, now: _now);
+    if (mounted && q == query) setState(() => _gg = p);
+    return p.calls;
+  }
+
+  /// Следующие конкурсы Grants.gov дописываются к уже найденным.
+  Future<void> _ggLoadMore() async {
+    final prev = _gg;
+    if (prev == null || _ggMore) return;
+    final q = query;
+    setState(() {
+      _ggMore = true;
+      _ggMoreError = null;
+    });
+    try {
+      final p =
+          await GrantsService.instance.grantsGovPage(q, after: prev, now: _now);
+      if (!mounted || q != query || _gg != prev) return;
+      final st = states[GrantSource.grantsGov]!;
+      final ids = {for (final c in st.items) c.id};
+      setState(() {
+        st.items = [
+          ...st.items,
+          for (final c in p.calls)
+            if (ids.add(c.id)) c,
+        ];
+        _gg = p;
+        _ggMore = false;
+      });
+    } catch (e) {
+      if (!mounted || q != query) return;
+      setState(() {
+        _ggMore = false;
+        _ggMoreError = _errKind(e);
+      });
+    }
+  }
+
+  Widget _ggMoreBlock(ColorScheme scheme) {
+    final p = _gg!;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Column(
+        children: [
+          Text(
+            t('gr.gg_loaded', {'n': p.loaded, 'total': p.total}),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+          ),
+          if (_ggMoreError != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              t('gr.gg_more_err'),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: scheme.error),
+            ),
+          ],
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            key: const Key('gr.gg_more'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+            ),
+            onPressed: _ggMore ? null : _ggLoadMore,
+            icon: _ggMore
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2.5),
+                  )
+                : const Icon(Icons.expand_more),
+            label: Text(t('gr.gg_more')),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Future<List<GrantCall>> fetch(GrantSource s, String q) {
     final svc = GrantsService.instance;
     return switch (s) {
       GrantSource.eu => svc.euCalls(q, now: _now),
-      _ => svc.grantsGovCalls(q, now: _now),
+      _ => _ggFirst(q),
     };
   }
 
@@ -271,10 +361,20 @@ class _OpenCallsTabState extends State<OpenCallsTab>
       else if (calls.isEmpty && showEmpty)
         emptyText(t('gr.empty')),
     ];
-    final footer = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      child: Text(t('gr.disclaimer'),
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+    final gg = states[GrantSource.grantsGov]!;
+    final showMore = enabled.contains(GrantSource.grantsGov) &&
+        !gg.loading &&
+        gg.error == null &&
+        (_gg?.hasMore ?? false);
+    final footer = Column(
+      children: [
+        if (showMore) _ggMoreBlock(scheme),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Text(t('gr.disclaimer'),
+              style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+        ),
+      ],
     );
 
     return Column(

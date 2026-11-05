@@ -17,6 +17,35 @@ class GrantsException implements Exception {
   String toString() => 'GrantsException($kind)';
 }
 
+/// Страница конкурсов Grants.gov и сколько их всего.
+class GrantsGovPage {
+  GrantsGovPage({
+    required this.calls,
+    required this.postedTotal,
+    required this.forecastTotal,
+    required this.postedNext,
+    required this.forecastNext,
+  });
+
+  final List<GrantCall> calls;
+  final int postedTotal;
+  final int forecastTotal;
+
+  /// С какой записи просить дальше.
+  final int postedNext;
+  final int forecastNext;
+
+  int get total => postedTotal + forecastTotal;
+
+  /// Сколько записей уже получено от Grants.gov (включая отброшенные
+  /// с прошедшим сроком).
+  int get loaded =>
+      (postedNext < postedTotal ? postedNext : postedTotal) +
+      (forecastNext < forecastTotal ? forecastNext : forecastTotal);
+
+  bool get hasMore => postedNext < postedTotal || forecastNext < forecastTotal;
+}
+
 /// Загрузка конкурсов и профинансированных проектов из открытых API.
 /// Каждый метод работает независимо, чтобы ошибка одного источника
 /// не мешала остальным.
@@ -159,24 +188,47 @@ class GrantsService {
         ),
       );
 
-  /// Объявленные (posted) и ожидаемые (forecasted) конкурсы Grants.gov.
+  /// Сколько конкурсов Grants.gov брать за раз: объявленные и ожидаемые.
+  static const ggPostedRows = 100;
+  static const ggForecastRows = 30;
+
+  /// Первая страница конкурсов Grants.gov (для совместимости).
   Future<List<GrantCall>> grantsGovCalls(String keyword,
-      {DateTime? now}) async {
+          {DateTime? now}) async =>
+      (await grantsGovPage(keyword, now: now)).calls;
+
+  /// Страница объявленных (posted) и ожидаемых (forecasted) конкурсов
+  /// Grants.gov. Следующую страницу просят с [after] — прошлой страницей:
+  /// запрос идёт только туда, где ещё что-то осталось.
+  Future<GrantsGovPage> grantsGovPage(String keyword,
+      {GrantsGovPage? after, DateTime? now}) async {
     final at = now ?? DateTime.now();
     final kw = keyword.trim();
+    final postedFrom = after?.postedNext ?? 0;
+    final forecastFrom = after?.forecastNext ?? 0;
+    final wantPosted = after == null || postedFrom < after.postedTotal;
+    final wantForecast = after == null || forecastFrom < after.forecastTotal;
+
+    final empty = <String, dynamic>{};
     final res = await Future.wait([
-      _ggSearch({
-        'rows': 100,
-        'keyword': kw,
-        'oppStatuses': 'posted',
-        'sortBy': 'closeDate|asc',
-      }),
-      _ggSearch({
-        'rows': 30,
-        'keyword': kw,
-        'oppStatuses': 'forecasted',
-        'sortBy': 'openDate|desc',
-      }),
+      wantPosted
+          ? _ggSearch({
+              'rows': ggPostedRows,
+              'startRecordNum': postedFrom,
+              'keyword': kw,
+              'oppStatuses': 'posted',
+              'sortBy': 'closeDate|asc',
+            })
+          : Future.value(empty),
+      wantForecast
+          ? _ggSearch({
+              'rows': ggForecastRows,
+              'startRecordNum': forecastFrom,
+              'keyword': kw,
+              'oppStatuses': 'forecasted',
+              'sortBy': 'openDate|desc',
+            })
+          : Future.value(empty),
     ]);
     final seen = <String>{};
     final out = <GrantCall>[];
@@ -189,7 +241,30 @@ class GrantsService {
       }
     }
     sortCalls(out);
-    return out;
+    int total(Map<String, dynamic> r, int old) {
+      final d = r['data'];
+      final n = d is Map ? d['hitCount'] : null;
+      return n is num ? n.toInt() : old;
+    }
+
+    int got(Map<String, dynamic> r) {
+      final d = r['data'];
+      final h = d is Map ? d['oppHits'] : null;
+      return h is List ? h.length : 0;
+    }
+
+    final pt = wantPosted ? total(res[0], 0) : after.postedTotal;
+    final ft = wantForecast ? total(res[1], 0) : after.forecastTotal;
+    // Пустая страница — дальше ничего нет, даже если счётчик говорит иное.
+    int next(bool want, int from, int n, int tot) =>
+        !want ? from : (n == 0 ? tot : from + n);
+    return GrantsGovPage(
+      calls: out,
+      postedTotal: pt,
+      forecastTotal: ft,
+      postedNext: next(wantPosted, postedFrom, got(res[0]), pt),
+      forecastNext: next(wantForecast, forecastFrom, got(res[1]), ft),
+    );
   }
 
   /// Подробности конкурса Grants.gov.

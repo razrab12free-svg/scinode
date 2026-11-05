@@ -59,6 +59,8 @@ Scinode — мобильное приложение для коллаборац�
   Без `sort` страницы идут с повторами. У многоэтапных конкурсов несколько
   `deadlineDate` — ближайший будущий вычисляем сами.
 - Grants.gov: `search2` (posted/forecasted), подробности — `fetchOpportunity`.
+  Страницы — `startRecordNum` (с 0) и `rows`; всего — `data.hitCount`. Проверено:
+  страницы по 100 при сортировке `closeDate|asc` идут без повторов и пропусков.
   Обязательная фраза-дисклеймер — строка `gr.disclaimer`.
 - NIH: `POST /v2/projects/search`, `advanced_text_search` с operator `and`.
 - NSF: `GET /services/v1/awards.json`; слова в `keyword` соединять через `AND`.
