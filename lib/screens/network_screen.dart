@@ -100,12 +100,11 @@ class _PickerButton extends StatelessWidget {
             child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
           if (onClear != null)
-            InkWell(
-              onTap: onClear,
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(Icons.close, size: 18),
-              ),
+            IconButton(
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+              onPressed: onClear,
+              icon: const Icon(Icons.close, size: 20),
             ),
         ],
       ),
@@ -126,6 +125,7 @@ class _TopicView extends StatefulWidget {
 }
 
 class _TopicViewState extends State<_TopicView> {
+  int _seq = 0; // номер последнего запроса: старые ответы отбрасываем
   final TextEditingController _kw = TextEditingController();
   TagRef? _tag;
   String _country = '';
@@ -156,6 +156,7 @@ class _TopicViewState extends State<_TopicView> {
   }
 
   Future<void> _run() async {
+    final seq = ++_seq;
     final text = _kw.text.trim();
     if (_tag == null && text.isEmpty) {
       setState(() => _error = 'need');
@@ -175,19 +176,19 @@ class _TopicViewState extends State<_TopicView> {
         country: _country,
         recent: _recent,
       );
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _res = r;
         _loading = false;
       });
     } on SearchException catch (e) {
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _error = e.kind;
         _loading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _error = 'other';
         _loading = false;
@@ -288,6 +289,7 @@ class _NameView extends StatefulWidget {
 }
 
 class _NameViewState extends State<_NameView> {
+  int _seq = 0; // номер последнего запроса: старые ответы отбрасываем
   final TextEditingController _q = TextEditingController();
   List<Scientist> _res = [];
   bool _loading = false;
@@ -301,6 +303,7 @@ class _NameViewState extends State<_NameView> {
   }
 
   Future<void> _run() async {
+    final seq = ++_seq;
     final q = _q.text.trim();
     if (q.isEmpty) return;
     FocusScope.of(context).unfocus();
@@ -312,19 +315,19 @@ class _NameViewState extends State<_NameView> {
     });
     try {
       final r = await ScientistService.instance.searchByName(q);
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _res = r;
         _loading = false;
       });
     } on SearchException catch (e) {
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _error = e.kind;
         _loading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _error = 'other';
         _loading = false;
@@ -394,6 +397,7 @@ class _MembersView extends StatefulWidget {
 }
 
 class _MembersViewState extends State<_MembersView> {
+  int _seq = 0; // номер последнего запроса: старые ответы отбрасываем
   TagRef? _tag;
   String _country = '';
   List<UserProfile> _res = [];
@@ -419,13 +423,14 @@ class _MembersViewState extends State<_MembersView> {
   }
 
   Future<void> _run() async {
+    final seq = ++_seq;
     setState(() {
       _loading = true;
       _error = null;
     });
     final r = await ProfileService.instance
         .searchMembers(tag: _tag?.tag, country: _country);
-    if (!mounted) return;
+    if (!mounted || seq != _seq) return;
     setState(() {
       _res = r.items;
       _error = r.error;

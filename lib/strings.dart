@@ -98,7 +98,7 @@ const Map<String, List<String>> _db = {
     'Kirib bo‘lmadi',
     'Sign-in failed',
   ],
-  'tab.home': ['Главная', 'Bosh sahifa', 'Home'],
+  'tab.home': ['Главная', 'Asosiy', 'Home'],
   'tab.search': ['Поиск', 'Qidiruv', 'Search'],
   'tab.library': ['Библиотека', 'Kutubxona', 'Library'],
   'tab.network': ['Сеть', 'Tarmoq', 'Network'],

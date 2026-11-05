@@ -34,6 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _loading = false;
   bool _searched = false;
   String? _error;
+  int _seq = 0; // номер последнего запроса: старые ответы отбрасываем
 
   @override
   void dispose() {
@@ -42,6 +43,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _run({bool more = false}) async {
+    final seq = ++_seq;
     final q = more ? _query : _ctrl.text.trim();
     if (q.isEmpty) return;
     FocusScope.of(context).unfocus();
@@ -63,7 +65,7 @@ class _SearchScreenState extends State<SearchScreen> {
         yearFrom: _yearFrom,
         sort: _sort,
       );
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _papers.addAll(r.papers);
         _total = r.total;
@@ -71,13 +73,13 @@ class _SearchScreenState extends State<SearchScreen> {
         _loading = false;
       });
     } on SearchException catch (e) {
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _error = e.kind;
         _loading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _error = 'other';
         _loading = false;

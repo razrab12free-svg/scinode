@@ -38,46 +38,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _editKey() async {
-    final svc = OpenAlexService.instance;
-    final ctrl = TextEditingController(text: svc.apiKey ?? '');
     await showDialog<void>(
-      context: context,
-      builder: (d) => AlertDialog(
-        title: Text(t('key.title')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t('key.text'), style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: 12),
-            TextField(
-              controller: ctrl,
-              decoration: InputDecoration(
-                hintText: t('key.hint'),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              svc.setKey(null);
-              Navigator.pop(d);
-            },
-            child: Text(t('key.clear')),
-          ),
-          TextButton(
-            onPressed: () {
-              svc.setKey(ctrl.text.trim());
-              Navigator.pop(d);
-            },
-            child: Text(t('key.save')),
-          ),
-        ],
-      ),
-    );
-    ctrl.dispose();
+        context: context, builder: (_) => const _KeyDialog());
   }
 
   Future<void> _clearPdfs() async {
@@ -267,6 +229,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Окно ввода ключа OpenAlex. Контроллер живёт столько же, сколько окно,
+/// поэтому не используется после закрытия (во время анимации).
+class _KeyDialog extends StatefulWidget {
+  const _KeyDialog();
+
+  @override
+  State<_KeyDialog> createState() => _KeyDialogState();
+}
+
+class _KeyDialogState extends State<_KeyDialog> {
+  late final TextEditingController _ctrl =
+      TextEditingController(text: OpenAlexService.instance.apiKey ?? '');
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final svc = OpenAlexService.instance;
+    return AlertDialog(
+      title: Text(t('key.title')),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(t('key.text'), style: const TextStyle(fontSize: 13)),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _ctrl,
+            decoration: InputDecoration(
+              hintText: t('key.hint'),
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            svc.setKey(null);
+            Navigator.pop(context);
+          },
+          child: Text(t('key.clear')),
+        ),
+        TextButton(
+          onPressed: () {
+            svc.setKey(_ctrl.text.trim());
+            Navigator.pop(context);
+          },
+          child: Text(t('key.save')),
+        ),
+      ],
     );
   }
 }
