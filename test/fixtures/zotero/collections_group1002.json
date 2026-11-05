@@ -1,0 +1,74 @@
+[
+    {
+        "key": "6G5XQIJC",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 1002,
+            "name": "The Works of W. Edwards Deming",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/the_works_of_w._edwards_deming",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/1002/collections/6G5XQIJC",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/the_works_of_w._edwards_deming/collections/6G5XQIJC",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "numCollections": 0,
+            "numItems": 10
+        },
+        "data": {
+            "key": "6G5XQIJC",
+            "version": 1,
+            "name": "Articles",
+            "parentCollection": false,
+            "relations": {}
+        }
+    },
+    {
+        "key": "592Z48M6",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 1002,
+            "name": "The Works of W. Edwards Deming",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/the_works_of_w._edwards_deming",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/1002/collections/592Z48M6",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/the_works_of_w._edwards_deming/collections/592Z48M6",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "numCollections": 0,
+            "numItems": 1
+        },
+        "data": {
+            "key": "592Z48M6",
+            "version": 1,
+            "name": "Books",
+            "parentCollection": false,
+            "relations": {}
+        }
+    }
+]

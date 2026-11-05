@@ -1,0 +1,9 @@
+{
+  "key": "abcdefghijklmnopqrstuvwx",
+  "userID": 1,
+  "username": "Username",
+  "access": {
+    "user": {"library": true, "files": true, "notes": true, "write": true},
+    "groups": {"all": {"library": true, "write": true}}
+  }
+}

@@ -1,0 +1,327 @@
+[
+    {
+        "key": "WUR8A8R6",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 1000,
+            "name": "atlarge",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/atlarge",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/1000/items/WUR8A8R6",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/atlarge/items/WUR8A8R6",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 21765,
+                "username": "michaeldenton",
+                "name": "Michael Denton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaeldenton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "numChildren": 0
+        },
+        "data": {
+            "key": "WUR8A8R6",
+            "version": 1,
+            "itemType": "webpage",
+            "title": "empowering creatives | jovoto | login",
+            "creators": [],
+            "abstractNote": "",
+            "websiteTitle": "",
+            "websiteType": "",
+            "date": "",
+            "publisher": "",
+            "place": "",
+            "DOI": "",
+            "citationKey": "",
+            "url": "http://www.jovoto.com/",
+            "accessDate": "2009-05-25T12:02:05Z",
+            "shortTitle": "",
+            "language": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-05-25T12:15:22Z",
+            "dateModified": "2009-05-25T12:15:22Z"
+        }
+    },
+    {
+        "key": "USXR2XA4",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 1000,
+            "name": "atlarge",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/atlarge",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/1000/items/USXR2XA4",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/atlarge/items/USXR2XA4",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 21765,
+                "username": "michaeldenton",
+                "name": "Michael Denton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaeldenton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "numChildren": 0
+        },
+        "data": {
+            "key": "USXR2XA4",
+            "version": 1,
+            "itemType": "webpage",
+            "title": "crowdSPRING / How it Works",
+            "creators": [],
+            "abstractNote": "",
+            "websiteTitle": "",
+            "websiteType": "",
+            "date": "",
+            "publisher": "",
+            "place": "",
+            "DOI": "",
+            "citationKey": "",
+            "url": "http://www.crowdspring.com/how-it-works",
+            "accessDate": "2009-05-25T12:01:05Z",
+            "shortTitle": "",
+            "language": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-05-25T12:15:22Z",
+            "dateModified": "2009-05-25T12:15:22Z"
+        }
+    },
+    {
+        "key": "QJJXRDQD",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 1000,
+            "name": "atlarge",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/atlarge",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/1000/items/QJJXRDQD",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/atlarge/items/QJJXRDQD",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 21765,
+                "username": "michaeldenton",
+                "name": "Michael Denton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaeldenton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "numChildren": 0
+        },
+        "data": {
+            "key": "QJJXRDQD",
+            "version": 1,
+            "itemType": "webpage",
+            "title": "48HOURS | Furious Filmmaking",
+            "creators": [],
+            "abstractNote": "",
+            "websiteTitle": "",
+            "websiteType": "",
+            "date": "",
+            "publisher": "",
+            "place": "",
+            "DOI": "",
+            "citationKey": "",
+            "url": "http://www.48hours.co.nz/2009/",
+            "accessDate": "2009-05-23T02:48:32Z",
+            "shortTitle": "",
+            "language": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-05-25T12:15:22Z",
+            "dateModified": "2009-05-25T12:15:22Z"
+        }
+    },
+    {
+        "key": "F5SZBTKI",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 1000,
+            "name": "atlarge",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/atlarge",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/1000/items/F5SZBTKI",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/atlarge/items/F5SZBTKI",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 21765,
+                "username": "michaeldenton",
+                "name": "Michael Denton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaeldenton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "numChildren": 0
+        },
+        "data": {
+            "key": "F5SZBTKI",
+            "version": 1,
+            "itemType": "webpage",
+            "title": "Managing Groups and Teams - Wikibooks, collection of open-content textbooks",
+            "creators": [],
+            "abstractNote": "",
+            "websiteTitle": "",
+            "websiteType": "",
+            "date": "",
+            "publisher": "",
+            "place": "",
+            "DOI": "",
+            "citationKey": "",
+            "url": "http://en.wikibooks.org/wiki/Managing_Groups_and_Teams",
+            "accessDate": "2009-04-13T12:52:28Z",
+            "shortTitle": "",
+            "language": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-05-25T12:15:22Z",
+            "dateModified": "2009-05-25T12:15:22Z"
+        }
+    },
+    {
+        "key": "UDUEA6ZN",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 1000,
+            "name": "atlarge",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/atlarge",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/1000/items/UDUEA6ZN",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/atlarge/items/UDUEA6ZN",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 21765,
+                "username": "michaeldenton",
+                "name": "Michael Denton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaeldenton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "numChildren": 0
+        },
+        "data": {
+            "key": "UDUEA6ZN",
+            "version": 1,
+            "itemType": "webpage",
+            "title": "disambiguity » design by committee vs design by community (things we learned from the Drupal.org project)",
+            "creators": [],
+            "abstractNote": "",
+            "websiteTitle": "",
+            "websiteType": "",
+            "date": "",
+            "publisher": "",
+            "place": "",
+            "DOI": "",
+            "citationKey": "",
+            "url": "http://www.disambiguity.com/designbycommunity/",
+            "accessDate": "2009-04-13T12:34:08Z",
+            "shortTitle": "",
+            "language": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-05-25T12:15:22Z",
+            "dateModified": "2009-05-25T12:15:22Z"
+        }
+    }
+]

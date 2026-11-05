@@ -1,0 +1,462 @@
+[
+    {
+        "key": "XMT4Q4FT",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 100,
+            "name": "Geography and Music",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/geography_and_music",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/100/items/XMT4Q4FT",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/geography_and_music/items/XMT4Q4FT",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 24253,
+                "username": "michaelanton",
+                "name": "Michael Anton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaelanton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "creatorSummary": "Wood et al.",
+            "parsedDate": "2007",
+            "numChildren": 0
+        },
+        "data": {
+            "key": "XMT4Q4FT",
+            "version": 1,
+            "itemType": "journalArticle",
+            "title": "The art of doing (geographies of) music",
+            "creators": [
+                {
+                    "creatorType": "author",
+                    "firstName": "Nichola",
+                    "lastName": "Wood"
+                },
+                {
+                    "creatorType": "author",
+                    "firstName": "Michelle",
+                    "lastName": "Duffy"
+                },
+                {
+                    "creatorType": "author",
+                    "firstName": "Susan J",
+                    "lastName": "Smith"
+                }
+            ],
+            "abstractNote": "Like every other work of art, music has become the stuff of social research: it has been interrogated for its economy, its politics, and its role in elaborating human life. Music has its geographies too: its cultural landscapes; its positioning in a soundworld; its embodiment; its materiality. But, intriguingly, until recently musical methodologies have remained half formed, fragmentary, hidden, elusive, out of sight, beyond words. This is partly a result of disciplinary histories and an unhelpful division of intellectual labour; it is partly an expression of what music is. This paper is a performance enacted to assemble the field of musical methodologies: to enlarge its scope; to engage with its strengths and limitations; to animate the soundworld; to participate in the art of doing and being (geographies of) music.",
+            "publicationTitle": "Environment and Planning D: Society and Space",
+            "publisher": "",
+            "place": "",
+            "date": "2007",
+            "volume": "25",
+            "issue": "5",
+            "section": "",
+            "partNumber": "",
+            "partTitle": "",
+            "pages": "867 – 889",
+            "series": "",
+            "seriesTitle": "",
+            "seriesText": "",
+            "journalAbbreviation": "",
+            "DOI": "10.1068/d416t",
+            "citationKey": "",
+            "url": "http://www.envplan.com/abstract.cgi?id=d416t",
+            "accessDate": "2008-10-01T21:33:40Z",
+            "PMID": "",
+            "PMCID": "",
+            "ISSN": "",
+            "archive": "",
+            "archiveLocation": "",
+            "shortTitle": "",
+            "language": "",
+            "libraryCatalog": "Pion Journals",
+            "callNumber": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-09-16T14:18:54Z",
+            "dateModified": "2009-09-16T14:18:54Z"
+        }
+    },
+    {
+        "key": "5IW6Q2SV",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 100,
+            "name": "Geography and Music",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/geography_and_music",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/100/items/5IW6Q2SV",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/geography_and_music/items/5IW6Q2SV",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 24253,
+                "username": "michaelanton",
+                "name": "Michael Anton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaelanton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "creatorSummary": "Wood and Smith",
+            "parsedDate": "2004",
+            "numChildren": 0
+        },
+        "data": {
+            "key": "5IW6Q2SV",
+            "version": 1,
+            "itemType": "journalArticle",
+            "title": "Instrumental routes to emotional geographies",
+            "creators": [
+                {
+                    "creatorType": "author",
+                    "firstName": "Nichola",
+                    "lastName": "Wood"
+                },
+                {
+                    "creatorType": "author",
+                    "firstName": "Susan J.",
+                    "lastName": "Smith"
+                }
+            ],
+            "abstractNote": "",
+            "publicationTitle": "Social & Cultural Geography",
+            "publisher": "",
+            "place": "",
+            "date": "2004",
+            "volume": "5",
+            "issue": "4",
+            "section": "",
+            "partNumber": "",
+            "partTitle": "",
+            "pages": "533",
+            "series": "",
+            "seriesTitle": "",
+            "seriesText": "",
+            "journalAbbreviation": "",
+            "DOI": "10.1080/1464936042000317686",
+            "citationKey": "",
+            "url": "http://www.informaworld.com/10.1080/1464936042000317686",
+            "accessDate": "2008-10-28T17:04:13Z",
+            "PMID": "",
+            "PMCID": "",
+            "ISSN": "1464-9365",
+            "archive": "",
+            "archiveLocation": "",
+            "shortTitle": "",
+            "language": "",
+            "libraryCatalog": "Informaworld",
+            "callNumber": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-09-16T14:18:54Z",
+            "dateModified": "2009-09-16T14:18:54Z"
+        }
+    },
+    {
+        "key": "ZT66TMCH",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 100,
+            "name": "Geography and Music",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/geography_and_music",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/100/items/ZT66TMCH",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/geography_and_music/items/ZT66TMCH",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 24253,
+                "username": "michaelanton",
+                "name": "Michael Anton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaelanton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "creatorSummary": "Valentine G.",
+            "parsedDate": "1995",
+            "numChildren": 0
+        },
+        "data": {
+            "key": "ZT66TMCH",
+            "version": 1,
+            "itemType": "journalArticle",
+            "title": "Creating transgressive space: the music of kd lang",
+            "creators": [
+                {
+                    "creatorType": "author",
+                    "firstName": "",
+                    "lastName": "Valentine G."
+                }
+            ],
+            "abstractNote": "",
+            "publicationTitle": "Transactions of the Institute of British Geographers",
+            "publisher": "",
+            "place": "",
+            "date": "1995",
+            "volume": "20",
+            "issue": "",
+            "section": "",
+            "partNumber": "",
+            "partTitle": "",
+            "pages": "474-485",
+            "series": "",
+            "seriesTitle": "",
+            "seriesText": "",
+            "journalAbbreviation": "",
+            "DOI": "",
+            "citationKey": "",
+            "url": "http://www.ingentaconnect.com/content/rgs/tibg/1995/00000020/00000004/art00011",
+            "accessDate": "",
+            "PMID": "",
+            "PMCID": "",
+            "ISSN": "",
+            "archive": "",
+            "archiveLocation": "",
+            "shortTitle": "",
+            "language": "",
+            "libraryCatalog": "",
+            "callNumber": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-09-16T14:18:54Z",
+            "dateModified": "2009-09-16T14:18:54Z"
+        }
+    },
+    {
+        "key": "26ZDSX8U",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 100,
+            "name": "Geography and Music",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/geography_and_music",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/100/items/26ZDSX8U",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/geography_and_music/items/26ZDSX8U",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 24253,
+                "username": "michaelanton",
+                "name": "Michael Anton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaelanton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "creatorSummary": "Smith",
+            "parsedDate": "2000",
+            "numChildren": 0
+        },
+        "data": {
+            "key": "26ZDSX8U",
+            "version": 1,
+            "itemType": "journalArticle",
+            "title": "Performing the (sound)world",
+            "creators": [
+                {
+                    "creatorType": "author",
+                    "firstName": "Susan J",
+                    "lastName": "Smith"
+                }
+            ],
+            "abstractNote": "This paper explores the possibility of learning through listening; it is about the way space is made through sound as well as sight. I begin by suggesting that music—precariously positioned between the myth of silence and the threat of noise—offers one means of accessing the soundworld. Then, in order to develop an approach to music that prioritises its sonic qualities, I turn to ideas about performance. This also draws attention away from musical texts and towards the physicality involved in making and listening to music. With reference to some exploratory case studies, I try to appreciate how music—through its embodiment in performance—works as a powerful way of knowing and being. Most of the paper is therefore devoted to a discussion of the intersecting political, economic, and emotional spaces which are made through musical performance (and listening) practices. Like the performances they draw from, the conclusions are incomplete. But they do confirm the importance of imagining—of creating, of engaging with—a world in the doing, shaped by senses other than sight.",
+            "publicationTitle": "Environment and Planning D: Society and Space",
+            "publisher": "",
+            "place": "",
+            "date": "2000",
+            "volume": "18",
+            "issue": "5",
+            "section": "",
+            "partNumber": "",
+            "partTitle": "",
+            "pages": "615 – 637",
+            "series": "",
+            "seriesTitle": "",
+            "seriesText": "",
+            "journalAbbreviation": "",
+            "DOI": "10.1068/d225t",
+            "citationKey": "",
+            "url": "http://www.envplan.com/abstract.cgi?id=d225t",
+            "accessDate": "2008-10-01T21:33:34Z",
+            "PMID": "",
+            "PMCID": "",
+            "ISSN": "",
+            "archive": "",
+            "archiveLocation": "",
+            "shortTitle": "",
+            "language": "",
+            "libraryCatalog": "Pion Journals",
+            "callNumber": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-09-16T14:18:54Z",
+            "dateModified": "2009-09-16T14:18:54Z"
+        }
+    },
+    {
+        "key": "RG2QZDU4",
+        "version": 1,
+        "library": {
+            "type": "group",
+            "id": 100,
+            "name": "Geography and Music",
+            "links": {
+                "alternate": {
+                    "href": "https://www.zotero.org/groups/geography_and_music",
+                    "type": "text/html"
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://api.zotero.org/groups/100/items/RG2QZDU4",
+                "type": "application/json"
+            },
+            "alternate": {
+                "href": "https://www.zotero.org/groups/geography_and_music/items/RG2QZDU4",
+                "type": "text/html"
+            }
+        },
+        "meta": {
+            "createdByUser": {
+                "id": 24253,
+                "username": "michaelanton",
+                "name": "Michael Anton",
+                "links": {
+                    "alternate": {
+                        "href": "https://www.zotero.org/michaelanton",
+                        "type": "text/html"
+                    }
+                }
+            },
+            "creatorSummary": "Smith",
+            "parsedDate": "1997",
+            "numChildren": 0
+        },
+        "data": {
+            "key": "RG2QZDU4",
+            "version": 1,
+            "itemType": "journalArticle",
+            "title": "Beyond geography's visible worlds: a cultural politics of music",
+            "creators": [
+                {
+                    "creatorType": "author",
+                    "firstName": "Susan J.",
+                    "lastName": "Smith"
+                }
+            ],
+            "abstractNote": "Within human geography, the meeting between art matters and cultural politics has been a predominantly visual affair. However, this article argues that sound is as important as sight for the project of geography, and that music has as secure a place as the visual arts in the study of social life. For example, while cultural studies of Renaissance Italy have focused on the way that landscape painting encapsulates the political economy of the period, I consider why the truths' of the time were nurtured as much by filling space with sound as by depicting place on canvas. Similarly, although painters are able vividly to depict the impact of industrialization on the English landscape, by exploring the spaces of music - a more neglected route into the historical geography of modern Britain - I suggest there is more to the link between art and industrialism than first meets the eye. Finally, building on maps of race and racism drawn up from ethnography, narrative and visual representation, I tease out the contested terrain of music, and identify it as a medium through which those whose condition society tries its best not to see can begin to make themselves heard.",
+            "publicationTitle": "Progress in Human Geography",
+            "publisher": "",
+            "place": "",
+            "date": "1997",
+            "volume": "21",
+            "issue": "4",
+            "section": "",
+            "partNumber": "",
+            "partTitle": "",
+            "pages": "502-529",
+            "series": "",
+            "seriesTitle": "",
+            "seriesText": "",
+            "journalAbbreviation": "",
+            "DOI": "10.1191/030913297675594415",
+            "citationKey": "",
+            "url": "http://phg.sagepub.com/cgi/content/abstract/21/4/502",
+            "accessDate": "2008-09-29T11:52:00Z",
+            "PMID": "",
+            "PMCID": "",
+            "ISSN": "",
+            "archive": "",
+            "archiveLocation": "",
+            "shortTitle": "Beyond geography's visible worlds",
+            "language": "",
+            "libraryCatalog": "Sage Journals Online",
+            "callNumber": "",
+            "rights": "",
+            "extra": "",
+            "tags": [],
+            "collections": [],
+            "relations": {},
+            "dateAdded": "2009-09-16T14:18:54Z",
+            "dateModified": "2009-09-16T14:18:54Z"
+        }
+    }
+]

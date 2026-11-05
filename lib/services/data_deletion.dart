@@ -9,9 +9,10 @@ import 'library_service.dart';
 import 'pdf_store.dart';
 import 'profile_service.dart';
 import 'reading_progress.dart';
+import 'zotero_service.dart';
 
 /// «Удалить мои данные»: доски, переписки, профиль, библиотека, PDF,
-/// прогресс чтения. Для общих досок, которыми я владею, [decideBoard]
+/// прогресс чтения, ключ Zotero. Для общих досок, которыми я владею, [decideBoard]
 /// возвращает uid нового владельца или null (удалить доску).
 /// Возвращает null при успехе или краткое описание того, что не удалось.
 Future<String?> deleteMyData(
@@ -50,6 +51,10 @@ Future<String?> deleteMyData(
   await LibraryService.instance.clearAll();
   await PdfStore.instance.clearAll();
   await ReadingProgress.instance.clearAll();
+  try {
+    await ZoteroService.instance.ensureLoaded();
+    await ZoteroService.instance.disconnect();
+  } catch (_) {}
 
   if (errors.isNotEmpty) return errors.join('; ');
 
