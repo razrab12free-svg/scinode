@@ -29,6 +29,21 @@ const Map<String, List<String>> grantStrings = {
   ],
   'gr.try': ['Попробуйте', 'Sinab ko‘ring', 'Try'],
   'gr.found': ['Найдено: {n}', 'Topildi: {n}', 'Found: {n}'],
+  'gr.gg_loaded': [
+    'Grants.gov: загружено {n} из {total}',
+    'Grants.gov: {total} tadan {n} tasi yuklandi',
+    'Grants.gov: {n} of {total} loaded',
+  ],
+  'gr.gg_more': [
+    'Показать ещё конкурсы Grants.gov',
+    'Yana Grants.gov tanlovlarini ko‘rsatish',
+    'Show more Grants.gov calls',
+  ],
+  'gr.gg_more_err': [
+    'Не удалось загрузить ещё. Проверьте интернет и нажмите снова.',
+    'Yana yuklab bo‘lmadi. Internetni tekshirib, qayta bosing.',
+    'Couldn’t load more. Check your internet and tap again.',
+  ],
   'gr.empty': [
     'Ничего не найдено',
     'Hech narsa topilmadi',
