@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'strings_extra.dart';
+import 'strings_grants.dart';
 import 'strings_pdf.dart';
 import 'strings_science.dart';
 
@@ -43,8 +44,11 @@ class Strings extends ChangeNotifier {
   }
 
   String t(String key, [Map<String, Object>? args]) {
-    final row =
-        _db[key] ?? extraStrings[key] ?? pdfStrings[key] ?? scienceStrings[key];
+    final row = _db[key] ??
+        extraStrings[key] ??
+        pdfStrings[key] ??
+        scienceStrings[key] ??
+        grantStrings[key];
 
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {
@@ -126,11 +130,6 @@ const Map<String, List<String>> _db = {
     'Умный поиск учёных, карта университетов и коллабораций, чат.',
     'Olimlarning aqlli qidiruvi, universitetlar va hamkorliklar xaritasi, chat.',
     'Smart scientist search, a map of universities and collaborations, chat.',
-  ],
-  'soon.grants': [
-    'Открытые данные о грантах: NIH, NSF, UKRI, Horizon Europe.',
-    'Grantlar haqida ochiq maʼlumotlar: NIH, NSF, UKRI, Horizon Europe.',
-    'Open grants data: NIH, NSF, UKRI, Horizon Europe.',
   ],
   'profile.guest': ['Учёный', 'Olim', 'Scientist'],
   'profile.language': ['Язык', 'Til', 'Language'],

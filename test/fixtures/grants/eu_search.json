@@ -1,0 +1,432 @@
+{
+ "apiVersion": "2.157.1",
+ "terms": "***",
+ "responseTime": 66,
+ "totalResults": 534,
+ "pageNumber": 1,
+ "pageSize": 6,
+ "sort": "[deadlineDate:ASC]",
+ "groupByField": "sortStatus",
+ "queryLanguage": {
+  "language": "en",
+  "probability": 0.0
+ },
+ "bestBets": [],
+ "results": [
+  {
+   "apiVersion": "2.157.1",
+   "reference": "44774210ERASMUSECHECharter1645574400000",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/ERASMUS-EDU-2022-ECHE-CERT-FP.json",
+   "contentType": "text/plain",
+   "language": "en",
+   "databaseLabel": "",
+   "summary": "Erasmus Charter for Higher Education",
+   "weight": 0.0,
+   "content": "Erasmus Charter for Higher Education",
+   "accessRestriction": false,
+   "metadata": {
+    "identifier": [
+     "ERASMUS-EDU-2022-ECHE-CERT-FP"
+    ],
+    "es_ContentType": [
+     "text/plain"
+    ],
+    "es_SortDate": [
+     "2022-02-23T00:00:00.000+0000"
+    ],
+    "deadlineDate": [
+     "2022-05-03T17:00:00.000+0000",
+     "2023-01-26T17:00:00.000+0000",
+     "2024-01-25T17:00:00.000+0000",
+     "2025-01-28T17:00:00.000+0000",
+     "2026-01-27T17:00:00.000+0000",
+     "2027-01-26T17:00:00.000+0000"
+    ],
+    "language": [
+     "en"
+    ],
+    "title": [
+     "Erasmus Charter for Higher Education"
+    ],
+    "type": [
+     "1"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/ERASMUS-EDU-2022-ECHE-CERT-FP.json"
+    ],
+    "typesOfAction": [
+     "ERASMUS ECHE Charter"
+    ],
+    "esST_URL": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/ERASMUS-EDU-2022-ECHE-CERT-FP.json"
+    ],
+    "DATASOURCE": [
+     "SEDIA_PRD_CENTRICITY"
+    ],
+    "frameworkProgramme": [
+     "43353764"
+    ],
+    "startDate": [
+     "2022-02-23T00:00:00.000+0000"
+    ],
+    "status": [
+     "31094502"
+    ]
+   },
+   "enrichedMetadata": {},
+   "children": [],
+   "highlightedFragments": [],
+   "citation": "Erasmus Charter for Higher Education. Available at: https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/ERASMUS-EDU-2022-ECHE-CERT-FP.json"
+  },
+  {
+   "apiVersion": "2.157.1",
+   "reference": "49195964TOPICSen",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-FRAMEWORK-LOANS",
+   "contentType": "text/plain",
+   "language": "en",
+   "databaseLabel": "SEDIA",
+   "database": "SEDIA",
+   "summary": "Framework Loans",
+   "weight": 0.0,
+   "content": "Framework Loans",
+   "accessRestriction": false,
+   "metadata": {
+    "identifier": [
+     "JTM-2026-PSLF-FRAMEWORK-LOANS"
+    ],
+    "es_ContentType": [
+     "text/plain"
+    ],
+    "es_SortDate": [
+     "2025-10-23T00:00:00.000+0000"
+    ],
+    "deadlineDate": [
+     "2026-01-27T00:00:00.000+0000",
+     "2027-09-22T00:00:00.000+0000"
+    ],
+    "language": [
+     "en"
+    ],
+    "title": [
+     "Framework Loans"
+    ],
+    "type": [
+     "1"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-FRAMEWORK-LOANS"
+    ],
+    "typesOfAction": [
+     "JTM Lump Sum Grants"
+    ],
+    "esST_URL": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-FRAMEWORK-LOANS"
+    ],
+    "DATASOURCE": [
+     "SEDIA"
+    ],
+    "REFERENCE": [
+     "49195964TOPICSen"
+    ],
+    "callTitle": [
+     "PUBLIC SECTOR LOAN FACILITY (PSLF)"
+    ],
+    "frameworkProgramme": [
+     "44773066"
+    ],
+    "startDate": [
+     "2025-10-23T00:00:00.000+0000"
+    ],
+    "status": [
+     "31094502"
+    ]
+   },
+   "enrichedMetadata": {},
+   "children": [],
+   "highlightedFragments": [],
+   "citation": "Framework Loans. Available at: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-FRAMEWORK-LOANS"
+  },
+  {
+   "apiVersion": "2.157.1",
+   "reference": "49195972TOPICSen",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-STANDALONE-PROJECTS",
+   "contentType": "text/plain",
+   "language": "en",
+   "databaseLabel": "SEDIA",
+   "database": "SEDIA",
+   "summary": "Standalone projects",
+   "weight": 0.0,
+   "content": "Standalone projects",
+   "accessRestriction": false,
+   "metadata": {
+    "identifier": [
+     "JTM-2026-PSLF-STANDALONE-PROJECTS"
+    ],
+    "es_ContentType": [
+     "text/plain"
+    ],
+    "es_SortDate": [
+     "2025-10-23T00:00:00.000+0000"
+    ],
+    "deadlineDate": [
+     "2026-01-27T00:00:00.000+0000",
+     "2027-09-22T00:00:00.000+0000"
+    ],
+    "language": [
+     "en"
+    ],
+    "title": [
+     "Standalone projects"
+    ],
+    "type": [
+     "1"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-STANDALONE-PROJECTS"
+    ],
+    "typesOfAction": [
+     "JTM Lump Sum Grants"
+    ],
+    "esST_URL": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-STANDALONE-PROJECTS"
+    ],
+    "DATASOURCE": [
+     "SEDIA"
+    ],
+    "REFERENCE": [
+     "49195972TOPICSen"
+    ],
+    "callTitle": [
+     "PUBLIC SECTOR LOAN FACILITY (PSLF)"
+    ],
+    "frameworkProgramme": [
+     "44773066"
+    ],
+    "startDate": [
+     "2025-10-23T00:00:00.000+0000"
+    ],
+    "status": [
+     "31094502"
+    ]
+   },
+   "enrichedMetadata": {},
+   "children": [],
+   "highlightedFragments": [],
+   "citation": "Standalone projects. Available at: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/JTM-2026-PSLF-STANDALONE-PROJECTS"
+  },
+  {
+   "apiVersion": "2.157.1",
+   "reference": "11143COMPETITIVE_CALLen",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053",
+   "contentType": "text/plain",
+   "language": "en",
+   "databaseLabel": "SEDIA",
+   "database": "SEDIA",
+   "summary": "METU Internships Offer",
+   "weight": 0.0,
+   "content": "METU Internships Offer",
+   "accessRestriction": false,
+   "metadata": {
+    "identifier": [
+     "DIGITAL-2023-SKILLS-05-SPECIALEDU"
+    ],
+    "es_ContentType": [
+     "text/plain"
+    ],
+    "es_SortDate": [
+     "2025-06-30T00:00:00.000+0000"
+    ],
+    "deadlineDate": [
+     "2025-09-02T03:59:00.000+0000",
+     "2026-01-03T07:59:00.000+0000",
+     "2026-09-02T03:59:00.000+0000",
+     "2027-01-03T07:59:00.000+0000",
+     "2027-09-02T03:59:00.000+0000",
+     "2028-01-03T07:59:00.000+0000",
+     "2028-09-02T03:59:00.000+0000"
+    ],
+    "language": [
+     "en"
+    ],
+    "title": [
+     "Specialised education programmes in key capacity areas"
+    ],
+    "type": [
+     "8"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053"
+    ],
+    "esST_URL": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053"
+    ],
+    "DATASOURCE": [
+     "SEDIA"
+    ],
+    "REFERENCE": [
+     "11143COMPETITIVE_CALLen"
+    ],
+    "callTitle": [
+     "METU Internships Offer"
+    ],
+    "frameworkProgramme": [
+     "43152860"
+    ],
+    "startDate": [
+     "2025-06-30T00:00:00.000+0000"
+    ],
+    "budget": [
+     "30500"
+    ],
+    "status": [
+     "31094502"
+    ]
+   },
+   "enrichedMetadata": {},
+   "children": [],
+   "highlightedFragments": [],
+   "citation": "Specialised education programmes in key capacity areas. Available at: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053"
+  },
+  {
+   "apiVersion": "2.157.1",
+   "reference": "11145COMPETITIVE_CALLen",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053",
+   "contentType": "text/plain",
+   "language": "en",
+   "databaseLabel": "SEDIA",
+   "database": "SEDIA",
+   "summary": "Gnomon Internships Offer",
+   "weight": 0.0,
+   "content": "Gnomon Internships Offer",
+   "accessRestriction": false,
+   "metadata": {
+    "identifier": [
+     "DIGITAL-2023-SKILLS-05-SPECIALEDU"
+    ],
+    "es_ContentType": [
+     "text/plain"
+    ],
+    "es_SortDate": [
+     "2025-06-30T00:00:00.000+0000"
+    ],
+    "deadlineDate": [
+     "2025-09-02T04:59:00.000+0000",
+     "2026-01-03T04:59:00.000+0000",
+     "2026-09-02T04:59:00.000+0000",
+     "2027-01-03T04:59:00.000+0000",
+     "2027-09-02T04:59:00.000+0000",
+     "2028-01-03T04:59:00.000+0000",
+     "2028-09-02T04:59:00.000+0000"
+    ],
+    "language": [
+     "en"
+    ],
+    "title": [
+     "Specialised education programmes in key capacity areas"
+    ],
+    "type": [
+     "8"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053"
+    ],
+    "esST_URL": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053"
+    ],
+    "DATASOURCE": [
+     "SEDIA"
+    ],
+    "REFERENCE": [
+     "11145COMPETITIVE_CALLen"
+    ],
+    "callTitle": [
+     "Gnomon Internships Offer"
+    ],
+    "frameworkProgramme": [
+     "43152860"
+    ],
+    "startDate": [
+     "2025-06-30T00:00:00.000+0000"
+    ],
+    "budget": [
+     "120000"
+    ],
+    "status": [
+     "31094502"
+    ]
+   },
+   "enrichedMetadata": {},
+   "children": [],
+   "highlightedFragments": [],
+   "citation": "Specialised education programmes in key capacity areas. Available at: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/competitive-calls-cs/46214053"
+  },
+  {
+   "apiVersion": "2.157.1",
+   "reference": "187686PROSPECTSEN",
+   "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/187686PROSPECTSEN",
+   "contentType": "text/plain",
+   "language": "en",
+   "databaseLabel": "SEDIA",
+   "database": "SEDIA",
+   "summary": "MK 24 IPA TR 01 26 Alignment of national legislation and policies with EU Acquis for road infrastructure management together with capacity building",
+   "weight": 0.0,
+   "content": "MK 24 IPA TR 01 26 Alignment of national legislation and policies with EU Acquis for road infrastructure management together with capacity building",
+   "accessRestriction": false,
+   "metadata": {
+    "identifier": [
+     "EuropeAid/187686/ID/ACT/MK"
+    ],
+    "es_ContentType": [
+     "text/plain"
+    ],
+    "es_SortDate": [
+     "2026-09-03T10:00:28.000+0000"
+    ],
+    "deadlineDate": [
+     "2026-11-05T22:59:00.000+0000"
+    ],
+    "language": [
+     "en"
+    ],
+    "title": [
+     "MK 24 IPA TR 01 26 Alignment of national legislation and policies with EU Acquis for road infrastructure management together with capacity building"
+    ],
+    "type": [
+     "2"
+    ],
+    "url": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/187686PROSPECTSEN"
+    ],
+    "esST_URL": [
+     "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/187686PROSPECTSEN"
+    ],
+    "DATASOURCE": [
+     "SEDIA"
+    ],
+    "REFERENCE": [
+     "187686PROSPECTSEN"
+    ],
+    "currency": [
+     "EUR"
+    ],
+    "frameworkProgramme": [
+     "111111"
+    ],
+    "startDate": [
+     "2026-09-03T10:00:28.000+0000"
+    ],
+    "budget": [
+     "1300000"
+    ],
+    "status": [
+     "31094502"
+    ]
+   },
+   "enrichedMetadata": {},
+   "children": [],
+   "highlightedFragments": [],
+   "citation": "MK 24 IPA TR 01 26 Alignment of national legislation and policies with EU Acquis for road infrastructure management together with capacity building. Available at: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/187686PROSPECTSEN"
+  }
+ ],
+ "warnings": []
+}

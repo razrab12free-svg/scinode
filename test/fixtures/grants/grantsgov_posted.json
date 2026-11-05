@@ -1,0 +1,492 @@
+{
+ "errorcode": 0,
+ "msg": "Webservice Succeeds",
+ "token": "",
+ "data": {
+  "searchParams": {
+   "resultType": "json",
+   "searchOnly": false,
+   "oppNum": "",
+   "cfda": "",
+   "sortBy": "closeDate|asc",
+   "oppStatuses": "posted",
+   "startRecordNum": 0,
+   "eligibilities": "",
+   "fundingInstruments": "",
+   "fundingCategories": "",
+   "agencies": "",
+   "rows": 4,
+   "keyword": "climate",
+   "keywordEncoded": true
+  },
+  "hitCount": 45,
+  "startRecord": 0,
+  "oppHits": [
+   {
+    "id": "363728",
+    "number": "P27AS00032",
+    "title": "Exploring and Enhancing Outdoor and Heritage Tourism in the Chesapeake Bay Watershed",
+    "agencyCode": "DOI-NPS",
+    "agency": "National Park Service",
+    "openDate": "08/27/2026",
+    "closeDate": "11/04/2026",
+    "oppStatus": "posted",
+    "docType": "synopsis",
+    "cfdaList": [
+     "15.930"
+    ]
+   },
+   {
+    "id": "364012",
+    "number": "G27AS00164",
+    "title": "WATER RESOURCES RESEARCH ACT PROGRAM NATIONAL COMPETITIVE GRANTS FY2026 (104g General)",
+    "agencyCode": "DOI-USGS1",
+    "agency": "Geological Survey",
+    "openDate": "09/30/2026",
+    "closeDate": "11/12/2026",
+    "oppStatus": "posted",
+    "docType": "synopsis",
+    "cfdaList": [
+     "15.805"
+    ]
+   },
+   {
+    "id": "363770",
+    "number": "AAHC-FY27",
+    "title": "Museum Grants for African American History and Culture (2027)",
+    "agencyCode": "IMLS",
+    "agency": "Institute of Museum and Library Services",
+    "openDate": "09/01/2026",
+    "closeDate": "11/13/2026",
+    "oppStatus": "posted",
+    "docType": "synopsis",
+    "cfdaList": [
+     "45.309"
+    ]
+   },
+   {
+    "id": "363771",
+    "number": "IGSM-FY27",
+    "title": "Inspire Grants for Small Museums (2027)",
+    "agencyCode": "IMLS",
+    "agency": "Institute of Museum and Library Services",
+    "openDate": "09/01/2026",
+    "closeDate": "11/13/2026",
+    "oppStatus": "posted",
+    "docType": "synopsis",
+    "cfdaList": [
+     "45.301"
+    ]
+   }
+  ],
+  "oppStatusOptions": [
+   {
+    "label": "posted",
+    "value": "posted",
+    "count": 45
+   },
+   {
+    "label": "closed",
+    "value": "closed",
+    "count": 1539
+   },
+   {
+    "label": "archived",
+    "value": "archived",
+    "count": 8456
+   },
+   {
+    "label": "forecasted",
+    "value": "forecasted",
+    "count": 9
+   }
+  ],
+  "dateRangeOptions": [
+   {
+    "label": "Posted Date - Last 3 Days",
+    "value": "3",
+    "count": 1
+   },
+   {
+    "label": "Posted Date - Last 1 Week",
+    "value": "7",
+    "count": 6
+   },
+   {
+    "label": "Posted Date - Last 2 Weeks",
+    "value": "14",
+    "count": 7
+   },
+   {
+    "label": "Posted Date - Last 3 Weeks",
+    "value": "21",
+    "count": 9
+   },
+   {
+    "label": "Posted Date - Last 4 Weeks",
+    "value": "28",
+    "count": 15
+   },
+   {
+    "label": "Posted Date - Last 5 Weeks",
+    "value": "35",
+    "count": 16
+   },
+   {
+    "label": "Posted Date - Last 6 Weeks",
+    "value": "42",
+    "count": 17
+   },
+   {
+    "label": "Posted Date - Last 7 Weeks",
+    "value": "49",
+    "count": 18
+   },
+   {
+    "label": "Posted Date - Last 8 Weeks",
+    "value": "56",
+    "count": 18
+   }
+  ],
+  "suggestion": "",
+  "eligibilities": [
+   {
+    "label": "City or township governments",
+    "value": "02",
+    "count": 9
+   },
+   {
+    "label": "County governments",
+    "value": "01",
+    "count": 9
+   },
+   {
+    "label": "For profit organizations other than small businesses",
+    "value": "22",
+    "count": 7
+   },
+   {
+    "label": "Independent school districts",
+    "value": "05",
+    "count": 3
+   },
+   {
+    "label": "Individuals",
+    "value": "21",
+    "count": 1
+   },
+   {
+    "label": "Native American tribal governments (Federally recognized)",
+    "value": "07",
+    "count": 10
+   },
+   {
+    "label": "Native American tribal organizations (other than Federally recognized tribal governments)",
+    "value": "11",
+    "count": 4
+   },
+   {
+    "label": "Nonprofits having a 501(c)(3) status with the IRS, other than institutions of higher education",
+    "value": "12",
+    "count": 9
+   },
+   {
+    "label": "Nonprofits that do not have a 501(c)(3) status with the IRS, other than institutions of higher education",
+    "value": "13",
+    "count": 7
+   },
+   {
+    "label": "Others (see text field entitled \"Additional Information on Eligibility\" for clarification)",
+    "value": "25",
+    "count": 35
+   },
+   {
+    "label": "Private institutions of higher education",
+    "value": "20",
+    "count": 9
+   },
+   {
+    "label": "Public and State controlled institutions of higher education",
+    "value": "06",
+    "count": 12
+   },
+   {
+    "label": "Public housing authorities/Indian housing authorities",
+    "value": "08",
+    "count": 3
+   },
+   {
+    "label": "Small businesses",
+    "value": "23",
+    "count": 9
+   },
+   {
+    "label": "Special district governments",
+    "value": "04",
+    "count": 7
+   },
+   {
+    "label": "State governments",
+    "value": "00",
+    "count": 9
+   },
+   {
+    "label": "Unrestricted (i.e., open to any type of entity above), subject to any clarification in text field entitled \"Additional Information on Eligibility\"",
+    "value": "99",
+    "count": 2
+   }
+  ],
+  "fundingCategories": [
+   {
+    "label": "Agriculture",
+    "value": "AG",
+    "count": 1
+   },
+   {
+    "label": "Arts",
+    "value": "AR",
+    "count": 4
+   },
+   {
+    "label": "Business and Commerce",
+    "value": "BC",
+    "count": 1
+   },
+   {
+    "label": "Community Development",
+    "value": "CD",
+    "count": 2
+   },
+   {
+    "label": "Energy",
+    "value": "EN",
+    "count": 4
+   },
+   {
+    "label": "Environment",
+    "value": "ENV",
+    "count": 1
+   },
+   {
+    "label": "Health",
+    "value": "HL",
+    "count": 3
+   },
+   {
+    "label": "Humanities",
+    "value": "HU",
+    "count": 4
+   },
+   {
+    "label": "Natural Resources",
+    "value": "NR",
+    "count": 4
+   },
+   {
+    "label": "Other (see text field entitled \"Explanation of Other Category of Funding Activity\" for clarification)",
+    "value": "O",
+    "count": 5
+   },
+   {
+    "label": "Science and Technology and other Research and Development",
+    "value": "ST",
+    "count": 24
+   }
+  ],
+  "fundingInstruments": [
+   {
+    "label": "Cooperative Agreement",
+    "value": "CA",
+    "count": 27
+   },
+   {
+    "label": "Grant",
+    "value": "G",
+    "count": 27
+   },
+   {
+    "label": "Other",
+    "value": "O",
+    "count": 7
+   },
+   {
+    "label": "Procurement Contract",
+    "value": "PC",
+    "count": 4
+   }
+  ],
+  "agencies": [
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Agricultural Marketing Service",
+      "value": "USDA-AMS",
+      "count": 1
+     }
+    ],
+    "label": "Department of Agriculture",
+    "value": "USDA",
+    "count": 1
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Department of Commerce",
+      "value": "DOC",
+      "count": 1
+     },
+     {
+      "label": "DOC NOAA - ERA Production",
+      "value": "DOC-DOCNOAAERA",
+      "count": 4
+     },
+     {
+      "label": "Economic Development Administration",
+      "value": "DOC-EDA",
+      "count": 1
+     }
+    ],
+    "label": "Department of Commerce",
+    "value": "DOC",
+    "count": 6
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Dept of the Army -- Materiel Command",
+      "value": "DOD-AMC",
+      "count": 3
+     },
+     {
+      "label": "National Geospatial-Intelligence Agency ",
+      "value": "DOD-NGIA",
+      "count": 1
+     },
+     {
+      "label": "Naval Research Laboratory",
+      "value": "DOD-ONR-NRL",
+      "count": 1
+     }
+    ],
+    "label": "Department of Defense",
+    "value": "DOD",
+    "count": 5
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Idaho Field Office",
+      "value": "DOE-ID",
+      "count": 4
+     }
+    ],
+    "label": "Department of Energy",
+    "value": "DOE",
+    "count": 4
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Centers for Disease Control - OPHPR",
+      "value": "HHS-CDC-OPHPR",
+      "count": 1
+     },
+     {
+      "label": "Centers for Disease Control and Prevention - ERA",
+      "value": "HHS-CDC-HHSCDCERA",
+      "count": 1
+     },
+     {
+      "label": "National Institutes of Health",
+      "value": "HHS-NIH11",
+      "count": 1
+     }
+    ],
+    "label": "Department of Health and Human Services",
+    "value": "HHS",
+    "count": 3
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Bureau of Near Eastern Affairs",
+      "value": "DOS-NEA",
+      "count": 1
+     },
+     {
+      "label": "Office to Monitor-Combat Trafficking in Persons",
+      "value": "DOS-GTIP",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Spain",
+      "value": "DOS-ESP",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to the United Nations",
+      "value": "DOS-USUN",
+      "count": 1
+     },
+     {
+      "label": "U.S. Mission to Tunisia",
+      "value": "DOS-TUN",
+      "count": 1
+     }
+    ],
+    "label": "Department of State",
+    "value": "DOS",
+    "count": 5
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "Geological Survey",
+      "value": "DOI-USGS1",
+      "count": 12
+     },
+     {
+      "label": "National Park Service",
+      "value": "DOI-NPS",
+      "count": 1
+     }
+    ],
+    "label": "Department of the Interior",
+    "value": "DOI",
+    "count": 13
+   },
+   {
+    "subAgencyOptions": [],
+    "label": "Institute of Museum and Library Services",
+    "value": "IMLS",
+    "count": 4
+   },
+   {
+    "subAgencyOptions": [
+     {
+      "label": "NASA Headquarters",
+      "value": "NASA-HQ",
+      "count": 1
+     }
+    ],
+    "label": "National Aeronautics and Space Administration",
+    "value": "NASA",
+    "count": 1
+   },
+   {
+    "subAgencyOptions": [],
+    "label": "Small Business Administration",
+    "value": "SBA",
+    "count": 1
+   },
+   {
+    "subAgencyOptions": [],
+    "label": "U.S. National Science Foundation",
+    "value": "NSF",
+    "count": 2
+   }
+  ],
+  "accessKey": "",
+  "errorMsgs": []
+ }
+}

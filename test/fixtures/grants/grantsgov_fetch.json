@@ -1,0 +1,297 @@
+{
+ "errorcode": 0,
+ "msg": "Webservice Succeeds",
+ "token": "",
+ "data": {
+  "id": 364012,
+  "revision": 0,
+  "opportunityNumber": "G27AS00164",
+  "opportunityTitle": "WATER RESOURCES RESEARCH ACT PROGRAM NATIONAL COMPETITIVE GRANTS FY2026 (104g General)",
+  "owningAgencyCode": "DOI-USGS1",
+  "listed": "L",
+  "publisherUid": "213398654626252577577345242058790897420",
+  "flag2006": "N",
+  "opportunityCategory": {
+   "category": "D",
+   "description": "Discretionary"
+  },
+  "synopsis": {
+   "opportunityId": 364012,
+   "version": 1,
+   "agencyCode": "DOI-USGS1",
+   "agencyName": "Geological Survey",
+   "agencyPhone": "916-278-9331",
+   "agencyAddressDesc": "sara_roser@ios.doi.gov",
+   "agencyDetails": {
+    "code": "USGS",
+    "seed": "DOI-USGS1",
+    "agencyName": "Geological Survey",
+    "agencyCode": "DOI-USGS1",
+    "topAgencyCode": "DOI"
+   },
+   "topAgencyDetails": {
+    "code": "DOI",
+    "seed": "DOI",
+    "agencyName": "Department of the Interior",
+    "agencyCode": "DOI",
+    "topAgencyCode": "DOI"
+   },
+   "agencyContactPhone": "916-278-9331",
+   "agencyContactName": "Geological Survey",
+   "agencyContactDesc": "Sara Roser\nsara_roser@ios.doi.gov",
+   "agencyContactEmail": "sara_roser@ios.doi.gov",
+   "agencyContactEmailDesc": "sara_roser@ios.doi.gov",
+   "synopsisDesc": "<p>This Program Announcement is issued under the provisions of section 104 of the Water Resources Research Act of 1984 (Public Law 98-242), as amended by Public Laws 101-397, 104-147, 106-374, 109-471, and 117\u201358. Section 104 of the Water Resources Research Act directs the Secretary of the Interior to administer program grants to Institutes established under the provisions of section 104(a) of the Act. Water Resources Research Institutes have been established in each of the 50 states, the District of Columbia, Puerto Rico, the U.S. Virgin Islands, and Guam.\u00a0 The Institute in Guam also serves the Federated States of Micronesia and the Commonwealth of the Northern Mariana Islands.\u00a0 The Institute in Hawaii also serves American Samoa.\u00a0 The addresses of the 54 Institutes are available at <a href=\"https://water.usgs.gov/wrri/index.php\">https://water.usgs.gov/wrri/index.php</a>. Responsibility for administration of the Water Resources Research Act Program has been delegated to the U.S. Geological Survey (USGS).</p>",
+   "responseDate": "Nov 12, 2026 12:00:00 AM EST",
+   "responseDateDesc": "Applications, including the full proposal, must be submitted to grants.gov by the State Water Resources Research Institute prior to the 5:00 PM Eastern Time, November 12, 2026 closing date.",
+   "postingDate": "Sep 30, 2026 12:00:00 AM EDT",
+   "archiveDate": "May 01, 2030 12:00:00 AM EDT",
+   "costSharing": true,
+   "numberOfAwards": "4",
+   "estimatedFunding": "462500",
+   "estimatedFundingFormatted": "462,500",
+   "awardCeiling": "120000",
+   "awardCeilingFormatted": "120,000",
+   "awardFloor": "0",
+   "awardFloorFormatted": "0",
+   "applicantEligibilityDesc": "Only Water Resources Research Institutes established under the Water Resources Research Act of 1984 are eligible to apply. These Institutes are located at universities in each of the 50 states, the District of Columbia, Puerto Rico, the U.S. Virgin Islands, and Guam. The Institute in Guam also serves the Federated States of Micronesia and the Commonwealth of the Northern Mariana Islands. The Institute in Hawaii also serves American Samoa. Applications not eligible for funding: Applications for research on health effects involving human subjects. Applications for research involving oceanography (estuarine research applications are acceptable). Applications for research that do not meet program objectives as outlined. Applications submitted by an Institute or Center that has not met reporting requirements on a previous award by the USGS. Participation by federal employees: Federal employees may, and are encouraged to, collaborate with college or university investigators in this program. Federal employees may not serve as a principal investigator (PI) but may serve as a Co- PI. Federal employees and agencies may not receive federal funds for any purpose under these awards. Federal employees and agencies may not serve as a source of matching funds under these awards.",
+   "createTimeStamp": "Oct 30, 2026 11:02:42 AM EDT",
+   "createdDate": "Sep 30, 2026 05:30:14 PM EDT",
+   "lastUpdatedDate": "Sep 30, 2026 05:30:14 PM EDT",
+   "applicantTypes": [
+    {
+     "id": "25",
+     "description": "Others (see text field entitled \"Additional Information on Eligibility\" for clarification)"
+    }
+   ],
+   "fundingInstruments": [
+    {
+     "id": "G",
+     "description": "Grant"
+    }
+   ],
+   "fundingActivityCategories": [
+    {
+     "id": "NR",
+     "description": "Natural Resources"
+    }
+   ],
+   "responseDateStr": "2026-11-12-00-00-00",
+   "postingDateStr": "2026-09-30-00-00-00",
+   "archiveDateStr": "2030-05-01-00-00-00",
+   "createTimeStampStr": "2026-10-30-11-02-42"
+  },
+  "agencyDetails": {
+   "code": "USGS",
+   "seed": "DOI-USGS1",
+   "agencyName": "Geological Survey",
+   "agencyCode": "DOI-USGS1",
+   "topAgencyCode": "DOI"
+  },
+  "topAgencyDetails": {
+   "code": "DOI",
+   "seed": "DOI",
+   "agencyName": "Department of the Interior",
+   "agencyCode": "DOI",
+   "topAgencyCode": "DOI"
+  },
+  "synopsisAttachmentFolders": [
+   {
+    "id": 81356,
+    "opportunityId": 364012,
+    "folderType": "Full Announcement",
+    "folderName": "Full Announcement",
+    "zipLobSize": 213729,
+    "createdDate": "Sep 30, 2026 05:33:18 PM EDT",
+    "lastUpdatedDate": "Oct 02, 2026 10:17:49 AM EDT",
+    "synopsisAttachments": [
+     {
+      "id": 355132,
+      "opportunityId": 364012,
+      "mimeType": "application/pdf",
+      "fileName": "Foa_Content_of_G27AS00164 100226.pdf",
+      "fileDescription": "Foa_Content_of_G27AS00164.pdf",
+      "fileLobSize": 265196,
+      "createdDate": "Sep 30, 2026 05:33:19 PM EDT",
+      "lastUpdatedDate": "Oct 02, 2026 10:17:49 AM EDT",
+      "synopsisAttFolderId": 81356
+     }
+    ]
+   },
+   {
+    "id": 81498,
+    "opportunityId": 364012,
+    "folderType": "Other Supporting Documents",
+    "folderName": "Attachment C",
+    "zipLobSize": 263100,
+    "createdDate": "Oct 30, 2026 11:01:30 AM EDT",
+    "lastUpdatedDate": "Oct 30, 2026 11:02:42 AM EDT",
+    "synopsisAttachments": [
+     {
+      "id": 355418,
+      "opportunityId": 364012,
+      "mimeType": "application/pdf",
+      "fileName": "Att C - USGS_example_104gGeneral.pdf",
+      "fileDescription": "Attachment C - USGS example 104g",
+      "fileLobSize": 269523,
+      "createdDate": "Oct 30, 2026 11:02:42 AM EDT",
+      "synopsisAttFolderId": 81498
+     }
+    ]
+   },
+   {
+    "id": 81357,
+    "opportunityId": 364012,
+    "folderType": "Other Supporting Documents",
+    "folderName": "Other Supporting Documents",
+    "zipLobSize": 1055015,
+    "createdDate": "Sep 30, 2026 05:33:48 PM EDT",
+    "lastUpdatedDate": "Sep 30, 2026 05:43:22 PM EDT",
+    "synopsisAttachments": [
+     {
+      "id": 355133,
+      "opportunityId": 364012,
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "fileName": "104g-budget-sheet.xlsx",
+      "fileDescription": "104g-budget-sheet.xlsx",
+      "fileLobSize": 55168,
+      "createdDate": "Sep 30, 2026 05:33:49 PM EDT",
+      "synopsisAttFolderId": 81357
+     },
+     {
+      "id": 355136,
+      "opportunityId": 364012,
+      "mimeType": "application/pdf",
+      "fileName": "104g-instructions.pdf",
+      "fileDescription": "104g-instructions",
+      "fileLobSize": 121499,
+      "createdDate": "Sep 30, 2026 05:41:43 PM EDT",
+      "synopsisAttFolderId": 81357
+     },
+     {
+      "id": 355135,
+      "opportunityId": 364012,
+      "mimeType": "application/pdf",
+      "fileName": "Special Terms and Conditions - WRRA 104g 2026.pdf",
+      "fileDescription": "Special Terms and Conditions - WRRA 104g 2026.pdf",
+      "fileLobSize": 292224,
+      "createdDate": "Sep 30, 2026 05:34:12 PM EDT",
+      "synopsisAttFolderId": 81357
+     },
+     {
+      "id": 355139,
+      "opportunityId": 364012,
+      "mimeType": "application/pdf",
+      "fileName": "doi-covered-uas-assessment-guide-v3.0.pdf",
+      "fileDescription": "UAS",
+      "fileLobSize": 110747,
+      "createdDate": "Sep 30, 2026 05:43:22 PM EDT",
+      "synopsisAttFolderId": 81357
+     },
+     {
+      "id": 355137,
+      "opportunityId": 364012,
+      "mimeType": "application/pdf",
+      "fileName": "budget-justification-bad-example.pdf",
+      "fileDescription": "budget-justification-bad-example",
+      "fileLobSize": 354244,
+      "createdDate": "Sep 30, 2026 05:42:33 PM EDT",
+      "synopsisAttFolderId": 81357
+     },
+     {
+      "id": 355138,
+      "opportunityId": 364012,
+      "mimeType": "application/pdf",
+      "fileName": "budget-justification-good-example.pdf",
+      "fileDescription": "budget-justification-good-example",
+      "fileLobSize": 217962,
+      "createdDate": "Sep 30, 2026 05:42:57 PM EDT",
+      "synopsisAttFolderId": 81357
+     },
+     {
+      "id": 355134,
+      "opportunityId": 364012,
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "fileName": "budget-justification.docx",
+      "fileDescription": "budget-justification.docx",
+      "fileLobSize": 34008,
+      "createdDate": "Sep 30, 2026 05:34:00 PM EDT",
+      "synopsisAttFolderId": 81357
+     }
+    ]
+   }
+  ],
+  "synopsisDocumentURLs": [],
+  "synAttChangeComments": [],
+  "cfdas": [
+   {
+    "id": 435611,
+    "opportunityId": 364012,
+    "cfdaNumber": "15.805",
+    "programTitle": "Assistance to State Water Resources Research Institutes"
+   }
+  ],
+  "opportunityHistoryDetails": [],
+  "opportunityPkgs": [
+   {
+    "id": 294285,
+    "topportunityId": 364012,
+    "familyId": 15,
+    "dialect": "XFDL2.2",
+    "opportunityNumber": "G27AS00164",
+    "opportunityTitle": "WATER RESOURCES RESEARCH ACT PROGRAM NATIONAL COMPETITIVE GRANTS FY2026 (104g General)",
+    "cfdaNumber": "15.805",
+    "openingDate": "2026-10-01",
+    "closingDate": "2026-11-12",
+    "owningAgencyCode": "DOI-USGS1",
+    "agencyDetails": {
+     "code": "USGS",
+     "seed": "DOI-USGS1",
+     "agencyName": "Geological Survey",
+     "agencyCode": "DOI-USGS1",
+     "topAgencyCode": "DOI"
+    },
+    "topAgencyDetails": {
+     "code": "DOI",
+     "seed": "DOI",
+     "agencyName": "Department of the Interior",
+     "agencyCode": "DOI",
+     "topAgencyCode": "DOI"
+    },
+    "programTitle": "Assistance to State Water Resources Research Institutes",
+    "contactInfo": "Sara Roser",
+    "gracePeriod": 30,
+    "competitionId": "G27AS00164",
+    "competitionTitle": "WATER RESOURCES RESEARCH ACT PROGRAM NATIONAL COMPETITIVE GRANTS FY2026 (104g General)",
+    "electronicRequired": "Y",
+    "expectedApplicationCount": 60,
+    "expectedApplicationSize": 0,
+    "openToApplicantType": 1,
+    "listed": "L",
+    "isMultiProject": "N",
+    "extension": "pdf",
+    "mimetype": "application/pdf",
+    "lastUpdate": "Sep 30, 2026 05:37:37 PM EDT",
+    "workspaceCompatibleFlag": "Y",
+    "packageId": "PKG00294285",
+    "openingDateStr": "2026-10-01-00-00-00",
+    "closingDateStr": "2026-11-12-00-00-00"
+   }
+  ],
+  "closedOpportunityPkgs": [],
+  "originalDueDate": "Nov 12, 2026 12:00:00 AM EST",
+  "originalDueDateDesc": "Applications, including the full proposal, must be submitted to grants.gov by the State Water Resources Research Institute prior to the 5:00 PM Eastern Time, November 12, 2026 closing date.",
+  "synopsisModifiedFields": [],
+  "forecastModifiedFields": [],
+  "errorMessages": [],
+  "synPostDateInPast": true,
+  "docType": "synopsis",
+  "forecastHistCount": 0,
+  "synopsisHistCount": 0,
+  "assistCompatible": false,
+  "assistURL": "",
+  "relatedOpps": [],
+  "draftMode": "N",
+  "ost": "POSTED"
+ }
+}

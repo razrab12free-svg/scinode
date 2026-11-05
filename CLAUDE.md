@@ -14,6 +14,8 @@ Scinode — мобильное приложение для коллаборац�
 - 3 языка интерфейса: русский, узбекский (латиница), английский;
 - поиск статей OpenAlex, библиотека, скачивание PDF через Unpaywall, читалка (pdfrx);
 - профиль учёного (Firestore, коллекция `profiles`);
+- раздел «Гранты»: открытые конкурсы (EU Funding & Tenders, Grants.gov) и
+  профинансированные проекты (NIH RePORTER, NSF).
 - дерево направлений OpenAlex, поиск учёных по теме, имени и среди участников.
 
 ## Архитектура (`lib/`)
@@ -29,12 +31,26 @@ Scinode — мобильное приложение для коллаборац�
   `search_screen`, `library_screen`, `network_screen`, `profile_screen`,
   `profile_edit_screen`, `pdf_reader_screen`, `paper_sheet`, `login_screen`).
 - `services/` — работа с сетью и хранилищем (`openalex_service`, `scientist_service`,
-  `taxonomy_service`, `profile_service`, `library_service`, `pdf_store`).
-- `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`).
+  `taxonomy_service`, `profile_service`, `library_service`, `pdf_store`,
+  `grants_service` — 4 источника грантов, каждый грузится независимо).
+- `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
+  `grant` — конкурсы, проекты, даты, суммы).
 - `widgets/` — переиспользуемые виджеты (`paper_card`, `scientist_card`,
   `taxonomy_picker`, `logo`).
 - `test/` — юнит-тесты; `test/fixtures/` — реальные образцы ответов API.
 - `tools/make_icon.py` — рисует иконку приложения в CI.
+
+## Заметки по API грантов
+- EU (SEDIA): `POST https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=SEDIA`,
+  multipart-поля `query`, `sort`, `languages`, `displayFields` — **обязательно** с
+  `Content-Type: application/json`. Типы 1, 2, 8 (0 — закупки), статусы 31094501
+  (скоро) и 31094502 (открыт). Дата в фильтре только в виде `2026-11-05T00:00:00.000+0000`.
+  Без `sort` страницы идут с повторами. У многоэтапных конкурсов несколько
+  `deadlineDate` — ближайший будущий вычисляем сами.
+- Grants.gov: `search2` (posted/forecasted), подробности — `fetchOpportunity`.
+  Обязательная фраза-дисклеймер — строка `gr.disclaimer`.
+- NIH: `POST /v2/projects/search`, `advanced_text_search` с operator `and`.
+- NSF: `GET /services/v1/awards.json`; слова в `keyword` соединять через `AND`.
 
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой

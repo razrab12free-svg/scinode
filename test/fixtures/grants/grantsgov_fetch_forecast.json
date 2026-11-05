@@ -1,0 +1,112 @@
+{
+ "errorcode": 0,
+ "msg": "Webservice Succeeds",
+ "token": "",
+ "data": {
+  "id": 364173,
+  "revision": 0,
+  "opportunityNumber": "TI-27-006",
+  "opportunityTitle": "First Responders-Comprehensive Addiction and Recovery Act",
+  "owningAgencyCode": "HHS-SAMHS-SAMHSA",
+  "listed": "L",
+  "publisherUid": "rachel.bailey",
+  "flag2006": "N",
+  "opportunityCategory": {
+   "category": "D",
+   "description": "Discretionary"
+  },
+  "agencyDetails": {
+   "code": "SAMHSA",
+   "seed": "HHS-SAMHS-SAMHSA",
+   "agencyName": "Substance Abuse and Mental Health Services Adminis",
+   "agencyCode": "HHS-SAMHS-SAMHSA",
+   "topAgencyCode": "HHS"
+  },
+  "topAgencyDetails": {
+   "code": "HHS",
+   "seed": "HHS",
+   "agencyName": "Department of Health and Human Services",
+   "agencyCode": "HHS",
+   "topAgencyCode": "HHS"
+  },
+  "forecast": {
+   "opportunityId": 364173,
+   "version": 1,
+   "postingDate": "Oct 30, 2026 12:00:00 AM EDT",
+   "forecastDesc": "<p>The purpose of this program is to train first responders and communities in administering and distributing opioid overdose reversal medications (OORM).</p>",
+   "costSharing": true,
+   "numberOfAwards": "40",
+   "estimatedFunding": "20000000",
+   "agencyContactName": "Shannon Hastings",
+   "agencyContactPhone": "202-961-8620",
+   "agencyContactEmail": "DTP-NOFO@samhsa.hhs.gov",
+   "agencyContactEmailDesc": "DTP-NOFO@samhsa.hhs.gov",
+   "agencyCode": "HHS-SAMHS-SAMHSA",
+   "sendEmail": "Y",
+   "applicantEligibilityDesc": "Eligibility for this program is statutorily limited (Section 546 of the Public Health Service Act [42 USC 290ee-1], as amended) to states, local governmental entities, and Indian Tribes and Tribal organizations (as defined in section 4 of the Indian Self-Determination and Education Assistance Act).",
+   "estSynopsisPostingDate": "Dec 15, 2026 12:00:00 AM EST",
+   "estApplicationResponseDateDesc": "",
+   "estAwardDate": "Sep 30, 2027 12:00:00 AM EDT",
+   "fiscalYear": 2027,
+   "createTimeStamp": "Oct 30, 2026 09:20:36 AM EDT",
+   "createdDate": "Oct 30, 2026 09:20:36 AM EDT",
+   "lastUpdatedDate": "Oct 30, 2026 09:20:36 AM EDT",
+   "agencyDetails": {
+    "code": "SAMHSA",
+    "seed": "HHS-SAMHS-SAMHSA",
+    "agencyName": "Substance Abuse and Mental Health Services Adminis",
+    "agencyCode": "HHS-SAMHS-SAMHSA",
+    "topAgencyCode": "HHS"
+   },
+   "estimatedFundingFormatted": "20,000,000",
+   "applicantTypes": [
+    {
+     "id": "25",
+     "description": "Others (see text field entitled \"Additional Information on Eligibility\" for clarification)"
+    }
+   ],
+   "fundingInstruments": [
+    {
+     "id": "CA",
+     "description": "Cooperative Agreement"
+    }
+   ],
+   "fundingActivityCategories": [
+    {
+     "id": "HL",
+     "description": "Health"
+    }
+   ],
+   "postingDateStr": "2026-10-30-00-00-00",
+   "estSynopsisPostingDateStr": "2026-12-15-00-00-00",
+   "estAwardDateStr": "2027-09-30-00-00-00",
+   "createTimeStampStr": "2026-10-30-09-20-36"
+  },
+  "synopsisAttachmentFolders": [],
+  "synopsisDocumentURLs": [],
+  "synAttChangeComments": [],
+  "cfdas": [
+   {
+    "id": 436009,
+    "opportunityId": 364173,
+    "cfdaNumber": "93.490",
+    "programTitle": "Center for Substance Abuse Treatment Projects of Regional and National Significance"
+   }
+  ],
+  "opportunityHistoryDetails": [],
+  "opportunityPkgs": [],
+  "closedOpportunityPkgs": [],
+  "synopsisModifiedFields": [],
+  "forecastModifiedFields": [],
+  "errorMessages": [],
+  "synPostDateInPast": true,
+  "docType": "forecast",
+  "forecastHistCount": 0,
+  "synopsisHistCount": 0,
+  "assistCompatible": false,
+  "assistURL": "",
+  "relatedOpps": [],
+  "draftMode": "N",
+  "ost": "FORECASTED"
+ }
+}
