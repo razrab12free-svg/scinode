@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../models/chat.dart';
 import '../services/chat_service.dart';
 import '../strings.dart';
+import '../widgets/math_markdown.dart' show MathText;
 import '../widgets/scientist_card.dart' show initials;
 
 String chatError(Object e) =>
@@ -645,7 +646,7 @@ class _Bubble extends StatelessWidget {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: SelectableText(
+                  child: MathText(
                     m.text,
                     style: TextStyle(fontSize: 15, height: 1.35, color: fg),
                   ),

@@ -156,4 +156,149 @@ const Map<String, List<String>> noteStrings = {
   'nt.k.bold': ['Жирный', 'Qalin', 'Bold'],
   'nt.k.head': ['Заголовок', 'Sarlavha', 'Heading'],
   'nt.k.list': ['Список', 'Ro‘yxat', 'List'],
+  // Выгрузка и шаблоны (8.2).
+  'nt.export_pdf': [
+    'Экспорт в PDF',
+    'PDF’ga eksport',
+    'Export to PDF',
+  ],
+  'nt.export_tex': [
+    'Экспорт в LaTeX (.tex) для Overleaf',
+    'Overleaf uchun LaTeX’ga (.tex) eksport',
+    'Export to LaTeX (.tex) for Overleaf',
+  ],
+  'nt.export_md': [
+    'Экспорт в Markdown (.md)',
+    'Markdown’ga (.md) eksport',
+    'Export to Markdown (.md)',
+  ],
+  'nt.share_err': [
+    'Не удалось поделиться файлом. Попробуйте ещё раз.',
+    'Fayl bilan ulashib bo‘lmadi. Qayta urinib ko‘ring.',
+    'Could not share the file. Please try again.',
+  ],
+  'nt.pdf_kind': ['ЗАМЕТКА', 'QAYD', 'NOTE'],
+  'nt.tex_made': [
+    'Создано в Scinode. Компилятор в Overleaf: pdfLaTeX.',
+    'Scinode’da yaratilgan. Overleaf’dagi kompilyator: pdfLaTeX.',
+    'Made with Scinode. Overleaf compiler: pdfLaTeX.',
+  ],
+  'nt.templates': [
+    'Шаблоны формул',
+    'Formula shablonlari',
+    'Formula templates'
+  ],
+  'nt.mine': ['Мои формулы', 'Mening formulalarim', 'My formulas'],
+  'ft.cat.math': ['Математика', 'Matematika', 'Mathematics'],
+  'ft.cat.physics': ['Физика', 'Fizika', 'Physics'],
+  'ft.cat.stats': ['Статистика', 'Statistika', 'Statistics'],
+  'ft.cat.chem': [
+    'Химия и биология',
+    'Kimyo va biologiya',
+    'Chemistry & biology'
+  ],
+  'ft.quad': [
+    'Корни квадратного уравнения',
+    'Kvadrat tenglama ildizlari',
+    'Quadratic formula'
+  ],
+  'ft.pyth': ['Теорема Пифагора', 'Pifagor teoremasi', 'Pythagorean theorem'],
+  'ft.deriv': [
+    'Определение производной',
+    'Hosila ta’rifi',
+    'Definition of derivative'
+  ],
+  'ft.taylor': ['Ряд Тейлора', 'Teylor qatori', 'Taylor series'],
+  'ft.euler': ['Тождество Эйлера', 'Eyler ayniyati', 'Euler’s identity'],
+  'ft.parts': [
+    'Интегрирование по частям',
+    'Bo‘laklab integrallash',
+    'Integration by parts'
+  ],
+  'ft.matrix': ['Матрица 2×2', '2×2 matritsa', '2×2 matrix'],
+  'ft.det': ['Определитель 2×2', '2×2 determinant', '2×2 determinant'],
+  'ft.newton': [
+    'Второй закон Ньютона',
+    'Nyutonning ikkinchi qonuni',
+    'Newton’s second law'
+  ],
+  'ft.energy': [
+    'Энергия покоя',
+    'Tinchlik energiyasi',
+    'Mass–energy equivalence'
+  ],
+  'ft.kinetic': ['Кинетическая энергия', 'Kinetik energiya', 'Kinetic energy'],
+  'ft.gravity': [
+    'Закон всемирного тяготения',
+    'Butun olam tortishish qonuni',
+    'Law of gravitation'
+  ],
+  'ft.ohm': ['Закон Ома', 'Om qonuni', 'Ohm’s law'],
+  'ft.schrodinger': [
+    'Уравнение Шрёдингера',
+    'Shryodinger tenglamasi',
+    'Schrödinger equation'
+  ],
+  'ft.gas': [
+    'Уравнение идеального газа',
+    'Ideal gaz tenglamasi',
+    'Ideal gas law'
+  ],
+  'ft.wave': ['Скорость волны', 'To‘lqin tezligi', 'Wave speed'],
+  'ft.mean': ['Среднее арифметическое', 'O‘rta arifmetik', 'Arithmetic mean'],
+  'ft.sd': [
+    'Стандартное отклонение выборки',
+    'Tanlanma standart chetlanishi',
+    'Sample standard deviation'
+  ],
+  'ft.normal': [
+    'Нормальное распределение',
+    'Normal taqsimot',
+    'Normal distribution'
+  ],
+  'ft.bayes': ['Формула Байеса', 'Bayes formulasi', 'Bayes’ theorem'],
+  'ft.ttest': ['t-критерий Стьюдента', 'Styudent t-mezoni', 'Student’s t-test'],
+  'ft.pearson': [
+    'Коэффициент корреляции Пирсона',
+    'Pirson korrelyatsiya koeffitsiyenti',
+    'Pearson correlation'
+  ],
+  'ft.ci': [
+    'Доверительный интервал',
+    'Ishonch oralig‘i',
+    'Confidence interval'
+  ],
+  'ft.regression': [
+    'Линейная регрессия',
+    'Chiziqli regressiya',
+    'Linear regression'
+  ],
+  'ft.arrhenius': [
+    'Уравнение Аррениуса',
+    'Arrenius tenglamasi',
+    'Arrhenius equation'
+  ],
+  'ft.ph': ['Водородный показатель', 'Vodorod ko‘rsatkichi', 'pH'],
+  'ft.henderson': [
+    'Уравнение Гендерсона — Хассельбаха',
+    'Genderson — Xasselbax tenglamasi',
+    'Henderson–Hasselbalch equation'
+  ],
+  'ft.michaelis': [
+    'Уравнение Михаэлиса — Ментен',
+    'Mixaelis — Menten tenglamasi',
+    'Michaelis–Menten equation'
+  ],
+  'ft.gibbs': ['Энергия Гиббса', 'Gibbs energiyasi', 'Gibbs free energy'],
+  'ft.beer': [
+    'Закон Бугера — Ламберта — Бера',
+    'Buger — Lambert — Ber qonuni',
+    'Beer–Lambert law'
+  ],
+  'ft.growth': [
+    'Экспоненциальный рост',
+    'Eksponensial o‘sish',
+    'Exponential growth'
+  ],
+  'ft.photo': ['Фотосинтез', 'Fotosintez', 'Photosynthesis'],
 };

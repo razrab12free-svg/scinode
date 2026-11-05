@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -32,6 +33,14 @@ class ReportFonts {
   factory ReportFonts.fromBytes(ByteData regular, ByteData bold) =>
       ReportFonts(pw.Font.ttf(regular), pw.Font.ttf(bold));
 }
+
+/// Шрифты PDF из assets (загружаются один раз).
+Future<ReportFonts>? _fonts;
+Future<ReportFonts> loadReportFonts() => _fonts ??= Future(() async {
+      final r = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+      final b = await rootBundle.load('assets/fonts/NotoSans-Bold.ttf');
+      return ReportFonts.fromBytes(r, b);
+    });
 
 /// Собирает PDF-отчёт по доске.
 ///

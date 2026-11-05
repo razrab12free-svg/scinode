@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:printing/printing.dart';
 
 import '../models/board.dart';
 import '../models/board_report.dart';
@@ -10,6 +8,7 @@ import '../models/grant.dart' show formatDate;
 import '../services/report_pdf.dart';
 import '../strings.dart';
 import '../widgets/board_widgets.dart';
+import 'pdf_share_screen.dart';
 
 /// Панель настройки PDF-отчёта: период и разделы.
 Future<void> showReportSheet(
@@ -144,14 +143,6 @@ class _ReportSheetState extends State<_ReportSheet> {
   }
 }
 
-/// Шрифты PDF из assets (загружаются один раз).
-Future<ReportFonts>? _fonts;
-Future<ReportFonts> _loadFonts() => _fonts ??= Future(() async {
-      final r = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
-      final b = await rootBundle.load('assets/fonts/NotoSans-Bold.ttf');
-      return ReportFonts.fromBytes(r, b);
-    });
-
 /// Имя файла: «Scinode_Название_2026-11-05.pdf» без запрещённых символов.
 String reportFileName(String board, DateTime d) {
   final clean = board
@@ -164,23 +155,14 @@ String reportFileName(String board, DateTime d) {
 }
 
 /// Просмотр готового отчёта: «Сохранить» и «Поделиться».
-class ReportPreviewScreen extends StatefulWidget {
+class ReportPreviewScreen extends StatelessWidget {
   const ReportPreviewScreen(
       {super.key, required this.report, required this.sections});
   final BoardReport report;
   final Set<ReportSection> sections;
 
-  @override
-  State<ReportPreviewScreen> createState() => _ReportPreviewScreenState();
-}
-
-class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
-  late final Future<Uint8List> _pdf = _build();
-  late final String _file =
-      reportFileName(widget.report.board.name, widget.report.generated);
-
   Future<Uint8List> _build() async {
-    final r = widget.report;
+    final r = report;
     final uids = <String>{
       ...r.board.members,
       for (final m in r.members) m.uid,
@@ -196,94 +178,17 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
     ]);
     return buildReportPdf(
       r,
-      sections: widget.sections,
+      sections: sections,
       names: names,
-      fonts: await _loadFonts(),
+      fonts: await loadReportFonts(),
       lang: Strings.instance.lang,
     );
   }
 
-  Future<void> _share() async {
-    final bytes = await _pdf;
-    await Printing.sharePdf(bytes: bytes, filename: _file);
-  }
-
-  Future<void> _save() async {
-    final bytes = await _pdf;
-    if (!mounted) return;
-    toast(context, t('rp.save_hint'));
-    await Printing.layoutPdf(
-        onLayout: (_) async => bytes, name: _file.replaceAll('.pdf', ''));
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(t('rp.setup_title'))),
-      body: FutureBuilder<Uint8List>(
-        future: _pdf,
-        builder: (ctx, s) {
-          if (s.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(t('rp.err'), textAlign: TextAlign.center),
-              ),
-            );
-          }
-          if (!s.hasData) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 12),
-                  Text(t('rp.building')),
-                ],
-              ),
-            );
-          }
-          return PdfPreview(
-            build: (_) async => s.data!,
-            useActions: false,
-            canChangePageFormat: false,
-            canChangeOrientation: false,
-            canDebug: false,
-            pdfFileName: _file,
-          );
-        },
-      ),
-      bottomNavigationBar: FutureBuilder<Uint8List>(
-        future: _pdf,
-        builder: (ctx, s) => !s.hasData
-            ? const SizedBox.shrink()
-            : SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(54)),
-                          onPressed: _save,
-                          icon: const Icon(Icons.save_alt),
-                          label: Text(t('rp.save')),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: _share,
-                          icon: const Icon(Icons.share),
-                          label: Text(t('rp.share')),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => PdfShareScreen(
+        title: t('rp.setup_title'),
+        fileName: reportFileName(report.board.name, report.generated),
+        build: _build,
+      );
 }

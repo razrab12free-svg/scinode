@@ -28,6 +28,8 @@ dependencies:
   flutter_math_fork: ^0.7.4
   flutter_markdown_plus: ^1.0.12
   markdown: ^7.3.1
+  share_plus: ^13.3.1
+  screenshot: ^3.0.0
 
 dev_dependencies:
   flutter_test:
