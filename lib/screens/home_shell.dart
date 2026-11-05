@@ -4,8 +4,10 @@ import '../auth_service.dart';
 import '../services/library_service.dart';
 import '../strings.dart';
 import '../widgets/logo.dart';
+import 'boards_screen.dart';
 import 'grants_screen.dart';
 import 'library_screen.dart';
+import 'my_tasks_screen.dart';
 import 'network_screen.dart';
 import 'profile_screen.dart';
 import 'science_map_screen.dart';
@@ -193,6 +195,8 @@ class HomeTab extends StatelessWidget {
             ],
           ),
         ),
+        // Мои задачи на сегодня (если есть доски с задачами).
+        const TodayBanner(),
         Padding(
           padding: const EdgeInsets.all(16),
           child: GridView.count(
@@ -229,6 +233,17 @@ class HomeTab extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: _WideTile(
+            icon: Icons.view_kanban_outlined,
+            label: t('bd.tile'),
+            sub: t('bd.tile_sub'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const BoardsScreen()),
+            ),
           ),
         ),
         Padding(

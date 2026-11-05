@@ -33,7 +33,8 @@ Scinode — мобильное приложение для коллаборац�
 - `services/` — работа с сетью и хранилищем (`openalex_service`, `scientist_service`,
   `taxonomy_service`, `profile_service`, `library_service`, `pdf_store`,
   `grants_service` — 4 источника грантов, каждый грузится независимо;
-  `map_service` — карта науки; `reading_progress` — прогресс чтения PDF).
+  `map_service` — карта науки; `reading_progress` — прогресс чтения PDF;
+  `chat_service` — чат; `board_service` — канбан-доски).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
   `grant` — конкурсы, проекты, даты, суммы).
 - `widgets/` — переиспользуемые виджеты (`paper_card`, `scientist_card`,
@@ -64,7 +65,11 @@ Scinode — мобильное приложение для коллаборац�
   `userAgentPackageName: app.scinode.scinode`.
 
 ## Firestore
-- Коллекции: `profiles/{uid}`, `conversations/{uid1_uid2}` (+ `messages`), `reports`.
+- Коллекции: `profiles/{uid}`, `conversations/{uid1_uid2}` (+ `messages`), `reports`,
+  `boards/{id}` (+ `cards` → `comments`, `activity`). Роли досок: владелец (поле `ow`),
+  редактор, наблюдатель. Порядок карточек — дробное поле `o` (см. `models/board.dart`).
+- Записи в Firestore не ждать в интерфейсе (`fireAndReport`): без сети они
+  сохраняются локально и завершаются позже.
 - Правила — файл `firestore.rules` в корне (источник правды). После изменения:
   прогнать тесты эмулятора (`firestore_tests/`, нужны Node и Java) и прислать
   владельцу ПОЛНЫЙ текст файла для вставки в консоль Firebase.

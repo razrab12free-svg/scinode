@@ -20,3 +20,6 @@ assets/icon/
 # Тесты правил Firestore
 firestore_tests/node_modules
 firestore_tests/*.log
+
+# Картинки упавших скриншот-тестов
+test/failures/

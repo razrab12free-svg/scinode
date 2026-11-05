@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../auth_service.dart';
+import '../models/board.dart';
 import '../services/data_deletion.dart';
 import '../services/openalex_service.dart';
 import '../services/pdf_store.dart';
 import '../services/profile_service.dart';
 import '../strings.dart';
+import '../widgets/board_widgets.dart';
 import 'profile_edit_screen.dart';
 
 const appVersionLabel = '0.4.0';
@@ -41,6 +43,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _editKey() async {
     await showDialog<void>(
         context: context, builder: (_) => const _KeyDialog());
+  }
+
+  /// Общая доска, которой я владею: передать права участнику или удалить.
+  Future<String?> _decideBoard(Board b) async {
+    final me = AuthService.instance.user?.uid;
+    final others = [
+      for (final u in b.members)
+        if (u != me) u
+    ];
+    if (!mounted || others.isEmpty) return null;
+    return showDialog<String?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (d) => AlertDialog(
+        title: Text(b.name),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t('bd.del_choice', {'name': b.name})),
+              const SizedBox(height: 12),
+              Text(t('bd.del_transfer'),
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              for (final u in others)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  minTileHeight: 52,
+                  leading: MemberAvatar(u, radius: 16),
+                  title: MemberName(u),
+                  onTap: () => Navigator.pop(d, u),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(96, 48),
+              backgroundColor: Theme.of(d).colorScheme.error,
+              foregroundColor: Theme.of(d).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(d),
+            child: Text(t('bd.del_remove')),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _deleteData() async {
@@ -89,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
-    final err = await deleteMyData();
+    final err = await deleteMyData(decideBoard: _decideBoard);
     if (nav.mounted) nav.pop();
     messenger.showSnackBar(SnackBar(
       content:

@@ -1,17 +1,34 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../auth_service.dart';
+import '../models/board.dart';
 import '../strings.dart';
+import 'board_service.dart';
 import 'chat_service.dart';
 import 'library_service.dart';
 import 'pdf_store.dart';
 import 'profile_service.dart';
 import 'reading_progress.dart';
 
-/// «Удалить мои данные»: переписки, профиль, библиотека, PDF, прогресс чтения.
+/// «Удалить мои данные»: доски, переписки, профиль, библиотека, PDF,
+/// прогресс чтения. Для общих досок, которыми я владею, [decideBoard]
+/// возвращает uid нового владельца или null (удалить доску).
 /// Возвращает null при успехе или краткое описание того, что не удалось.
-Future<String?> deleteMyData() async {
+Future<String?> deleteMyData(
+    {Future<String?> Function(Board board)? decideBoard}) async {
   final errors = <String>[];
+
+  // 0. Доски: личные удаляем, из общих выходим.
+  final boards = BoardService.instance;
+  if (boards.available) {
+    try {
+      await boards.deleteAllMine(decideBoard ?? (_) async => null);
+    } on BoardException catch (e) {
+      errors.add(t('bd.err.${e.kind}'));
+    } catch (_) {
+      errors.add(t('bd.err.other'));
+    }
+  }
 
   // 1. Переписки и сообщения (пока мы ещё вошли в аккаунт).
   final chat = ChatService.instance;

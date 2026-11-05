@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/grant.dart';
+import '../services/board_service.dart';
 import '../services/grants_service.dart';
 import '../strings.dart';
 import '../utils.dart';
 import '../widgets/grant_card.dart';
+import 'grant_to_board.dart';
 
 Future<void> showGrantCallSheet(BuildContext context, GrantCall call) {
   return showModalBottomSheet<void>(
@@ -261,6 +263,26 @@ class _GrantCallSheetState extends State<GrantCallSheet> {
           InfoNote(text: t('gr.eligibility'), icon: Icons.verified_user),
           const SizedBox(height: 16),
           _Actions(url: c.url, number: c.number),
+          // Связка с досками: подготовка заявки как проекта.
+          if (BoardService.instance.available) ...[
+            const SizedBox(height: 10),
+            FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52)),
+              // Доска открывается поверх окна конкурса («Назад» вернёт к нему).
+              onPressed: () => prepareApplication(context, c),
+              icon: const Icon(Icons.view_kanban_outlined),
+              label: Text(t('bd.grant_prepare')),
+            ),
+            const SizedBox(height: 6),
+            TextButton.icon(
+              style:
+                  TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () => addGrantToProject(context, c),
+              icon: const Icon(Icons.playlist_add),
+              label: Text(t('bd.grant_add')),
+            ),
+          ],
           if (c.source == GrantSource.grantsGov) ...[
             const SizedBox(height: 16),
             Text(t('gr.disclaimer'),

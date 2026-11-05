@@ -139,9 +139,9 @@ const Map<String, List<String>> chatStrings = {
     'Delete your data?'
   ],
   'del.text': [
-    'Будут удалены: опубликованный профиль, все ваши переписки и сообщения (у собеседников тоже), библиотека, скачанные PDF и прогресс чтения на этом телефоне. Отменить это нельзя. После удаления вы выйдете из аккаунта.',
-    'O‘chiriladi: e’lon qilingan profil, barcha yozishma va xabarlaringiz (suhbatdoshlarda ham), kutubxona, yuklangan PDF va ushbu telefondagi o‘qish jarayoni. Buni bekor qilib bo‘lmaydi. O‘chirgandan so‘ng hisobdan chiqasiz.',
-    'This deletes your published profile, all your conversations and messages (for the other person too), your library, downloaded PDFs and reading progress on this phone. This cannot be undone. You will be signed out afterwards.',
+    'Будут удалены: опубликованный профиль, все ваши переписки и сообщения (у собеседников тоже), личные доски, библиотека, скачанные PDF и прогресс чтения на этом телефоне. Из общих досок вы выйдете; для досок, где вы владелец, приложение спросит, кому передать права. Отменить это нельзя. После удаления вы выйдете из аккаунта.',
+    'O‘chiriladi: e’lon qilingan profil, barcha yozishma va xabarlaringiz (suhbatdoshlarda ham), shaxsiy doskalar, kutubxona, yuklangan PDF va ushbu telefondagi o‘qish jarayoni. Umumiy doskalardan chiqasiz; egasi bo‘lgan doskalar uchun ilova huquqlarni kimga o‘tkazishni so‘raydi. Buni bekor qilib bo‘lmaydi. O‘chirgandan so‘ng hisobdan chiqasiz.',
+    'This deletes your published profile, all your conversations and messages (for the other person too), your personal boards, library, downloaded PDFs and reading progress on this phone. You will leave shared boards; for boards you own, the app will ask who should take over. This cannot be undone. You will be signed out afterwards.',
   ],
   'del.confirm': ['Удалить навсегда', 'Butunlay o‘chirish', 'Delete forever'],
   'del.progress': [
