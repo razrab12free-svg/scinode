@@ -38,7 +38,8 @@ Scinode — мобильное приложение для коллаборац�
   по доске; `motivation_service` — серия дней и недельная цель, на телефоне;
   `zotero_service` — Zotero Web API v3, ключ в flutter_secure_storage;
   `note_service` — заметки с формулами; `app_lock_service` — замок приложения
-  через local_auth, настройка только на телефоне).
+  через local_auth, настройка только на телефоне; `orcid_service` — заполнение
+  профиля по ORCID).
 - `models/` — модели данных и разбор JSON (`paper`, `scientist`, `profile`, `taxonomy`,
   `grant` — конкурсы, проекты, даты, суммы; `board`, `board_report` — доски и
   статистика отчёта).
@@ -61,6 +62,14 @@ Scinode — мобильное приложение для коллаборац�
   Обязательная фраза-дисклеймер — строка `gr.disclaimer`.
 - NIH: `POST /v2/projects/search`, `advanced_text_search` с operator `and`.
 - NSF: `GET /services/v1/awards.json`; слова в `keyword` соединять через `AND`.
+
+## Заметки по ORCID
+- `GET https://pub.orcid.org/v3.0/<id>/person` и `/employments`, заголовок
+  `Accept: application/json`, без ключа (полная `/record` весит до 0,5 МБ — не брать).
+  Нет записи — 404. Автор OpenAlex — `/authors/orcid:<id>` (404, если нет).
+- Номер проверяется по контрольной цифре (ISO 7064 MOD 11-2), `normalizeOrcid`
+  понимает ссылку orcid.org и ввод без дефисов. Образцы — `test/fixtures/orcid/`.
+- Значка «подтверждено» нет: вход через ORCID (OAuth) требует сервера (Blaze).
 
 ## Заметки по Zotero
 - `https://api.zotero.org`, заголовки `Zotero-API-Key` и `Zotero-API-Version: 3`.
