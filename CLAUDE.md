@@ -124,6 +124,16 @@ Scinode — мобильное приложение для коллаборац�
 - Экран замка — поверх всего в `MaterialApp.builder` (`main.dart`), экраны под ним
   не пересоздаются. Уход в окно PIN во время проверки не считается выходом.
 
+## Scinode Аналитика (`analytics/`)
+- Python (только стандартная библиотека), workflow `.github/workflows/analytics.yml`:
+  тесты на PR; расчёт и публикация на GitHub Pages — 3-го числа каждого месяца, при
+  push в main с изменениями `analytics/` и вручную. Секрет `OPENALEX_API_KEY`.
+- Данные: `https://x9096730-spec.github.io/scinode/analytics/v1/index.json` и
+  `orgs/<id>.json` (`UZ.json` — вся страна). Методика и формат — `analytics/README.md`.
+- Тесты: `cd analytics && python -m pytest -q tests` — на записанных настоящих ответах
+  (`--record` записывает новые образцы; ключ в них не попадает).
+- Менять формат JSON — только с повышением `SCHEMA` и папки `v<N>`.
+
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой
   `flutter create`, затем правится шагами `sed` (разрешения, название, minSdk 23).

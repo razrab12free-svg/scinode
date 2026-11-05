@@ -1,0 +1,208 @@
+"""Разбор ответов OpenAlex и расчёт показателей. Только чистые функции.
+
+Методика (подробно — analytics/README.md):
+- окно для показателей качества — 5 последних полных лет;
+- PP(top 10%) и PP(top 1%) — доля работ в мировом топе своей области
+  (поле citation_normalized_percentile), как в Лейденском рейтинге (CWTS);
+  знаменатель — работы, для которых OpenAlex посчитал процентиль;
+- FWCI — нормированная цитируемость; показываем медиану и среднее (MNCS);
+- сильное направление — раздел (subfield), где PP(top 10%) выше 10 %
+  (мирового уровня) и работ не меньше MIN_TOPIC_WORKS.
+"""
+
+from __future__ import annotations
+
+from statistics import mean, median
+
+MIN_TOPIC_WORKS = 30
+
+
+def short_id(v: object) -> str:
+    """https://openalex.org/I47151758 → I47151758; …/countries/UZ → UZ."""
+    s = "" if v is None else str(v)
+    return s.rstrip("/").rsplit("/", 1)[-1]
+
+
+def groups(resp: dict) -> list[dict]:
+    g = resp.get("group_by") if isinstance(resp, dict) else None
+    return g if isinstance(g, list) else []
+
+
+def group_counts(resp: dict) -> dict[str, int]:
+    """Ответ group_by → {ключ: число работ}."""
+    out: dict[str, int] = {}
+    for x in groups(resp):
+        k = short_id(x.get("key"))
+        n = x.get("count")
+        if k and isinstance(n, int):
+            out[k] = out.get(k, 0) + n
+    return out
+
+
+def group_list(resp: dict) -> list[dict]:
+    """Ответ group_by → [{id, name, n}] по убыванию."""
+    out = []
+    for x in groups(resp):
+        k = short_id(x.get("key"))
+        n = x.get("count")
+        if not k or not isinstance(n, int) or k in ("unknown", "null"):
+            continue
+        name = " ".join(str(x.get("key_display_name") or "").split())
+        out.append({"id": k, "name": name, "n": n})
+    out.sort(key=lambda e: (-e["n"], e["id"]))
+    return out
+
+
+def bool_counts(resp: dict) -> tuple[int, int]:
+    """group_by по полю true/false → (true, true + false)."""
+    c = group_counts(resp)
+    t = c.get("true", 0)
+    return t, t + c.get("false", 0)
+
+
+def share(part: int, whole: int) -> float | None:
+    return round(part / whole, 4) if whole > 0 else None
+
+
+def years_table(
+    all_: dict[str, int],
+    article: dict[str, int],
+    conference: dict[str, int],
+    oa: dict[str, int],
+    first: int,
+    last: int,
+) -> list[dict]:
+    rows = []
+    for y in range(first, last + 1):
+        k = str(y)
+        a = all_.get(k, 0)
+        art = article.get(k, 0)
+        conf = conference.get(k, 0)
+        rows.append(
+            {
+                "y": y,
+                "all": a,
+                "article": art,
+                "conference": conf,
+                "other": max(a - art - conf, 0),
+                "oa": oa.get(k, 0),
+            }
+        )
+    return rows
+
+
+def fwci_stats(values: list[object], sampled: bool, total: int) -> dict:
+    v = [float(x) for x in values if isinstance(x, (int, float))]
+    return {
+        "n": len(v),
+        "total": total,
+        "sampled": sampled,
+        "median": round(median(v), 3) if v else None,
+        "mean": round(mean(v), 3) if v else None,
+        "above1": share(sum(1 for x in v if x > 1), len(v)),
+    }
+
+
+def topics_table(
+    total: dict[str, int],
+    top10: dict[str, int],
+    no_top10: dict[str, int],
+    names: dict[str, str],
+    limit: int = 25,
+) -> list[dict]:
+    rows = []
+    for k, n in total.items():
+        t = top10.get(k, 0)
+        known = t + no_top10.get(k, 0)
+        pp = share(t, known)
+        rows.append(
+            {
+                "id": k,
+                "name": names.get(k, ""),
+                "n": n,
+                "top10": t,
+                "known": known,
+                "pp_top10": pp,
+                "strong": bool(
+                    pp is not None and pp > 0.10 and known >= MIN_TOPIC_WORKS
+                ),
+            }
+        )
+    rows.sort(key=lambda e: (-e["n"], e["id"]))
+    return rows[:limit]
+
+
+def partner_orgs(
+    lineage: list[dict],
+    exclude: set[str],
+    info: dict[str, dict],
+    limit: int = 25,
+) -> list[dict]:
+    """Организации-соавторы без самой организации и её подразделений."""
+    out = []
+    for x in lineage:
+        if x["id"] in exclude:
+            continue
+        i = info.get(x["id"], {})
+        out.append(
+            {
+                "id": x["id"],
+                "name": i.get("name") or x["name"],
+                "country": i.get("country", ""),
+                "type": i.get("type", ""),
+                "n": x["n"],
+            }
+        )
+        if len(out) >= limit:
+            break
+    return out
+
+
+def author_row(a: dict, n: int) -> dict:
+    s = a.get("summary_stats") or {}
+    lki = a.get("last_known_institutions") or []
+    return {
+        "id": short_id(a.get("id")),
+        "name": " ".join(str(a.get("display_name") or "").split()),
+        "orcid": short_id(a.get("orcid")) if a.get("orcid") else "",
+        "n": n,
+        "works": a.get("works_count") or 0,
+        "citations": a.get("cited_by_count") or 0,
+        "h": s.get("h_index") or 0,
+        "inst": " ".join(str(lki[0].get("display_name") or "").split())
+        if lki and isinstance(lki[0], dict)
+        else "",
+    }
+
+
+def journal_row(s: dict, n: int) -> dict:
+    st = s.get("summary_stats") or {}
+    return {
+        "id": short_id(s.get("id")),
+        "name": " ".join(str(s.get("display_name") or "").split()),
+        "type": s.get("type") or "",
+        "issn": s.get("issn_l") or "",
+        "doaj": bool(s.get("is_in_doaj")),
+        "oa": bool(s.get("is_oa")),
+        "publisher": s.get("host_organization_name") or "",
+        "country": s.get("country_code") or "",
+        "h": st.get("h_index") or 0,
+        "mean2y": round(st.get("2yr_mean_citedness") or 0, 3),
+        "n": n,
+    }
+
+
+def children_of(inst: dict) -> set[str]:
+    return {
+        short_id(a.get("id"))
+        for a in inst.get("associated_institutions") or []
+        if a.get("relationship") == "child"
+    }
+
+
+def works_in(inst: dict, first: int, last: int) -> int:
+    return sum(
+        c.get("works_count") or 0
+        for c in inst.get("counts_by_year") or []
+        if first <= (c.get("year") or 0) <= last
+    )

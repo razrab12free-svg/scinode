@@ -23,3 +23,8 @@ firestore_tests/*.log
 
 # Картинки упавших скриншот-тестов
 test/failures/
+
+# Аналитика (Python): кэш и собранный сайт
+__pycache__/
+.pytest_cache/
+site/

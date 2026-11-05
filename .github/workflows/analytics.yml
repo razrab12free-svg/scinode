@@ -1,0 +1,82 @@
+name: Scinode Analytics
+
+# Раз в месяц считает показатели организаций Узбекистана по OpenAlex
+# и публикует файлы с цифрами на GitHub Pages:
+#   https://x9096730-spec.github.io/scinode/analytics/v1/index.json
+on:
+  schedule:
+    - cron: "17 2 3 * *" # 3-го числа каждого месяца, 02:17 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "analytics/**"
+      - ".github/workflows/analytics.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "analytics/**"
+      - ".github/workflows/analytics.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: analytics-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run tests
+        working-directory: analytics
+        run: python -m pytest -q tests
+
+  build:
+    # Расчёт и публикация — только для main (не для Pull Request).
+    if: github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build reports
+        working-directory: analytics
+        env:
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+        run: python -m scinode_analytics.build --out ../site
+      - name: Summary
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          d = json.load(open("site/analytics/v1/index.json"))
+          print(f"### Scinode Analytics — {d['generated']}")
+          print(f"- Окно: {d['window'][0]}–{d['window'][1]}")
+          print(f"- Организаций: {len(d['orgs'])}, ошибок: {len(d['failed'])}")
+          PY
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
