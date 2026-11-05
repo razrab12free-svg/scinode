@@ -28,6 +28,56 @@ class BoardException implements Exception {
   }
 }
 
+/// Переподписка при отказе в доступе.
+///
+/// Сразу после создания доски приложение открывает её, а сервер может ещё не
+/// получить запись: тогда чтение доски и её карточек отклоняется правилами
+/// («нет прав»). Через пару секунд запись доходит, и повторная подписка
+/// проходит. Другие ошибки и последний отказ передаются дальше.
+Stream<T> retryDenied<T>(
+  Stream<T> Function() open, {
+  List<Duration> delays = const [
+    Duration(seconds: 1),
+    Duration(seconds: 2),
+    Duration(seconds: 4),
+  ],
+}) {
+  late StreamController<T> ctrl;
+  StreamSubscription<T>? sub;
+  Timer? timer;
+  var attempt = 0;
+
+  void listen() {
+    sub = open().listen(
+      (v) {
+        attempt = 0;
+        ctrl.add(v);
+      },
+      onError: (Object e, StackTrace st) {
+        final denied = e is FirebaseException && e.code == 'permission-denied';
+        if (denied && attempt < delays.length) {
+          timer = Timer(delays[attempt++], listen);
+        } else {
+          ctrl.addError(e, st);
+        }
+      },
+      onDone: () {
+        if (!ctrl.isClosed) ctrl.close();
+      },
+      cancelOnError: true,
+    );
+  }
+
+  ctrl = StreamController<T>(
+    onListen: listen,
+    onCancel: () async {
+      timer?.cancel();
+      await sub?.cancel();
+    },
+  );
+  return ctrl.stream;
+}
+
 /// Карточка, создаваемая вместе с доской.
 class NewCard {
   const NewCard({
@@ -111,14 +161,14 @@ class BoardService {
         );
   }
 
-  Stream<Board?> board(String bid) => _boards
+  Stream<Board?> board(String bid) => retryDenied(() => _boards
       .doc(bid)
       .snapshots()
-      .map((d) => d.exists ? Board.fromMap(d.id, d.data()!) : null);
+      .map((d) => d.exists ? Board.fromMap(d.id, d.data()!) : null));
 
   Stream<List<TaskCard>> cards(String bid) =>
-      _cards(bid).limit(500).snapshots().map((s) =>
-          [for (final d in s.docs) TaskCard.fromMap(d.id, bid, d.data())]);
+      retryDenied(() => _cards(bid).limit(500).snapshots().map((s) =>
+          [for (final d in s.docs) TaskCard.fromMap(d.id, bid, d.data())]));
 
   Stream<List<CardComment>> comments(String bid, String cid) => _cards(bid)
       .doc(cid)

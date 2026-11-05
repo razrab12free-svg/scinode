@@ -156,6 +156,67 @@ class _BoardTile extends StatelessWidget {
   final Board board;
   final BoardService svc;
 
+  /// Меню доски в списке: архив, удалить (владелец) или выйти.
+  Future<void> _menu(BuildContext context) async {
+    final me = svc.me;
+    final owner = board.isOwner(me);
+    final scheme = Theme.of(context).colorScheme;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (board.canEdit(me))
+              ListTile(
+                minTileHeight: 56,
+                leading: Icon(board.archived
+                    ? Icons.unarchive_outlined
+                    : Icons.inventory_2_outlined),
+                title: Text(
+                    board.archived ? t('bd.unarchive') : t('bd.archive_do')),
+                onTap: () => Navigator.pop(ctx, 'archive'),
+              ),
+            ListTile(
+              minTileHeight: 56,
+              leading: Icon(
+                  owner ? Icons.delete_forever_outlined : Icons.logout,
+                  color: scheme.error),
+              title: Text(owner ? t('bd.delete') : t('bd.leave'),
+                  style: TextStyle(color: scheme.error)),
+              onTap: () => Navigator.pop(ctx, owner ? 'delete' : 'leave'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (action == null || !context.mounted) return;
+    switch (action) {
+      case 'archive':
+        fireAndReport(context, svc.setArchived(board.id, !board.archived));
+      case 'leave':
+        final ok = await confirmDanger(context,
+            title: t('bd.leave'),
+            text: t('bd.leave_q', {'name': board.name}),
+            action: t('bd.leave'));
+        if (ok && context.mounted) fireAndReport(context, svc.leave(board));
+      case 'delete':
+        final ok = await confirmDanger(context,
+            title: t('bd.delete'),
+            text: t('bd.delete_q', {'name': board.name}));
+        if (!ok || !context.mounted) return;
+        final messenger = ScaffoldMessenger.of(context);
+        try {
+          await svc.deleteBoard(board.id);
+          messenger.showSnackBar(SnackBar(content: Text(t('bd.deleted'))));
+        } catch (e) {
+          messenger.showSnackBar(SnackBar(content: Text(boardError(e))));
+        }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -254,6 +315,11 @@ class _BoardTile extends StatelessWidget {
                             color: scheme.onSurfaceVariant),
                       ),
                   ],
+                ),
+                IconButton(
+                  tooltip: t('lib.more'),
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () => _menu(context),
                 ),
               ],
             ),

@@ -378,3 +378,28 @@ test('доска со стартовыми карточками создаётс
   bad.set(doc(collection(dbB, 'boards', 'tpl1', 'cards')), cardData(B));
   await assertFails(bad.commit());
 });
+
+test('удаление доски владельцем: комментарии, карточки, история, доска', async () => {
+  await sharedBoard();
+  const da = db(A);
+  const card = doc(collection(da, 'boards', BID, 'cards'));
+  await assertSucceeds(setDoc(card, cardData(A)));
+  await assertSucceeds(setDoc(doc(collection(da, 'boards', BID, 'cards', card.id, 'comments')),
+    { by: A, t: 'Комментарий', at: serverTimestamp() }));
+  await assertSucceeds(setDoc(doc(collection(da, 'boards', BID, 'activity')),
+    { by: A, k: 'create', card: card.id, ct: 'x', from: '', to: '', at: serverTimestamp() }));
+  // Как BoardService.deleteBoard: читаем и удаляем пакетами.
+  const cm = await assertSucceeds(getDocs(collection(da, 'boards', BID, 'cards', card.id, 'comments')));
+  let b = writeBatch(da);
+  cm.docs.forEach((d) => b.delete(d.ref));
+  await assertSucceeds(b.commit());
+  const cards = await assertSucceeds(getDocs(collection(da, 'boards', BID, 'cards')));
+  b = writeBatch(da);
+  cards.docs.forEach((d) => b.delete(d.ref));
+  await assertSucceeds(b.commit());
+  const act = await assertSucceeds(getDocs(collection(da, 'boards', BID, 'activity')));
+  b = writeBatch(da);
+  act.docs.forEach((d) => b.delete(d.ref));
+  await assertSucceeds(b.commit());
+  await assertSucceeds(deleteDoc(doc(da, 'boards', BID)));
+});
