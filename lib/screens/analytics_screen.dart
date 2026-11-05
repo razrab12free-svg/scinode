@@ -465,9 +465,11 @@ class _Note extends StatelessWidget {
 }
 
 class _BigNumber extends StatelessWidget {
-  const _BigNumber({required this.value, required this.label});
+  const _BigNumber(
+      {super.key, required this.value, required this.label, this.color});
   final String value;
   final String label;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -479,7 +481,7 @@ class _BigNumber extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.w900,
-                    color: Theme.of(context).colorScheme.primary)),
+                    color: color ?? Theme.of(context).colorScheme.primary)),
             const SizedBox(width: 10),
             Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
           ],
@@ -594,6 +596,23 @@ class _ReportBody extends StatelessWidget {
           icon: Icons.format_quote,
           children: [
             _Note(t('an.cite_note')),
+            // Главное — собственные (ведущие) работы организации.
+            if (r.citation.lead != null) ...[
+              ShareBar(
+                key: const Key('an.lead_top10'),
+                label: t('an.c.lead_top10'),
+                valueText: _pct(r.citation.lead!.ppTop10),
+                value: r.citation.lead!.ppTop10,
+                scaleMax: 0.2,
+                world: 0.10,
+                caption: t('an.world', {'v': _pct(0.10)}),
+              ),
+              _Note(t('an.lead_note', {
+                'n': _num(r.citation.lead!.works),
+                'all': _num(r.works),
+                'p': _pct(r.citation.lead!.share),
+              })),
+            ],
             ShareBar(
               label: t('an.c.top10'),
               valueText: _pct(r.citation.ppTop10),
@@ -639,6 +658,12 @@ class _ReportBody extends StatelessWidget {
                   ? null
                   : t('an.country_v', {'v': _pct(c.citation.above1Share)}),
             ),
+            if (r.citation.megaWorks > 0)
+              _Note(t('an.mega_note', {
+                'n': _num(r.citation.megaWorks),
+                't': _num(r.citation.megaTop10),
+                'p': _pct(r.citation.ppTop10WithoutMega),
+              })),
           ],
         ),
 
@@ -656,9 +681,17 @@ class _ReportBody extends StatelessWidget {
                 max: r.topics.isEmpty ? 0 : r.topics.first.n,
                 valueText: _num(tp.n),
                 color: tp.strong ? AnColors.good : null,
-                sub: t('an.topic_row', {'p': _pct(tp.ppTop10)}),
-                trailing:
-                    tp.strong ? _Chip(t('an.strong'), AnColors.good) : null,
+                sub: tp.lead == null
+                    ? t('an.topic_row', {'p': _pct(tp.ppTop10)})
+                    : t('an.topic_row_lead', {
+                        'n': _num(tp.lead!),
+                        'p': _pct(tp.leadPpTop10),
+                      }),
+                trailing: tp.strong
+                    ? _Chip(t('an.strong'), AnColors.good)
+                    : tp.mostlyGuest
+                        ? _Chip(t('an.guest'), AnColors.country)
+                        : null,
               ),
           ],
         ),
@@ -758,6 +791,33 @@ class _ReportBody extends StatelessWidget {
               icon: const Icon(Icons.compare_arrows),
               label: Text(t('an.compare')),
             ),
+          ],
+        ),
+
+        // Надёжность данных.
+        _Section(
+          title: t('an.s.integrity'),
+          icon: Icons.fact_check_outlined,
+          children: [
+            if (r.integrity.retracted != null) ...[
+              _BigNumber(
+                key: const Key('an.retracted'),
+                value: _num(r.integrity.retracted!),
+                label: t('an.retracted', win),
+                color: r.integrity.retracted! > 0 ? scheme.error : null,
+              ),
+              _Note(r.integrity.retracted! > 0
+                  ? t('an.retracted_note')
+                  : t('an.retracted_none')),
+            ],
+            if (r.integrity.sourceTypes.isNotEmpty) ...[
+              _BigNumber(
+                value:
+                    _pct(r.works > 0 ? r.integrity.repository / r.works : null),
+                label: t('an.repo_share'),
+              ),
+              _Note(t('an.repo_note')),
+            ],
           ],
         ),
 
@@ -1096,6 +1156,14 @@ class _CompareBody extends StatelessWidget {
     final rows = <(String, String, String, double?, double?)>[
       (t('an.cmp.works', win), _num(a.works), _num(b.works), null, null),
       (t('an.cmp.articles'), _num(articles(a)), _num(articles(b)), null, null),
+      if (a.citation.lead != null || b.citation.lead != null)
+        (
+          t('an.c.lead_top10'),
+          _pct(a.citation.lead?.ppTop10),
+          _pct(b.citation.lead?.ppTop10),
+          a.citation.lead?.ppTop10,
+          b.citation.lead?.ppTop10
+        ),
       (
         t('an.c.top10'),
         _pct(a.citation.ppTop10),
@@ -1141,6 +1209,14 @@ class _CompareBody extends StatelessWidget {
       ),
       if (!a.org.isCountry && !b.org.isCountry)
         (t('an.cmp.h'), '${a.org.h}', '${b.org.h}', null, null),
+      if (a.integrity.retracted != null && b.integrity.retracted != null)
+        (
+          t('an.cmp.retracted'),
+          _num(a.integrity.retracted!),
+          _num(b.integrity.retracted!),
+          null,
+          null
+        ),
       (
         t('an.cmp.strong'),
         '${a.strongTopics.length}',

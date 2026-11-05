@@ -66,6 +66,43 @@ def test_topics_strong_needs_enough_works():
     assert rows[1]["pp_top10"] == 0.5 and not rows[1]["strong"]
 
 
+def test_wilson_lower_bound():
+    assert m.wilson_low(0, 0) is None
+    assert m.wilson_low(0, 50) == 0.0
+    # 5 из 30 (17 %) — нижняя граница ниже 10 %: не «сильное».
+    assert m.wilson_low(5, 30) < 0.10
+    # 47 из 191 (25 %) — нижняя граница выше 10 %.
+    assert m.wilson_low(47, 191) > 0.18
+
+
+def test_strong_topic_counts_only_leading_works():
+    # Настоящий случай (пед. университет им. Низами, 2021–2025): по
+    # «биомедицинской инженерии» 192 работы, 53 в топ-10 %, но ведущих
+    # работ (автор для переписки из вуза) всего 7 и ни одной в топ-10 %.
+    rows = m.topics_table(
+        {"2204": 192, "1213": 99},
+        {"2204": 53, "1213": 17},
+        {"2204": 134, "1213": 82},
+        {"2204": "Biomedical Engineering", "1213": "Visual Arts"},
+        lead={"2204": 7, "1213": 81},
+        lead_top10={"2204": 0, "1213": 17},
+        lead_no_top10={"2204": 7, "1213": 64},
+    )
+    bme = next(r for r in rows if r["id"] == "2204")
+    arts = next(r for r in rows if r["id"] == "1213")
+    assert bme["pp_top10"] == 0.2834 and not bme["strong"]
+    assert bme["lead_share"] == 0.0365
+    assert arts["lead_pp_top10"] == 0.2099 and arts["strong"]
+
+
+def test_safe_url_and_encoded_keys():
+    assert m.safe_url("https://nuu.uz/") == "https://nuu.uz/"
+    assert m.safe_url("javascript:alert(1)") == ""
+    assert m.safe_url("nuu.uz") == ""
+    assert m.safe_url(None) == ""
+    assert m.short_id("https://openalex.org/source-types/ebook%20platform") == "ebook platform"
+
+
 def test_partners_exclude_self_and_children():
     lineage = [
         {"id": "I1", "name": "Self", "n": 90},
@@ -123,6 +160,14 @@ def test_org_report(built):
     assert j["top"][0]["name"].startswith("Zenodo") and j["top"][0]["type"] == "repository"
     assert 0 <= j["doaj_share"] <= 1
     assert d["topics"][0]["name"] == "Education"
+    t0 = d["topics"][0]
+    assert t0["lead"] == 24 and t0["lead_known"] == 24 and not t0["strong"]
+    lead = c["lead"]
+    assert (lead["works"], lead["top10"], lead["pp_top10"]) == (77, 2, 0.026)
+    assert lead["share"] == 0.828
+    assert c["mega"] == {"works": 0, "known": 0, "top10": 0, "pp_top10_without": 0.0215}
+    assert d["integrity"]["retracted"] == 0
+    assert [x["id"] for x in d["integrity"]["source_types"]][:2] == ["journal", "repository"]
 
 
 def test_national_report(built):
@@ -133,8 +178,12 @@ def test_national_report(built):
     f = d["citation"]["fwci"]
     assert f["known"] > 170000 and 0 < f["above1"] < f["cited"] < f["known"]
     assert d["citation"]["pp_top10"] == 0.0594
-    # Весь расчёт (список, вуз, страна) — 47 запросов: без скачивания списков работ.
-    assert client.calls == 47
+    # Для страны «ведущих» работ нет: фильтра corresponding по стране в OpenAlex нет.
+    assert "lead" not in d["citation"]
+    assert d["integrity"]["retracted"] > 0
+    assert all(not t.get("lead") for t in d["topics"])
+    # Весь расчёт (список, вуз, страна) — 61 запрос: без скачивания списков работ.
+    assert client.calls == 61
 
 
 def test_replay_unknown_request_fails():

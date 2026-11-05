@@ -71,8 +71,15 @@ class OrgSummary {
   /// ru — первое название кириллицей, uz — узбекское латиницей.
   String localName(String lang) {
     if (lang == 'ru') {
+      // Русское — кириллица без букв узбекской, украинской и таджикской
+      // кириллицы (ў қ ғ ҳ і ї є ґ ӯ ҷ): иначе «Бухоро давлат тиббиёт
+      // институти» выдавалось бы за русское название.
       for (final a in alt) {
-        if (RegExp(r'[А-Яа-яЁё]').hasMatch(a)) return a;
+        if (RegExp(r'[А-Яа-яЁё]').hasMatch(a) &&
+            !RegExp(r'[ЎўҚқҒғҲҳІіЇїЄєҐґӮӯҶҷ]').hasMatch(a) &&
+            !_uzCyrillicWords.hasMatch(a.toLowerCase())) {
+          return a;
+        }
       }
     } else if (lang == 'uz') {
       for (final a in alt) {
@@ -81,6 +88,10 @@ class OrgSummary {
     }
     return name;
   }
+
+  /// Слова узбекской кириллицы, которые пишутся русскими буквами.
+  static final _uzCyrillicWords = RegExp(
+      r'(номидаги|давлат|университети|институти|академияси|илмий|маркази)');
 
   static bool _looksUzbek(String s) {
     if (RegExp(r'[А-Яа-яЁё]').hasMatch(s)) return false;
@@ -195,6 +206,10 @@ class Citation {
     required this.above1,
     required this.citedShare,
     required this.above1Share,
+    this.lead,
+    this.megaWorks = 0,
+    this.megaTop10 = 0,
+    this.ppTop10WithoutMega,
   });
   final int known;
   final int top10;
@@ -207,11 +222,35 @@ class Citation {
   final double? citedShare;
   final double? above1Share;
 
+  /// Ведущие работы (автор для переписки — из организации); у страны нет.
+  final LeadWorks? lead;
+
+  /// Работы с больше чем 100 авторами (CERN и т. п.) и сколько из них в топ-10 %.
+  final int megaWorks;
+  final int megaTop10;
+  final double? ppTop10WithoutMega;
+
   factory Citation.fromJson(Map<String, dynamic> j) {
-    final f = j['fwci'] is Map
-        ? Map<String, dynamic>.from(j['fwci'] as Map)
-        : <String, dynamic>{};
+    Map<String, dynamic> m(Object? v) =>
+        v is Map ? Map<String, dynamic>.from(v) : <String, dynamic>{};
+    final f = m(j['fwci']);
+    final l = j['lead'] is Map ? m(j['lead']) : null;
+    final mg = m(j['mega']);
     return Citation(
+      lead: l == null
+          ? null
+          : LeadWorks(
+              works: _i(l['works']),
+              share: _d(l['share']),
+              known: _i(l['known']),
+              top10: _i(l['top10']),
+              top1: _i(l['top1']),
+              ppTop10: _d(l['pp_top10']),
+              ppTop1: _d(l['pp_top1']),
+            ),
+      megaWorks: _i(mg['works']),
+      megaTop10: _i(mg['top10']),
+      ppTop10WithoutMega: _d(mg['pp_top10_without']),
       known: _i(j['known']),
       top10: _i(j['top10']),
       top1: _i(j['top1']),
@@ -224,6 +263,27 @@ class Citation {
       above1Share: _d(f['above1_share']),
     );
   }
+}
+
+class LeadWorks {
+  LeadWorks({
+    required this.works,
+    required this.share,
+    required this.known,
+    required this.top10,
+    required this.top1,
+    required this.ppTop10,
+    required this.ppTop1,
+  });
+  final int works;
+
+  /// Доля ведущих среди всех работ организации.
+  final double? share;
+  final int known;
+  final int top10;
+  final int top1;
+  final double? ppTop10;
+  final double? ppTop1;
 }
 
 class Partner {
@@ -294,6 +354,11 @@ class TopicRow {
     required this.known,
     required this.ppTop10,
     required this.strong,
+    this.lead,
+    this.leadShare,
+    this.leadKnown = 0,
+    this.leadTop10 = 0,
+    this.leadPpTop10,
   });
   final String id; // номер раздела OpenAlex (subfield), например 3304
   final String name; // английское название
@@ -301,7 +366,31 @@ class TopicRow {
   final int top10;
   final int known;
   final double? ppTop10;
+
+  /// «Сильное» по правилу расчёта (по ведущим работам, с запасом точности).
   final bool strong;
+
+  /// Ведущих работ в разделе (null — у страны и в старых файлах).
+  final int? lead;
+  final double? leadShare;
+  final int leadKnown;
+  final int leadTop10;
+  final double? leadPpTop10;
+
+  /// Большинство работ — чужие статьи, где организация лишь соавтор.
+  bool get mostlyGuest => leadShare != null && leadShare! < 0.3 && n >= 20;
+}
+
+/// Отозванные статьи и типы источников (журнал, репозиторий, конференция).
+class Integrity {
+  Integrity({this.retracted, this.sourceTypes = const []});
+
+  /// null — в файле нет сведений (старый расчёт).
+  final int? retracted;
+  final List<Named> sourceTypes;
+
+  int get repository =>
+      sourceTypes.where((s) => s.id == 'repository').fold(0, (a, b) => a + b.n);
 }
 
 class OrgReport {
@@ -326,6 +415,7 @@ class OrgReport {
     required this.doajShare,
     required this.journals,
     required this.topics,
+    required this.integrity,
   });
 
   final OrgSummary org;
@@ -350,6 +440,7 @@ class OrgReport {
   final double? doajShare;
   final List<Journal> journals;
   final List<TopicRow> topics;
+  final Integrity integrity;
 
   double? get oaShare => works > 0 ? oaWindow / works : null;
 
@@ -365,7 +456,12 @@ class OrgReport {
     final oa = m(j['oa']);
     final collab = m(j['collab']);
     final jr = m(j['journals']);
+    final ig = m(j['integrity']);
     return OrgReport(
+      integrity: Integrity(
+        retracted: ig['retracted'] is num ? _i(ig['retracted']) : null,
+        sourceTypes: Named.list(ig['source_types']),
+      ),
       org: OrgSummary.fromJson(m(j['org'])),
       generated: DateTime.tryParse(_s(j['generated'])),
       windowFrom: w.isNotEmpty ? _i(w[0]) : 0,
@@ -430,6 +526,11 @@ class OrgReport {
             known: _i(t['known']),
             ppTop10: _d(t['pp_top10']),
             strong: t['strong'] == true,
+            lead: t['lead'] is num ? _i(t['lead']) : null,
+            leadShare: _d(t['lead_share']),
+            leadKnown: _i(t['lead_known']),
+            leadTop10: _i(t['lead_top10']),
+            leadPpTop10: _d(t['lead_pp_top10']),
           ),
       ],
     );

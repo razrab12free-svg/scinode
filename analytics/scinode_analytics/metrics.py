@@ -7,19 +7,45 @@
   знаменатель — работы, для которых OpenAlex посчитал процентиль;
 - FWCI — нормированная цитируемость: доли работ с FWCI > 0 (процитированы)
   и FWCI > 1 (выше мирового уровня); медиана почти всегда 0 и не показывается;
-- сильное направление — раздел (subfield), где PP(top 10%) выше 10 %
-  (мирового уровня) и работ не меньше MIN_TOPIC_WORKS.
+- сильное направление — раздел (subfield), где по ВЕДУЩИМ работам
+  организации (автор для переписки из неё) нижняя граница 95 % интервала
+  PP(top 10%) выше 10 % и таких работ не меньше MIN_TOPIC_WORKS;
+- «ведущие» работы, мегаколлаборации (> MEGA_AUTHORS авторов) и отозванные
+  статьи показываются отдельно — это защита от завышения показателей.
 """
 
 from __future__ import annotations
 
+import math
+from urllib.parse import unquote
+
 MIN_TOPIC_WORKS = 30
+
+# Работ с числом авторов больше этого — «мегаколлаборации» (CERN и т. п.).
+MEGA_AUTHORS = 100
+
+
+def wilson_low(k: int, n: int, z: float = 1.96) -> float | None:
+    """Нижняя граница 95 % доверительного интервала доли k из n (Уилсон).
+
+    Нужна, чтобы 5 удачных статей из 30 не объявлялись «сильным
+    направлением»: доля выше 10 % засчитывается, только если выше 10 %
+    даже нижняя граница.
+    """
+    if n <= 0:
+        return None
+    p = k / n
+    d = 1 + z * z / n
+    c = p + z * z / (2 * n)
+    r = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return round((c - r) / d, 4)
 
 
 def short_id(v: object) -> str:
     """https://openalex.org/I47151758 → I47151758; …/countries/UZ → UZ."""
     s = "" if v is None else str(v)
-    return s.rstrip("/").rsplit("/", 1)[-1]
+    # Ключи OpenAlex бывают закодированы: …/source-types/ebook%20platform.
+    return unquote(s.rstrip("/").rsplit("/", 1)[-1])
 
 
 def groups(resp: dict) -> list[dict]:
@@ -112,25 +138,53 @@ def topics_table(
     no_top10: dict[str, int],
     names: dict[str, str],
     limit: int = 25,
+    lead: dict[str, int] | None = None,
+    lead_top10: dict[str, int] | None = None,
+    lead_no_top10: dict[str, int] | None = None,
 ) -> list[dict]:
+    """Направления (разделы OpenAlex) по числу работ.
+
+    «Сильное» направление считается по ВЕДУЩИМ работам организации
+    (автор для переписки — из неё), если они известны: иначе в «сильные»
+    попадают темы, где организация лишь один из многих соавторов чужих
+    высокоцитируемых статей. Условия: не меньше MIN_TOPIC_WORKS ведущих
+    работ с процентилем и нижняя граница доли в топ-10 % выше 10 %.
+    """
     rows = []
     for k, n in total.items():
         t = top10.get(k, 0)
         known = t + no_top10.get(k, 0)
         pp = share(t, known)
-        rows.append(
-            {
-                "id": k,
-                "name": names.get(k, ""),
-                "n": n,
-                "top10": t,
-                "known": known,
-                "pp_top10": pp,
-                "strong": bool(
-                    pp is not None and pp > 0.10 and known >= MIN_TOPIC_WORKS
-                ),
-            }
-        )
+        row = {
+            "id": k,
+            "name": names.get(k, ""),
+            "n": n,
+            "top10": t,
+            "known": known,
+            "pp_top10": pp,
+        }
+        if lead is not None:
+            lt = (lead_top10 or {}).get(k, 0)
+            lk = lt + (lead_no_top10 or {}).get(k, 0)
+            low = wilson_low(lt, lk)
+            row.update(
+                {
+                    "lead": lead.get(k, 0),
+                    "lead_share": share(lead.get(k, 0), n),
+                    "lead_known": lk,
+                    "lead_top10": lt,
+                    "lead_pp_top10": share(lt, lk),
+                    "strong": bool(
+                        lk >= MIN_TOPIC_WORKS and low is not None and low > 0.10
+                    ),
+                }
+            )
+        else:
+            low = wilson_low(t, known)
+            row["strong"] = bool(
+                known >= MIN_TOPIC_WORKS and low is not None and low > 0.10
+            )
+        rows.append(row)
     rows.sort(key=lambda e: (-e["n"], e["id"]))
     return rows[:limit]
 
@@ -209,3 +263,9 @@ def works_in(inst: dict, first: int, last: int) -> int:
         for c in inst.get("counts_by_year") or []
         if first <= (c.get("year") or 0) <= last
     )
+
+
+def safe_url(v: object) -> str:
+    """Только обычные ссылки http(s): в данных OpenAlex встречается мусор."""
+    s = str(v or "").strip()
+    return s if s.lower().startswith(("https://", "http://")) and " " not in s else ""

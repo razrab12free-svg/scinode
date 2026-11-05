@@ -246,9 +246,9 @@ const Map<String, List<String>> analyticsStrings = {
     'Compared with the world level for the same field and year. Grey mark — world level, orange — Uzbekistan overall.',
   ],
   'an.c.top10': [
-    'В мировом топ-10 % по цитированию',
-    'Iqtiboslar bo‘yicha jahon top-10 % ida',
-    'In the world’s top 10% by citations',
+    'Все работы с участием — в мировом топ-10 %',
+    'Ishtirokidagi barcha ishlar — jahon top-10 % ida',
+    'All co-authored works — in the world’s top 10%',
   ],
   'an.c.top1': [
     'В мировом топ-1 %',
@@ -274,9 +274,9 @@ const Map<String, List<String>> analyticsStrings = {
     'Strong research areas',
   ],
   'an.topics_note': [
-    'Разделы науки с наибольшим числом работ. «Сильное» — доля работ в мировом топ-10 % выше 10 % (не меньше {n} работ).',
-    'Eng ko‘p ishlar bo‘lgan fan bo‘limlari. «Kuchli» — jahon top-10 % idagi ishlar ulushi 10 % dan yuqori (kamida {n} ish).',
-    'Fields with the most works. “Strong” means more than 10% of works in the world’s top 10% (at least {n} works).',
+    'Разделы науки с наибольшим числом работ. «Сильное» — по собственным работам организации: их не меньше {n}, и доля в мировом топ-10 % надёжно выше 10 % (с учётом погрешности малых чисел). «В основном соавторство» — большая часть работ раздела ведут другие организации.',
+    'Eng ko‘p ishlar bo‘lgan fan bo‘limlari. «Kuchli» — tashkilotning o‘z ishlari bo‘yicha: ular kamida {n} ta va jahon top-10 % idagi ulushi ishonchli ravishda 10 % dan yuqori (kichik sonlar xatoligi hisobga olingan). «Asosan hammualliflik» — bo‘lim ishlarining aksariyatini boshqa tashkilotlar olib boradi.',
+    'Fields with the most works. “Strong” is judged on the organization’s own works: at least {n} of them, with a top-10% share reliably above 10% (allowing for small-number error). “Mostly co-authorship” means most works in the field are led by other organizations.',
   ],
   'an.strong': ['сильное', 'kuchli', 'strong'],
   'an.topic_row': [
@@ -416,6 +416,13 @@ const Map<String, List<String>> analyticsStrings = {
   'ap.world': ['Мир', 'Jahon', 'World'],
   'ap.area': ['Раздел науки', 'Fan bo‘limi', 'Research area'],
   'ap.yes': ['да', 'ha', 'yes'],
+  'ap.own': ['Своих', 'O‘ziniki', 'Own'],
+  'ap.own_top10': [
+    'Свои в топ-10 %',
+    'O‘ziniki top-10 % da',
+    'Own in top 10%',
+  ],
+  'ap.mark': ['Отметка', 'Belgi', 'Note'],
   'ap.author': ['Автор', 'Muallif', 'Author'],
   'ap.here': ['Работ здесь', 'Bu yerdagi ishlar', 'Works here'],
   'ap.cites': ['Цитирований', 'Iqtiboslar', 'Citations'],
@@ -426,12 +433,72 @@ const Map<String, List<String>> analyticsStrings = {
   ],
   'ap.vs': ['и', 'va', 'vs'],
   'ap.file_compare': ['Сравнение', 'Taqqoslash', 'Comparison'],
+  'an.c.lead_top10': [
+    'Собственные работы в мировом топ-10 %',
+    'O‘z ishlari jahon top-10 % ida',
+    'Own works in the world’s top 10%',
+  ],
+  'an.lead_note': [
+    'Собственные (ведущие) работы — где автор для переписки из этой организации: {n} из {all} ({p}). Они показывают её собственный уровень; в остальных работах организация — один из соавторов.',
+    'O‘z (yetakchi) ishlari — muloqot uchun muallif shu tashkilotdan bo‘lgan ishlar: {all} tadan {n} ({p}). Ular tashkilotning o‘z darajasini ko‘rsatadi; qolganlarida tashkilot — hammualliflardan biri.',
+    'Own (leading) works are those whose corresponding author is from this organization: {n} of {all} ({p}). They show its own level; in the rest it is one of the co-authors.',
+  ],
+  'an.mega_note': [
+    'Статей больших коллабораций (больше 100 авторов): {n}, из них в топ-10 %: {t}. Без них доля всех работ в топ-10 % — {p}.',
+    'Katta hamkorlik maqolalari (100 dan ortiq muallif): {n}, shundan top-10 % da: {t}. Ularsiz barcha ishlarning top-10 % dagi ulushi — {p}.',
+    'Large-collaboration papers (over 100 authors): {n}, of them in the top 10%: {t}. Without them, the top-10% share of all works is {p}.',
+  ],
+  'an.guest': [
+    'в основном соавторство',
+    'asosan hammualliflik',
+    'mostly co-authorship',
+  ],
+  'an.topic_row_lead': [
+    'своих работ: {n} · из них в топ-10 %: {p}',
+    'o‘z ishlari: {n} · top-10 % da: {p}',
+    'own works: {n} · in top 10%: {p}',
+  ],
+  'an.s.integrity': [
+    'Надёжность данных',
+    'Ma’lumotlar ishonchliligi',
+    'Data reliability',
+  ],
+  'an.retracted': [
+    'отозванных статей за {from}–{to}',
+    '{from}–{to} yillarda qaytarib olingan maqolalar',
+    'retracted papers in {from}–{to}',
+  ],
+  'an.retracted_note': [
+    'Отозванные статьи — снятые журналом из-за ошибок или нарушений (данные Retraction Watch через OpenAlex). Даже несколько таких статей — повод проверить, где и как публикуются сотрудники.',
+    'Qaytarib olingan maqolalar — xato yoki qoidabuzarlik sababli jurnal olib tashlagan maqolalar (OpenAlex orqali Retraction Watch ma’lumotlari). Hatto bir nechtasi ham xodimlar qayerda va qanday nashr qilishini tekshirishga sabab.',
+    'Retracted papers were withdrawn by journals for errors or misconduct (Retraction Watch data via OpenAlex). Even a few are a reason to check where and how staff publish.',
+  ],
+  'an.retracted_none': [
+    'Отозванных статей за этот период нет.',
+    'Bu davrda qaytarib olingan maqolalar yo‘q.',
+    'No retracted papers in this period.',
+  ],
+  'an.repo_share': [
+    'работ — только в репозиториях (Zenodo и др.), без журнала',
+    'ishlar — faqat repozitoriylarda (Zenodo va boshq.), jurnalsiz',
+    'of works are only in repositories (Zenodo etc.), not in a journal',
+  ],
+  'an.repo_note': [
+    'Такие работы обычно не проходили рецензирование журнала.',
+    'Bunday ishlar odatda jurnal taqrizidan o‘tmagan.',
+    'Such works usually haven’t gone through journal peer review.',
+  ],
+  'an.cmp.retracted': [
+    'Отозванных статей',
+    'Qaytarib olingan maqolalar',
+    'Retracted papers',
+  ],
   // Методика.
   'an.s.method': ['Методика', 'Metodika', 'Methodology'],
   'an.method': [
-    'Источник — OpenAlex (данные CC0), выгрузка {date}. Работы организации считаются вместе с её подразделениями. Показатели качества — за 5 последних полных лет ({from}–{to}). Топ-10 % и топ-1 % — процентиль цитирования в своей области и году, как в Лейденском рейтинге (CWTS). FWCI — нормированная цитируемость, 1 — мировой уровень. В список входят организации от {min} работ за этот период.',
-    'Manba — OpenAlex (CC0 ma’lumotlari), {date} holatiga. Tashkilot ishlari uning bo‘linmalari bilan birga hisoblanadi. Sifat ko‘rsatkichlari — oxirgi 5 to‘liq yil ({from}–{to}). Top-10 % va top-1 % — o‘z sohasi va yilidagi iqtibos persentili, Leyden reytingi (CWTS) kabi. FWCI — me’yorlangan iqtiboslilik, 1 — jahon darajasi. Ro‘yxatga shu davrda kamida {min} ishi bor tashkilotlar kiradi.',
-    'Source: OpenAlex (CC0 data), as of {date}. An organization’s works include its sub-units. Quality indicators cover the last 5 full years ({from}–{to}). Top 10% and top 1% use the citation percentile within field and year, as in the Leiden Ranking (CWTS). FWCI is field-normalized citation impact, 1 = world level. Organizations with at least {min} works in the period are included.',
+    'Источник — OpenAlex (данные CC0), выгрузка {date}. Работы организации считаются вместе с её подразделениями. Показатели качества — за 5 последних полных лет ({from}–{to}). Топ-10 % и топ-1 % — процентиль цитирования в своей области и году, как в Лейденском рейтинге (CWTS). Собственные работы — где автор для переписки из организации. «Сильные» направления — по собственным работам с поправкой на погрешность малых чисел (интервал Уилсона). Отдельно показаны статьи больших коллабораций (больше 100 авторов) и отозванные статьи (Retraction Watch). FWCI — нормированная цитируемость, 1 — мировой уровень. В список входят организации от {min} работ за этот период.',
+    'Manba — OpenAlex (CC0 ma’lumotlari), {date} holatiga. Tashkilot ishlari uning bo‘linmalari bilan birga hisoblanadi. Sifat ko‘rsatkichlari — oxirgi 5 to‘liq yil ({from}–{to}). Top-10 % va top-1 % — o‘z sohasi va yilidagi iqtibos persentili, Leyden reytingi (CWTS) kabi. O‘z ishlari — muloqot uchun muallif tashkilotdan bo‘lgan ishlar. «Kuchli» yo‘nalishlar — o‘z ishlari bo‘yicha, kichik sonlar xatoligi hisobga olingan holda (Uilson intervali). Katta hamkorlik maqolalari (100 dan ortiq muallif) va qaytarib olingan maqolalar (Retraction Watch) alohida ko‘rsatilgan. FWCI — me’yorlangan iqtiboslilik, 1 — jahon darajasi. Ro‘yxatga shu davrda kamida {min} ishi bor tashkilotlar kiradi.',
+    'Source: OpenAlex (CC0 data), as of {date}. An organization’s works include its sub-units. Quality indicators cover the last 5 full years ({from}–{to}). Top 10% and top 1% use the citation percentile within field and year, as in the Leiden Ranking (CWTS). Own works are those with a corresponding author from the organization. “Strong” areas are judged on own works, allowing for small-number error (Wilson interval). Large-collaboration papers (over 100 authors) and retracted papers (Retraction Watch) are shown separately. FWCI is field-normalized citation impact, 1 = world level. Organizations with at least {min} works in the period are included.',
   ],
   'an.method_link': [
     'Подробнее о методике',
