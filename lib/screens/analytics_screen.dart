@@ -519,6 +519,8 @@ class _ReportBody extends StatelessWidget {
                 [
                   _typeLabel(isCountry ? 'country' : o.type),
                   if (o.city.isNotEmpty) o.city,
+                  if (o.established != null)
+                    t('an.established', {'y': o.established!}),
                 ].join(' · '),
                 style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
               ),
@@ -770,8 +772,19 @@ class _ReportBody extends StatelessWidget {
                   _tr('an.jt.${j.type}', j.type),
                   if (j.publisher.isNotEmpty) j.publisher,
                   if (j.issn.isNotEmpty) 'ISSN ${j.issn}',
+                  if (j.crossref == false) t('an.j.no_crossref'),
+                  if (j.growthSharp)
+                    t('an.j.growth', {
+                      'a': _num(j.growthBefore),
+                      'b': _num(j.growthWorks),
+                      'y': j.growthYear ?? '',
+                    }),
                 ].join(' · '),
-                trailing: j.doaj ? _Chip('DOAJ', AnColors.good) : null,
+                trailing: j.warning
+                    ? _Chip(t('an.j.check'), AnColors.country)
+                    : j.doaj
+                        ? _Chip('DOAJ', AnColors.good)
+                        : null,
                 onTap: () => openLink(context, 'https://openalex.org/${j.id}'),
               ),
           ],
@@ -818,6 +831,7 @@ class _ReportBody extends StatelessWidget {
               ),
               _Note(t('an.repo_note')),
             ],
+            if (r.citationCheck != null) _CitationCheckBlock(r.citationCheck!),
           ],
         ),
 
@@ -848,6 +862,122 @@ class _ReportBody extends StatelessWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+/// Проверка самых цитируемых работ: самоцитирование и «картели».
+class _CitationCheckBlock extends StatelessWidget {
+  const _CitationCheckBlock(this.c);
+  final CitationCheck c;
+
+  String _flag(String f) => _tr('an.cc.f.$f', f);
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final flagged = [
+      for (final w in c.works)
+        if (w.flags.isNotEmpty) w,
+    ];
+    return Column(
+      key: const Key('an.citation_check'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        Text(t('an.cc.title', {'n': c.checked}),
+            style: const TextStyle(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 4),
+        _Note(t('an.cc.note')),
+        CountBar(
+          label: t('an.cc.author_sc'),
+          value: ((c.authorScShare ?? 0) * 1000).round(),
+          max: 1000,
+          valueText: _pct(c.authorScShare),
+          color: (c.authorScShare ?? 0) > 0.3 ? AnColors.country : null,
+        ),
+        CountBar(
+          label: t('an.cc.journal_sc'),
+          value: ((c.journalScShare ?? 0) * 1000).round(),
+          max: 1000,
+          valueText: _pct(c.journalScShare),
+          color: (c.journalScShare ?? 0) > 0.3 ? AnColors.country : null,
+        ),
+        CountBar(
+          label: t('an.cc.own'),
+          value: ((c.ownShare ?? 0) * 1000).round(),
+          max: 1000,
+          valueText: _pct(c.ownShare),
+          color: (c.ownShare ?? 0) > 0.3 ? AnColors.country : null,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          flagged.isEmpty
+              ? t('an.cc.none')
+              : t('an.cc.flagged', {'n': flagged.length, 'all': c.checked}),
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: flagged.isEmpty ? AnColors.good : AnColors.country),
+        ),
+        for (final w in flagged)
+          InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: w.doi.isEmpty
+                ? null
+                : () => openLink(context, 'https://doi.org/${w.doi}'),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(w.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text(
+                      [
+                        if (w.year != null) '${w.year}',
+                        if (w.source.isNotEmpty) w.source,
+                        t('an.cc.cited', {'n': _num(w.cited)}),
+                      ].join(' · '),
+                      style: TextStyle(
+                          fontSize: 12, color: scheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        for (final f in w.flags)
+                          _Chip(
+                            switch (f) {
+                              'own_institution' =>
+                                '${_flag(f)}: ${_pct(w.ownShare)}',
+                              'one_institution' =>
+                                '${_flag(f)}: ${_pct(w.topShare)}',
+                              'author_self' =>
+                                '${_flag(f)}: ${_pct(w.authorScShare)}',
+                              'journal_self' =>
+                                '${_flag(f)}: ${_pct(w.journalScShare)}',
+                              _ => _flag(f),
+                            },
+                            AnColors.country,
+                          ),
+                      ],
+                    ),
+                    if (w.flags.contains('one_institution') &&
+                        w.topName.isNotEmpty)
+                      Text(w.topName,
+                          style: TextStyle(
+                              fontSize: 12, color: scheme.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -1209,6 +1339,22 @@ class _CompareBody extends StatelessWidget {
       ),
       if (!a.org.isCountry && !b.org.isCountry)
         (t('an.cmp.h'), '${a.org.h}', '${b.org.h}', null, null),
+      if (a.citationCheck != null && b.citationCheck != null)
+        (
+          t('an.cc.author_sc'),
+          _pct(a.citationCheck!.authorScShare),
+          _pct(b.citationCheck!.authorScShare),
+          a.citationCheck!.authorScShare,
+          b.citationCheck!.authorScShare
+        ),
+      if (a.citationCheck != null && b.citationCheck != null)
+        (
+          t('an.cmp.flagged'),
+          '${a.citationCheck!.flagged} / ${a.citationCheck!.checked}',
+          '${b.citationCheck!.flagged} / ${b.citationCheck!.checked}',
+          null,
+          null
+        ),
       if (a.integrity.retracted != null && b.integrity.retracted != null)
         (
           t('an.cmp.retracted'),

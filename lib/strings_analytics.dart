@@ -423,6 +423,8 @@ const Map<String, List<String>> analyticsStrings = {
     'Own in top 10%',
   ],
   'ap.mark': ['Отметка', 'Belgi', 'Note'],
+  'ap.founded': ['Основан', 'Tashkil etilgan', 'Founded'],
+  'ap.work': ['Работа', 'Ish', 'Work'],
   'ap.author': ['Автор', 'Muallif', 'Author'],
   'ap.here': ['Работ здесь', 'Bu yerdagi ishlar', 'Works here'],
   'ap.cites': ['Цитирований', 'Iqtiboslar', 'Citations'],
@@ -493,12 +495,89 @@ const Map<String, List<String>> analyticsStrings = {
     'Qaytarib olingan maqolalar',
     'Retracted papers',
   ],
+  'an.established': [
+    'основан в {y}',
+    '{y}-yilda tashkil etilgan',
+    'founded {y}'
+  ],
+  'an.j.no_crossref': [
+    'нет в Crossref (у статей нет DOI)',
+    'Crossref’da yo‘q (maqolalarda DOI yo‘q)',
+    'not in Crossref (no DOIs)',
+  ],
+  'an.j.growth': [
+    'резкий рост: с {a} до {b} работ в год за 3 года (к {y})',
+    'keskin o‘sish: 3 yilda yiliga {a} tadan {b} tagacha ish ({y} gacha)',
+    'sharp growth: from {a} to {b} works a year over 3 years (to {y})',
+  ],
+  'an.j.check': ['проверить', 'tekshirish', 'check'],
+  'an.cc.title': [
+    'Проверка цитирования {n} самых цитируемых работ',
+    'Eng ko‘p iqtibos keltirilgan {n} ta ishning iqtibos tekshiruvi',
+    'Citation check of the {n} most cited works',
+  ],
+  'an.cc.note': [
+    'Самоцитирование по данным OpenCitations (CC0), откуда приходят цитирования — по OpenAlex. Высокие доли — повод присмотреться к работе, а не обвинение: самоцитирование бывает и вполне законным.',
+    'O‘z-o‘ziga iqtibos — OpenCitations (CC0) ma’lumotlari, iqtiboslar qayerdan kelishi — OpenAlex bo‘yicha. Yuqori ulushlar — ishga diqqat bilan qarash uchun sabab, ayblov emas: o‘z-o‘ziga iqtibos qonuniy ham bo‘lishi mumkin.',
+    'Self-citation from OpenCitations (CC0); where citations come from, from OpenAlex. High shares are a reason to look closer, not an accusation: self-citation can be perfectly legitimate.',
+  ],
+  'an.cc.author_sc': [
+    'Самоцитирование авторов',
+    'Mualliflarning o‘z-o‘ziga iqtibosi',
+    'Author self-citation',
+  ],
+  'an.cc.journal_sc': [
+    'Ссылки из того же журнала',
+    'Xuddi shu jurnaldan havolalar',
+    'Citations from the same journal',
+  ],
+  'an.cc.own': [
+    'Цитирования из своей же организации',
+    'O‘z tashkilotidan iqtiboslar',
+    'Citations from the same organization',
+  ],
+  'an.cc.none': [
+    'Тревожных признаков не найдено.',
+    'Xavotirli belgilar topilmadi.',
+    'No warning signs found.',
+  ],
+  'an.cc.flagged': [
+    'Работ с тревожными признаками: {n} из {all}',
+    'Xavotirli belgili ishlar: {all} tadan {n}',
+    'Works with warning signs: {n} of {all}',
+  ],
+  'an.cc.cited': ['цитирований: {n}', 'iqtiboslar: {n}', 'citations: {n}'],
+  'an.cc.f.own_institution': [
+    'цитируют свои',
+    'o‘zlari iqtibos keltiradi',
+    'cited by own organization',
+  ],
+  'an.cc.f.one_institution': [
+    'почти все цитаты от одной организации',
+    'deyarli barcha iqtiboslar bitta tashkilotdan',
+    'mostly cited by one organization',
+  ],
+  'an.cc.f.author_self': [
+    'самоцитирование авторов',
+    'mualliflarning o‘z-o‘ziga iqtibosi',
+    'author self-citation',
+  ],
+  'an.cc.f.journal_self': [
+    'ссылки из того же журнала',
+    'xuddi shu jurnaldan havolalar',
+    'same-journal citations',
+  ],
+  'an.cmp.flagged': [
+    'Работ с тревожными признаками',
+    'Xavotirli belgili ishlar',
+    'Works with warning signs',
+  ],
   // Методика.
   'an.s.method': ['Методика', 'Metodika', 'Methodology'],
   'an.method': [
-    'Источник — OpenAlex (данные CC0), выгрузка {date}. Работы организации считаются вместе с её подразделениями. Показатели качества — за 5 последних полных лет ({from}–{to}). Топ-10 % и топ-1 % — процентиль цитирования в своей области и году, как в Лейденском рейтинге (CWTS). Собственные работы — где автор для переписки из организации. «Сильные» направления — по собственным работам с поправкой на погрешность малых чисел (интервал Уилсона). Отдельно показаны статьи больших коллабораций (больше 100 авторов) и отозванные статьи (Retraction Watch). FWCI — нормированная цитируемость, 1 — мировой уровень. В список входят организации от {min} работ за этот период.',
-    'Manba — OpenAlex (CC0 ma’lumotlari), {date} holatiga. Tashkilot ishlari uning bo‘linmalari bilan birga hisoblanadi. Sifat ko‘rsatkichlari — oxirgi 5 to‘liq yil ({from}–{to}). Top-10 % va top-1 % — o‘z sohasi va yilidagi iqtibos persentili, Leyden reytingi (CWTS) kabi. O‘z ishlari — muloqot uchun muallif tashkilotdan bo‘lgan ishlar. «Kuchli» yo‘nalishlar — o‘z ishlari bo‘yicha, kichik sonlar xatoligi hisobga olingan holda (Uilson intervali). Katta hamkorlik maqolalari (100 dan ortiq muallif) va qaytarib olingan maqolalar (Retraction Watch) alohida ko‘rsatilgan. FWCI — me’yorlangan iqtiboslilik, 1 — jahon darajasi. Ro‘yxatga shu davrda kamida {min} ishi bor tashkilotlar kiradi.',
-    'Source: OpenAlex (CC0 data), as of {date}. An organization’s works include its sub-units. Quality indicators cover the last 5 full years ({from}–{to}). Top 10% and top 1% use the citation percentile within field and year, as in the Leiden Ranking (CWTS). Own works are those with a corresponding author from the organization. “Strong” areas are judged on own works, allowing for small-number error (Wilson interval). Large-collaboration papers (over 100 authors) and retracted papers (Retraction Watch) are shown separately. FWCI is field-normalized citation impact, 1 = world level. Organizations with at least {min} works in the period are included.',
+    'Источник — OpenAlex (данные CC0), выгрузка {date}. Работы организации считаются вместе с её подразделениями. Показатели качества — за 5 последних полных лет ({from}–{to}). Топ-10 % и топ-1 % — процентиль цитирования в своей области и году, как в Лейденском рейтинге (CWTS). Собственные работы — где автор для переписки из организации. «Сильные» направления — по собственным работам с поправкой на погрешность малых чисел (интервал Уилсона). Отдельно показаны статьи больших коллабораций (больше 100 авторов), отозванные статьи (Retraction Watch), самоцитирование самых цитируемых работ (OpenCitations), журналы вне Crossref и с резким ростом объёма. Официальные названия — из реестра ROR. FWCI — нормированная цитируемость, 1 — мировой уровень. В список входят организации от {min} работ за этот период.',
+    'Manba — OpenAlex (CC0 ma’lumotlari), {date} holatiga. Tashkilot ishlari uning bo‘linmalari bilan birga hisoblanadi. Sifat ko‘rsatkichlari — oxirgi 5 to‘liq yil ({from}–{to}). Top-10 % va top-1 % — o‘z sohasi va yilidagi iqtibos persentili, Leyden reytingi (CWTS) kabi. O‘z ishlari — muloqot uchun muallif tashkilotdan bo‘lgan ishlar. «Kuchli» yo‘nalishlar — o‘z ishlari bo‘yicha, kichik sonlar xatoligi hisobga olingan holda (Uilson intervali). Katta hamkorlik maqolalari (100 dan ortiq muallif), qaytarib olingan maqolalar (Retraction Watch), eng ko‘p iqtibos keltirilgan ishlarning o‘z-o‘ziga iqtibosi (OpenCitations), Crossref’dan tashqaridagi va hajmi keskin o‘sgan jurnallar alohida ko‘rsatilgan. Rasmiy nomlar — ROR reyestridan. FWCI — me’yorlangan iqtiboslilik, 1 — jahon darajasi. Ro‘yxatga shu davrda kamida {min} ishi bor tashkilotlar kiradi.',
+    'Source: OpenAlex (CC0 data), as of {date}. An organization’s works include its sub-units. Quality indicators cover the last 5 full years ({from}–{to}). Top 10% and top 1% use the citation percentile within field and year, as in the Leiden Ranking (CWTS). Own works are those with a corresponding author from the organization. “Strong” areas are judged on own works, allowing for small-number error (Wilson interval). Large-collaboration papers (over 100 authors), retracted papers (Retraction Watch), self-citation of the most cited works (OpenCitations), and journals outside Crossref or with sharp volume growth are shown separately. Official names come from the ROR registry. FWCI is field-normalized citation impact, 1 = world level. Organizations with at least {min} works in the period are included.',
   ],
   'an.method_link': [
     'Подробнее о методике',

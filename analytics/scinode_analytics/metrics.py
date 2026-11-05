@@ -232,7 +232,7 @@ def author_row(a: dict, n: int) -> dict:
     }
 
 
-def journal_row(s: dict, n: int) -> dict:
+def journal_row(s: dict, n: int, last: int | None = None) -> dict:
     st = s.get("summary_stats") or {}
     return {
         "id": short_id(s.get("id")),
@@ -246,6 +246,181 @@ def journal_row(s: dict, n: int) -> dict:
         "h": st.get("h_index") or 0,
         "mean2y": round(st.get("2yr_mean_citedness") or 0, 3),
         "n": n,
+        "growth": journal_growth(s.get("counts_by_year") or [], last),
+    }
+
+
+# Рост объёма журнала: работ в последнем полном году к году тремя годами
+# раньше. Резкий рост (в 3 раза и больше, от 500 работ в год) — частый
+# признак «конвейера» публикаций; это повод проверить журнал, а не приговор.
+GROWTH_RATIO = 3.0
+GROWTH_MIN_WORKS = 500
+
+
+def journal_growth(counts: list[dict], last: int | None = None) -> dict | None:
+    by = {
+        c.get("year"): c.get("works_count") or 0
+        for c in counts
+        if isinstance(c, dict) and isinstance(c.get("year"), int)
+    }
+    if not by:
+        return None
+    if last is None:
+        # Последний полный год — предпоследний из известных (текущий неполный).
+        years = sorted(by)
+        last = years[-2] if len(years) > 1 else years[-1]
+    now, before = by.get(last, 0), by.get(last - 3, 0)
+    ratio = round(now / before, 2) if before > 0 else None
+    return {
+        "year": last,
+        "works": now,
+        "works_before": before,
+        "ratio": ratio,
+        "sharp": bool(
+            now >= GROWTH_MIN_WORKS
+            and (before == 0 or (ratio is not None and ratio >= GROWTH_RATIO))
+        ),
+    }
+
+
+def crossref_journal(msg: object) -> dict:
+    """Ответ api.crossref.org/journals/<ISSN> → есть ли журнал в Crossref."""
+    if not isinstance(msg, dict):
+        return {"crossref": False}
+    m = msg.get("message") if isinstance(msg.get("message"), dict) else {}
+    counts = m.get("counts") if isinstance(m.get("counts"), dict) else {}
+    return {
+        "crossref": True,
+        "crossref_publisher": " ".join(str(m.get("publisher") or "").split()),
+        "crossref_dois": counts.get("total-dois") or 0,
+    }
+
+
+def ror_record(d: object) -> dict | None:
+    """Запись ROR v2: официальные названия по языкам, статус, связи."""
+    if not isinstance(d, dict):
+        return None
+    names: dict[str, str] = {}
+    for n in d.get("names") or []:
+        if not isinstance(n, dict):
+            continue
+        lang = n.get("lang")
+        types = n.get("types") or []
+        v = " ".join(str(n.get("value") or "").split())
+        if lang and v and "label" in types and lang not in names:
+            names[lang] = v
+        if "ror_display" in types and v:
+            names.setdefault("display", v)
+    rel = [
+        {
+            "type": r.get("type") or "",
+            "id": short_id(r.get("id")),
+            "name": " ".join(str(r.get("label") or "").split()),
+        }
+        for r in d.get("relationships") or []
+        if isinstance(r, dict)
+    ]
+    links = [
+        safe_url(l.get("value"))
+        for l in d.get("links") or []
+        if isinstance(l, dict) and l.get("type") == "website"
+    ]
+    return {
+        "id": short_id(d.get("id")),
+        "names": names,
+        "status": d.get("status") or "",
+        "established": d.get("established"),
+        "types": d.get("types") or [],
+        "relationships": rel[:20],
+        "website": next((u for u in links if u), ""),
+    }
+
+
+# ----------------------------------------------------------------------------
+# Проверка цитирования самых цитируемых работ (самоцитирование, «картели»)
+# ----------------------------------------------------------------------------
+
+# Проверяем только работы с таким числом цитирований и больше.
+CHECK_MIN_CITES = 10
+# Доля цитирований выше этой — тревожный признак.
+CHECK_FLAG_SHARE = 0.5
+
+
+def oc_counts(rows: object) -> dict:
+    """Ответ OpenCitations /citations/doi:… → сколько ссылок, сколько из них
+    самоцитирование автора (author_sc) и журнала (journal_sc)."""
+    lst = rows if isinstance(rows, list) else []
+    n = len(lst)
+    a = sum(1 for x in lst if isinstance(x, dict) and x.get("author_sc") == "yes")
+    j = sum(1 for x in lst if isinstance(x, dict) and x.get("journal_sc") == "yes")
+    return {"n": n, "author_sc": a, "journal_sc": j}
+
+
+def citing_institutions(resp: dict, exclude: set[str]) -> dict:
+    """group_by authorships.institutions.lineage по цитирующим работам →
+    сколько цитирующих работ, из них своих, и самая частая чужая организация."""
+    meta = resp.get("meta") if isinstance(resp, dict) else None
+    total = (meta or {}).get("count") or 0
+    own = 0
+    top = None
+    for g in group_list(resp):
+        if g["id"] in exclude:
+            own = max(own, g["n"])
+        elif top is None:
+            top = g
+    return {
+        "citing": total,
+        "own": own,
+        "own_share": share(own, total),
+        "top": top,
+        "top_share": share(top["n"], total) if top else None,
+    }
+
+
+def work_check(work: dict, oc: dict, inst: dict) -> dict:
+    flags = []
+    if inst["citing"] >= CHECK_MIN_CITES:
+        if (inst["own_share"] or 0) > CHECK_FLAG_SHARE:
+            flags.append("own_institution")
+        if (inst["top_share"] or 0) > CHECK_FLAG_SHARE:
+            flags.append("one_institution")
+    if oc["n"] >= CHECK_MIN_CITES:
+        if oc["author_sc"] / oc["n"] > CHECK_FLAG_SHARE:
+            flags.append("author_self")
+        if oc["journal_sc"] / oc["n"] > CHECK_FLAG_SHARE:
+            flags.append("journal_self")
+    loc = work.get("primary_location")
+    src = loc.get("source") if isinstance(loc, dict) else None
+    src = src if isinstance(src, dict) else {}
+    return {
+        "id": short_id(work.get("id")),
+        "doi": str(work.get("doi") or "").replace("https://doi.org/", ""),
+        "title": " ".join(str(work.get("display_name") or "").split())[:300],
+        "year": work.get("publication_year"),
+        "source": " ".join(str(src.get("display_name") or "").split()),
+        "cited": work.get("cited_by_count") or 0,
+        "citing": inst["citing"],
+        "own": inst["own"],
+        "own_share": inst["own_share"],
+        "top_inst": inst["top"],
+        "top_share": inst["top_share"],
+        "oc": oc,
+        "flags": flags,
+    }
+
+
+def citation_check_summary(rows: list[dict]) -> dict:
+    citing = sum(r["citing"] for r in rows)
+    own = sum(r["own"] for r in rows)
+    ocn = sum(r["oc"]["n"] for r in rows)
+    return {
+        "checked": len(rows),
+        "flagged": sum(1 for r in rows if r["flags"]),
+        "own_share": share(own, citing),
+        "author_sc_share": share(sum(r["oc"]["author_sc"] for r in rows), ocn),
+        "journal_sc_share": share(sum(r["oc"]["journal_sc"] for r in rows), ocn),
+        "oc_citations": ocn,
+        "works": rows,
     }
 
 
