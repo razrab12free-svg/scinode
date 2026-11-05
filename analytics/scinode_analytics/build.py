@@ -80,8 +80,13 @@ def build_report(
     years_to: int,
     exclude: set[str],
     home_country: str,
+    lead_id: str | None = None,
 ) -> dict:
-    """Все разделы отчёта по набору работ base (фильтр OpenAlex)."""
+    """Все разделы отчёта по набору работ base (фильтр OpenAlex).
+
+    [lead_id] — организация, для которой считаются «ведущие» работы
+    (corresponding_institution_ids); для страны такого фильтра нет.
+    """
     W = f"{base},publication_year:{first}-{last}"
     Y = f"{base},publication_year:{years_from}-{years_to}"
 
@@ -110,6 +115,48 @@ def build_report(
         "pp_top10": m.share(t10, known10),
         "pp_top1": m.share(t1, known1),
         "fwci": _fwci(client, W),
+    }
+
+    # Ведущие работы: автор для переписки — из этой организации. Без них
+    # показатели завышает «гостевое» соавторство в чужих статьях.
+    L = f"{W},corresponding_institution_ids:{lead_id}" if lead_id else None
+    if L:
+        lt10, lknown10 = m.bool_counts(
+            _works(client, L, "citation_normalized_percentile.is_in_top_10_percent")
+        )
+        lt1, lknown1 = m.bool_counts(
+            _works(client, L, "citation_normalized_percentile.is_in_top_1_percent")
+        )
+        lead_n = _count(client, L)
+        citation["lead"] = {
+            "works": lead_n,
+            "share": m.share(lead_n, total),
+            "known": lknown10,
+            "top10": lt10,
+            "top1": lt1,
+            "pp_top10": m.share(lt10, lknown10),
+            "pp_top1": m.share(lt1, lknown1),
+        }
+    # Мегаколлаборации (больше 100 авторов): несколько таких статей
+    # заметно поднимают топ-10 % небольшой организации.
+    mt10, mknown = m.bool_counts(
+        _works(
+            client,
+            f"{W},authors_count:>{m.MEGA_AUTHORS}",
+            "citation_normalized_percentile.is_in_top_10_percent",
+        )
+    )
+    citation["mega"] = {
+        "works": _count(client, f"{W},authors_count:>{m.MEGA_AUTHORS}"),
+        "known": mknown,
+        "top10": mt10,
+        "pp_top10_without": m.share(t10 - mt10, known10 - mknown),
+    }
+    integrity = {
+        "retracted": _count(client, f"{W},is_retracted:true"),
+        "source_types": m.group_list(
+            _works(client, W, "primary_location.source.type")
+        ),
     }
 
     cdc = m.group_counts(_works(client, W, "countries_distinct_count"))
@@ -160,6 +207,25 @@ def build_report(
     journals = [m.journal_row(sdata[s["id"]], s["n"]) for s in top_src if s["id"] in sdata]
 
     sub_total = m.group_list(_works(client, W, "primary_topic.subfield.id"))
+    lead_sub = None
+    if L:
+        lead_sub = (
+            m.group_counts(_works(client, L, "primary_topic.subfield.id")),
+            m.group_counts(
+                _works(
+                    client,
+                    L + ",citation_normalized_percentile.is_in_top_10_percent:true",
+                    "primary_topic.subfield.id",
+                )
+            ),
+            m.group_counts(
+                _works(
+                    client,
+                    L + ",citation_normalized_percentile.is_in_top_10_percent:false",
+                    "primary_topic.subfield.id",
+                )
+            ),
+        )
     topics = m.topics_table(
         {x["id"]: x["n"] for x in sub_total},
         m.group_counts(
@@ -177,6 +243,9 @@ def build_report(
             )
         ),
         {x["id"]: x["name"] for x in sub_total},
+        lead=lead_sub[0] if lead_sub else None,
+        lead_top10=lead_sub[1] if lead_sub else None,
+        lead_no_top10=lead_sub[2] if lead_sub else None,
     )
 
     return {
@@ -202,6 +271,7 @@ def build_report(
             "top": journals,
         },
         "topics": topics,
+        "integrity": integrity,
     }
 
 
@@ -218,7 +288,7 @@ def org_meta(inst: dict, first: int, last: int) -> dict:
         "city": geo.get("city") or "",
         "lat": geo.get("latitude"),
         "lon": geo.get("longitude"),
-        "url": inst.get("homepage_url") or "",
+        "url": m.safe_url(inst.get("homepage_url")),
         "works_window": m.works_in(inst, first, last),
         "works_total": inst.get("works_count") or 0,
         "citations_total": inst.get("cited_by_count") or 0,
@@ -297,6 +367,7 @@ def build_all(
                 years_to,
                 {meta["id"]} | m.children_of(inst),
                 country,
+                lead_id=meta["id"],
             )
         except (OpenAlexError, KeyError, TypeError, ValueError) as e:
             return meta, str(e)

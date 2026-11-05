@@ -10,6 +10,7 @@ import 'package:scinode/screens/analytics_screen.dart';
 import 'package:scinode/services/analytics_service.dart';
 import 'package:scinode/services/map_service.dart' show MemoryJsonCache;
 import 'package:scinode/strings.dart';
+import 'package:scinode/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Настоящие файлы расчёта analytics/ (5 ноября 2026): 6 крупнейших
@@ -48,7 +49,7 @@ void main() {
       expect((i.yearsFrom, i.yearsTo), (2016, 2026));
       expect(i.country, 'UZ');
       expect(i.national, isTrue);
-      expect(i.orgs.length, 6);
+      expect(i.orgs.length, 8);
       final o = i.orgs.first;
       expect(o.id, nuu);
       expect(o.acronyms, ['NUU']);
@@ -70,11 +71,12 @@ void main() {
               if (o.matches(q)) o.id
           ];
       expect(f('nuu'), [nuu]);
-      expect(f('национальный'), [nuu]);
-      expect(f("o'zbekiston milliy"), [nuu]);
+      expect(f('национальный педагогический'), ['I4210159566']);
+      expect(f('национальный'), containsAll([nuu, 'I4210159566']));
+      expect(f("o'zbekiston milliy"), contains(nuu));
       expect(f('ozbekiston'), contains(nuu));
       expect(f('economics tashkent'), [tsue]);
-      expect(f(''), hasLength(6));
+      expect(f(''), hasLength(8));
       expect(f('zzzz'), isEmpty);
     });
 
@@ -105,9 +107,46 @@ void main() {
       expect(r.types.first.id, 'article');
     });
 
+    test('русское название — не узбекская кириллица', () {
+      final b = AnalyticsIndex.fromJson(_j('index.json'))
+          .orgs
+          .firstWhere((o) => o.id == 'I4210098011');
+      expect(b.localName('ru'),
+          'Бухарский государственный медицинский институт имени Абу Али ибн Сино');
+      expect(b.localName('uz'),
+          'Abu Ali ibn Sino nomidagi Buxoro davlat tibbiyot instituti');
+    });
+
+    test('пед. университет: «сильные» — только по собственным работам', () {
+      final r = OrgReport.fromJson(_j('orgs/I4210159566.json'));
+      final lead = r.citation.lead!;
+      expect(r.citation.ppTop10, 0.0884);
+      expect(lead.ppTop10, 0.0346); // собственные работы — в 2,5 раза ниже
+      expect(lead.works, 2941);
+      final bme = r.topics.firstWhere((x) => x.id == '2204');
+      expect(bme.name, 'Biomedical Engineering');
+      expect(bme.ppTop10, greaterThan(0.25)); // за счёт чужих статей
+      expect(bme.lead, 7);
+      expect(bme.strong, isFalse);
+      expect(bme.mostlyGuest, isTrue);
+      expect(r.strongTopics.map((x) => x.name),
+          ['Visual Arts and Performing Arts']);
+      expect(r.integrity.retracted, 34);
+      expect(r.integrity.repository, 438);
+    });
+
+    test('институт ядерной физики: мегаколлаборации', () {
+      final r = OrgReport.fromJson(_j('orgs/I4210099818.json'));
+      expect(r.citation.megaWorks, 125);
+      expect(r.citation.megaTop10, 43);
+      expect(r.citation.ppTop10WithoutMega, 0.0909);
+    });
+
     test('отчёт по стране', () {
       final r = OrgReport.fromJson(_j('orgs/UZ.json'));
       expect(r.org.isCountry, isTrue);
+      expect(r.citation.lead, isNull);
+      expect(r.integrity.retracted, greaterThan(600));
       expect(r.works, 181345);
       expect(r.citation.ppTop10, 0.0594);
     });
@@ -130,6 +169,23 @@ void main() {
     });
   });
 
+  test('открываются только обычные веб-ссылки', () {
+    expect(isSafeWebUrl('https://nuu.uz/'), isTrue);
+    expect(isSafeWebUrl('http://example.org/a?b=1'), isTrue);
+    for (final bad in [
+      'javascript:alert(1)',
+      'intent://scan/#Intent;scheme=zxing;end',
+      'file:///sdcard/x.pdf',
+      'tel:+998901234567',
+      'content://media/x',
+      'https://',
+      'nuu.uz',
+      '',
+    ]) {
+      expect(isSafeWebUrl(bad), isFalse, reason: bad);
+    }
+  });
+
   group('AnalyticsService', () {
     test('адрес GitHub Pages и кэш', () async {
       final sent = <String>[];
@@ -138,7 +194,7 @@ void main() {
       expect(AnalyticsService.defaultBase,
           'https://x9096730-spec.github.io/scinode/analytics/v1');
       final i = await s.index();
-      expect(i.orgs.length, 6);
+      expect(i.orgs.length, 8);
       final r = await s.report(nuu);
       expect(r.works, 9059);
       expect(sent, [
@@ -213,7 +269,7 @@ void main() {
       expect(find.byKey(const Key('an.country')), findsOneWidget);
       expect(find.text('Национальный университет Узбекистана (NUU)'),
           findsOneWidget);
-      expect(find.text(t('an.count', {'n': 6})), findsOneWidget);
+      expect(find.text(t('an.count', {'n': 8})), findsOneWidget);
 
       await tester.enterText(find.byKey(const Key('an.search')), 'Samarkand');
       await tester.pump();
@@ -232,6 +288,14 @@ void main() {
       expect(find.byKey(const Key('an.compare_btn')), findsOneWidget);
       expect(find.byKey(const Key('an.pdf_btn')), findsOneWidget);
       expect(find.byKey(const Key('an.pdf_inline')), findsOneWidget);
+      await tester.scrollUntilVisible(
+          find.byKey(const Key('an.lead_top10')), 300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text(t('an.c.lead_top10')), findsOneWidget);
+      await tester.scrollUntilVisible(
+          find.byKey(const Key('an.retracted')), 300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text('19'), findsWidgets);
       expect(find.text('Национальный университет Узбекистана'), findsWidgets);
       expect(tester.takeException(), isNull);
     });
@@ -266,6 +330,7 @@ void main() {
             'an.s.authors',
             'an.s.journals',
             'an.s.compare',
+            'an.s.integrity',
             'an.s.method',
           ]) {
             await tester.scrollUntilVisible(find.text(t(k)), 300,

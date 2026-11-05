@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install pytest
-        run: pip install pytest
+        run: pip install pytest==9.2.0
       - name: Run tests
         working-directory: analytics
         run: python -m pytest -q tests

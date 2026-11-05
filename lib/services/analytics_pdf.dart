@@ -77,6 +77,7 @@ Future<Uint8List> buildOrgPdf(
       ...b.partners(r),
       ...b.authors(r),
       ...b.journals(r),
+      ...b.integrity(r),
       ...b.method(r),
     ],
   ));
@@ -251,7 +252,10 @@ class _Pdf {
                             {'from': r.windowFrom, 'to': r.windowTo}),
                         n(r.works),
                         Brand.primary),
-                    _kpi(t('an.c.top10'), p(r.citation.ppTop10), _good),
+                    r.citation.lead != null
+                        ? _kpi(t('an.c.lead_top10'),
+                            p(r.citation.lead!.ppTop10), _good)
+                        : _kpi(t('an.c.top10'), p(r.citation.ppTop10), _good),
                     _kpi(t('an.s.oa'), p(r.oaShare), Brand.open),
                     _kpi(t('an.cmp.intl'), p(r.intlShare), _countryC),
                   ]),
@@ -662,6 +666,15 @@ class _Pdf {
     return [
       _h1('3. ${t('an.s.cite')}'),
       _note(t('an.cite_note')),
+      if (r.citation.lead != null) ...[
+        _share(t('an.c.lead_top10'), r.citation.lead!.ppTop10,
+            scale: 0.2, world: 0.10),
+        _note(t('an.lead_note', {
+          'n': n(r.citation.lead!.works),
+          'all': n(r.works),
+          'p': p(r.citation.lead!.share),
+        })),
+      ],
       _share(t('an.c.top10'), r.citation.ppTop10,
           scale: 0.2, world: 0.10, country: cc?.ppTop10),
       _share(t('an.c.top1'), r.citation.ppTop1,
@@ -677,6 +690,13 @@ class _Pdf {
           t('ap.world')
         ],
         [
+          if (r.citation.lead != null)
+            [
+              t('an.c.lead_top10'),
+              p(r.citation.lead!.ppTop10),
+              if (c != null) '—',
+              p(0.10)
+            ],
           [
             t('an.c.top10'),
             p(r.citation.ppTop10),
@@ -705,6 +725,15 @@ class _Pdf {
         widths: {0: const pw.FlexColumnWidth(3)},
         right: {1, 2, 3},
       ),
+      if (r.citation.megaWorks > 0)
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 6),
+          child: _note(t('an.mega_note', {
+            'n': n(r.citation.megaWorks),
+            't': n(r.citation.megaTop10),
+            'p': p(r.citation.ppTop10WithoutMega),
+          })),
+        ),
     ];
   }
 
@@ -713,18 +742,32 @@ class _Pdf {
         _note(t('an.topics_note', {'n': 30})),
         if (r.strongTopics.isEmpty) _note(t('an.no_strong')),
         _table(
-          [t('ap.area'), t('ap.works'), t('an.c.top10'), t('an.strong')],
+          [
+            t('ap.area'),
+            t('ap.works'),
+            if (r.topics.any((x) => x.lead != null)) t('ap.own'),
+            if (r.topics.any((x) => x.lead != null))
+              t('ap.own_top10')
+            else
+              t('an.c.top10'),
+            t('ap.mark'),
+          ],
           [
             for (final tp in r.topics.take(15))
               [
                 localSubfieldName(tp.id, tp.name),
                 n(tp.n),
-                p(tp.ppTop10),
-                tp.strong ? t('ap.yes') : '',
+                if (tp.lead != null) n(tp.lead!),
+                p(tp.lead != null ? tp.leadPpTop10 : tp.ppTop10),
+                tp.strong
+                    ? t('an.strong')
+                    : tp.mostlyGuest
+                        ? t('an.guest')
+                        : '',
               ],
           ],
-          widths: {0: const pw.FlexColumnWidth(3.2)},
-          right: {1, 2},
+          widths: {0: const pw.FlexColumnWidth(3)},
+          right: {1, 2, 3},
         ),
       ];
 
@@ -805,6 +848,23 @@ class _Pdf {
         ),
       ];
 
+  List<pw.Widget> integrity(OrgReport r) => [
+        _h1(t('an.s.integrity')),
+        if (r.integrity.retracted != null) ...[
+          _big(n(r.integrity.retracted!),
+              t('an.retracted', {'from': r.windowFrom, 'to': r.windowTo}),
+              c: r.integrity.retracted! > 0 ? Brand.late : Brand.primary),
+          _note(r.integrity.retracted! > 0
+              ? t('an.retracted_note')
+              : t('an.retracted_none')),
+        ],
+        if (r.integrity.sourceTypes.isNotEmpty) ...[
+          _big(p(r.works > 0 ? r.integrity.repository / r.works : null),
+              t('an.repo_share')),
+          _note(t('an.repo_note')),
+        ],
+      ];
+
   List<pw.Widget> method(OrgReport r) => [
         _h1(t('an.s.method')),
         pw.Text(
@@ -851,6 +911,12 @@ class _Pdf {
         [
           [t('an.cmp.works', win), n(a.works), n(b.works)],
           [t('an.cmp.articles'), n(articles(a)), n(articles(b))],
+          if (a.citation.lead != null || b.citation.lead != null)
+            [
+              t('an.c.lead_top10'),
+              p(a.citation.lead?.ppTop10),
+              p(b.citation.lead?.ppTop10)
+            ],
           [t('an.c.top10'), p(a.citation.ppTop10), p(b.citation.ppTop10)],
           [t('an.c.top1'), p(a.citation.ppTop1), p(b.citation.ppTop1)],
           [t('an.c.cited'), p(a.citation.citedShare), p(b.citation.citedShare)],
@@ -864,6 +930,12 @@ class _Pdf {
           [t('an.cmp.doaj'), p(a.doajShare), p(b.doajShare)],
           if (!a.org.isCountry && !b.org.isCountry)
             [t('an.cmp.h'), '${a.org.h}', '${b.org.h}'],
+          if (a.integrity.retracted != null && b.integrity.retracted != null)
+            [
+              t('an.cmp.retracted'),
+              n(a.integrity.retracted!),
+              n(b.integrity.retracted!)
+            ],
           [
             t('an.cmp.strong'),
             '${a.strongTopics.length}',
