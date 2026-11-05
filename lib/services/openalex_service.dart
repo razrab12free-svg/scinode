@@ -86,6 +86,7 @@ class OpenAlexService extends ChangeNotifier {
         res.statusCode == 429) {
       throw SearchException('limit');
     }
+    if (res.statusCode == 404) throw SearchException('notfound');
     if (res.statusCode != 200) throw SearchException('other');
 
     try {

@@ -4,6 +4,7 @@ import 'strings_extra.dart';
 import 'strings_grants.dart';
 import 'strings_library.dart';
 import 'strings_lock.dart';
+import 'strings_orcid.dart';
 import 'strings_map.dart';
 import 'strings_board.dart';
 import 'strings_chat.dart';
@@ -64,7 +65,8 @@ class Strings extends ChangeNotifier {
         reportStrings[key] ??
         zoteroStrings[key] ??
         noteStrings[key] ??
-        lockStrings[key];
+        lockStrings[key] ??
+        orcidStrings[key];
 
     var s = row == null ? key : row[_idx[lang] ?? 0];
     if (args != null) {

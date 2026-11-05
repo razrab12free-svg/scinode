@@ -112,11 +112,6 @@ const Map<String, List<String>> scienceStrings = {
     'ORCID (ixtiyoriy)',
     'ORCID (optional)',
   ],
-  'me.orcid_bad': [
-    'Формат ORCID: 0000-0000-0000-0000',
-    'ORCID formati: 0000-0000-0000-0000',
-    'ORCID format: 0000-0000-0000-0000',
-  ],
   'me.interests': [
     'Научные направления (до 5)',
     'Ilmiy yo‘nalishlar (5 tagacha)',

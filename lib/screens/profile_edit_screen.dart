@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../models/orcid.dart';
 import '../models/profile.dart';
 import '../models/scientist.dart';
 import '../models/taxonomy.dart';
 import '../services/openalex_service.dart';
+import '../services/orcid_service.dart';
 import '../services/profile_service.dart';
 import '../services/scientist_service.dart';
 import '../auth_service.dart';
 import '../strings.dart';
 import '../widgets/scientist_card.dart';
 import '../widgets/taxonomy_picker.dart';
+import 'orcid_fill_sheet.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -26,6 +29,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late UserProfile _p;
   bool _saving = false;
   bool _filling = false;
+  bool _orcLoading = false;
+  String? _orcError;
   String? _error;
 
   @override
@@ -109,6 +114,61 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
+  /// Заполнить профиль по ORCID: запись ORCID + автор OpenAlex.
+  Future<void> _fillFromOrcid() async {
+    FocusScope.of(context).unfocus();
+    final id = normalizeOrcid(_orcid.text);
+    if (id == null) {
+      setState(() => _orcError = t('orc.bad'));
+      return;
+    }
+    _orcid.text = id;
+    setState(() {
+      _orcLoading = true;
+      _orcError = null;
+    });
+    OrcidLookup r;
+    try {
+      r = await OrcidService.instance.lookup(id);
+    } on OrcidException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _orcLoading = false;
+        _orcError = t('orc.err.${e.kind}');
+      });
+      return;
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _orcLoading = false;
+        _orcError = t('orc.err.other');
+      });
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _orcLoading = false);
+    if (r.isEmpty) {
+      setState(() => _orcError = t('orc.empty'));
+      return;
+    }
+    // Поля ввода — источник правды для текста: переносим их в профиль.
+    _p.name = _name.text.trim();
+    _p.org = _org.text.trim();
+    _p.bio = _bio.text.trim();
+    final c = await showOrcidFillSheet(context, r, _p);
+    if (c == null || !mounted) return;
+    setState(() {
+      applyOrcid(_p, r, c);
+      _name.text = _p.name;
+      _org.text = _p.org;
+      _bio.text = _p.bio;
+      _orcid.text = _p.orcid;
+    });
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(t('orc.applied'))));
+  }
+
   Future<void> _save() async {
     _p.name = _name.text.trim();
     _p.org = _org.text.trim();
@@ -118,10 +178,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       setState(() => _error = t('me.name_required'));
       return;
     }
-    if (_p.orcid.isNotEmpty &&
-        !RegExp(r'^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$').hasMatch(_p.orcid)) {
-      setState(() => _error = t('me.orcid_bad'));
-      return;
+    if (_p.orcid.isNotEmpty) {
+      final id = normalizeOrcid(_p.orcid);
+      if (id == null) {
+        setState(() => _error = t('orc.bad'));
+        return;
+      }
+      _p.orcid = id;
+      _orcid.text = id;
     }
     setState(() {
       _saving = true;
@@ -208,10 +272,38 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: _dec(''),
           ),
           _label(t('me.orcid')),
+          Text(t('orc.hint'), style: const TextStyle(fontSize: 13)),
+          const SizedBox(height: 8),
           TextField(
+              key: const Key('orc.field'),
               controller: _orcid,
-              maxLength: 19,
+              maxLength: 40,
+              keyboardType: TextInputType.visiblePassword,
+              autocorrect: false,
               decoration: _dec('0000-0000-0000-0000')),
+          FilledButton.tonalIcon(
+            key: const Key('orc.fill'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+            ),
+            onPressed: _orcLoading ? null : _fillFromOrcid,
+            icon: _orcLoading
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2.5),
+                  )
+                : const Icon(Icons.badge_outlined),
+            label: Text(t('orc.fill')),
+          ),
+          if (_orcError != null) ...[
+            const SizedBox(height: 8),
+            Text(_orcError!,
+                key: const Key('orc.error'),
+                style: TextStyle(color: scheme.error, fontSize: 14)),
+          ],
           _label(t('me.interests')),
           Wrap(
             spacing: 8,
