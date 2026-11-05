@@ -138,6 +138,10 @@ Scinode — мобильное приложение для коллаборац�
   (список, отчёт из 8 разделов, сравнение двух организаций и со страной), диаграммы —
   `widgets/analytics_charts.dart`. Образцы — `test/fixtures/analytics/` (настоящий расчёт).
 - Числа и проценты — с неразрывным пробелом (`formatMoney`, `formatShare`).
+- PDF Аналитики — `services/analytics_pdf.dart` (`buildOrgPdf`, `buildComparePdf`), стиль и
+  шрифты — из `report_pdf.dart`. Проверка глазами: `SCINODE_PDF_OUT=<папка> flutter test
+  test/analytics_pdf_test.dart`, затем `pdftoppm -png`. В `pw.Stack` не класть пустой
+  непозиционированный `SizedBox` — он обнуляет размер и полоска не рисуется.
 
 ## Сборка (GitHub Actions, `.github/workflows/build.yml`)
 - Папка `android/` **не хранится** в репозитории: генерируется в CI командой
