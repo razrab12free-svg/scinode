@@ -36,10 +36,12 @@ npm install --no-audit --no-fund \
   || log "Не удалось поставить firebase-tools"
 npx --yes firebase setup:emulators:firestore >/dev/null 2>&1 || true
 
-# 4. Python для Аналитики: расчёт — только стандартная библиотека, тесты — pytest
-#    (та же версия, что в .github/workflows/analytics.yml). Остальное — для анализа.
+# 4. Python для Аналитики: пакеты расчёта — с точными версиями, как на GitHub
+#    (analytics/requirements.txt: rapidfuzz, pandas, numpy) + pytest + пакеты
+#    для исследований (scipy, networkx, matplotlib, pyalex).
 python3 -m pip install --quiet --disable-pip-version-check \
-  pytest==9.2.0 pandas networkx matplotlib jinja2 requests 2>/dev/null \
+  pytest==9.2.0 rapidfuzz==3.14.6 pandas==3.0.6 numpy==2.5.4 \
+  scipy networkx matplotlib jinja2 requests pyalex 2>/dev/null \
   || log "Python-пакеты не установились"
 
 # 5. Пакеты проекта (если репозиторий уже на месте)
