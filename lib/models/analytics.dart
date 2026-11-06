@@ -600,22 +600,21 @@ class ApcEstimate {
 }
 
 /// Автор с очень большим числом работ в год (порог Иоаннидиса).
+/// Обезличено: без имени, ссылки и места работы — только числа.
 class ProlificAuthor {
   ProlificAuthor({
-    required this.id,
-    required this.name,
-    required this.inst,
     required this.n,
+    required this.home,
     required this.max,
     required this.maxYear,
     required this.yearsOver,
   });
-  final String id;
-  final String name;
-  final String inst;
 
   /// Работ в этом наборе (организация/страна) за окно.
   final int n;
+
+  /// Есть место работы в Узбекистане (иначе — зарубежный соавтор).
+  final bool home;
 
   /// Наибольшее число статей, обзоров и докладов за год (все места работы).
   final int max;
@@ -623,8 +622,6 @@ class ProlificAuthor {
 
   /// Сколько лет окна выше порога.
   final int yearsOver;
-
-  String get openAlexUrl => 'https://openalex.org/$id';
 }
 
 class Prolific {
@@ -633,16 +630,16 @@ class Prolific {
   final int checked;
   final List<ProlificAuthor> authors;
 
+  int get home => authors.where((a) => a.home).length;
+
   static Prolific? fromJson(Object? v) {
     if (v is! Map) return null;
     return Prolific(_i(v['threshold']), _i(v['checked']), [
       for (final a in _maps(v['authors']))
-        if (_s(a['id']).isNotEmpty)
+        if (_i(a['max']) > 0)
           ProlificAuthor(
-            id: _s(a['id']),
-            name: _s(a['name']),
-            inst: _s(a['inst']),
             n: _i(a['n']),
+            home: a['home'] == true,
             max: _i(a['max']),
             maxYear: _i(a['max_year']),
             yearsOver: _i(a['years_over']),

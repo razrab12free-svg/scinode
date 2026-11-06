@@ -232,8 +232,9 @@ def test_new_sections_country(built):
     assert [a["max"] for a in p["authors"]] == sorted(
         (a["max"] for a in p["authors"]), reverse=True
     )
-    # Без мегаколлабораций физики ЦЕРН в списке нет.
-    assert "A5000028915" not in {a["id"] for a in p["authors"]}
+    # Обезличено: только числа и признак «работает в Узбекистане».
+    assert set(p["authors"][0]) == {"n", "home", "max", "max_year", "years_over"}
+    assert [a["home"] for a in p["authors"]].count(True) == 5
 
 
 def test_sdg_and_languages_parsing():
@@ -274,13 +275,15 @@ def test_prolific_rules():
         "A4": {"counts_by_year": [{"year": 2022, "works_count": 200}, "bad"]},
     }
     assert m.prolific_candidates(authors, 2021, 2025) == ["A4", "A1"]
-    row = {"id": "A1", "name": "X"}
-    assert m.prolific_row(row, {"2023": 72, "2024": 80}) == {
-        "id": "A1", "name": "X", "max": 80, "max_year": 2024, "years_over": 1
+    assert m.prolific_row(9, True, {"2023": 72, "2024": 80}) == {
+        "n": 9, "home": True, "max": 80, "max_year": 2024, "years_over": 1
     }
     # Ровно 72 — ещё не «сверхплодовитый» (порог — больше 72).
-    assert m.prolific_row(row, {"2023": 72}) is None
-    assert m.prolific_row(row, {}) is None
+    assert m.prolific_row(9, False, {"2023": 72}) is None
+    assert m.prolific_row(9, False, {}) is None
+    a = {"last_known_institutions": [{"country_code": "IQ"}, {"country_code": "uz"}]}
+    assert m.works_in_country(a, "UZ") is True
+    assert m.works_in_country({"last_known_institutions": None}, "UZ") is False
 
 
 def test_funders_block():

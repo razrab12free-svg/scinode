@@ -107,24 +107,24 @@ def _apc(client, flt: str) -> dict:
     return m.apc_sum(pages)
 
 
-def _prolific(client, flt: str, first: int, last: int) -> dict:
+def _prolific(client, flt: str, first: int, last: int, home_country: str) -> dict:
     """Сверхплодовитые авторы: больше 72 статей, обзоров и докладов за год.
 
     Работы мегаколлабораций (больше 100 авторов) не считаются — как у
     Иоаннидиса (физика частиц иначе даёт сотни «работ» в год). Кандидаты —
     20 самых активных авторов набора; их годовой итог считается по ВСЕМ
-    местам работы.
+    местам работы. В отчёт идут только числа, без имён.
     """
     typed = f"type:{m.PROLIFIC_TYPES},authors_count:<{m.MEGA_AUTHORS + 1}"
     top = m.group_list(_works(client, f"{flt},{typed}", "authorships.author.id"))[:20]
+    here = {a["id"]: a["n"] for a in top}
     adata = _batch(
         client,
         "/authors",
-        [a["id"] for a in top],
+        list(here),
         "id,display_name,orcid,works_count,cited_by_count,summary_stats,"
         "last_known_institutions,counts_by_year",
     )
-    rows = {a["id"]: m.author_row(adata[a["id"]], a["n"]) for a in top if a["id"] in adata}
     out = []
     for aid in m.prolific_candidates(adata, first, last)[:10]:
         yc = m.group_counts(
@@ -134,11 +134,13 @@ def _prolific(client, flt: str, first: int, last: int) -> dict:
                 "publication_year",
             )
         )
-        r = m.prolific_row(rows[aid], yc) if aid in rows else None
+        r = m.prolific_row(
+            here.get(aid, 0), m.works_in_country(adata[aid], home_country), yc
+        )
         if r:
             out.append(r)
-    out.sort(key=lambda r: (-r["max"], r["id"]))
-    return {"threshold": m.PROLIFIC_PER_YEAR, "checked": len(rows), "authors": out}
+    out.sort(key=lambda r: (-r["max"], -r["n"], r["max_year"]))
+    return {"threshold": m.PROLIFIC_PER_YEAR, "checked": len(adata), "authors": out}
 
 
 def _crossref(client, issn: str) -> dict:
@@ -322,7 +324,7 @@ def build_report(
         "last_known_institutions",
     )
     authors = [m.author_row(adata[a["id"]], a["n"]) for a in top_auth if a["id"] in adata]
-    prolific = _prolific(client, W, first, last)
+    prolific = _prolific(client, W, first, last, home_country)
 
     # Цели устойчивого развития, языки, фонды, оценка расходов на APC.
     sdg = m.sdg_block(

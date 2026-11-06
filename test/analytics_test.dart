@@ -200,11 +200,13 @@ void main() {
       expect((r.apc!.lead!.works, r.apc!.lead!.usd), (192, 305462));
       expect(r.prolific!.threshold, 72);
       expect(r.prolific!.checked, 20);
-      expect(r.prolific!.authors.single.name, 'Farruh Atamurotov');
-      expect(r.prolific!.authors.single.max, greaterThan(72));
+      expect(r.prolific!.authors.single.max, 91);
+      expect(r.prolific!.authors.single.home, isTrue);
 
       final ped = OrgReport.fromJson(_j('orgs/I4210159566.json'));
       expect(ped.prolific!.authors.length, 8);
+      // Почти все — зарубежные соавторы.
+      expect(ped.prolific!.home, 1);
       final maxes = [for (final a in ped.prolific!.authors) a.max];
       expect(maxes, [...maxes]..sort((a, b) => b.compareTo(a)));
       // Своих работ с APC мало: почти всё платили соавторы.
@@ -377,7 +379,8 @@ void main() {
       await tester.scrollUntilVisible(
           find.byKey(const Key('an.prolific')), -300,
           scrollable: find.byType(Scrollable).first);
-      expect(find.text('Farruh Atamurotov'), findsOneWidget);
+      expect(find.text(t('an.prolific_author', {'i': 1})), findsOneWidget);
+      expect(find.textContaining(t('an.prolific_is_home')), findsOneWidget);
       await tester.scrollUntilVisible(
           find.byKey(const Key('an.apc_lead')), -300,
           scrollable: find.byType(Scrollable).first);

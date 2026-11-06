@@ -554,19 +554,32 @@ def prolific_candidates(authors: dict[str, dict], first: int, last: int) -> list
     return sorted(best, key=lambda a: (-best[a], a))
 
 
-def prolific_row(row: dict, year_counts: dict[str, int]) -> dict | None:
-    """Строка автора, если в каком-то году статей, обзоров и докладов
-    (по всем местам работы) больше порога; иначе None."""
+def prolific_row(n: int, home: bool, year_counts: dict[str, int]) -> dict | None:
+    """Обезличенная строка автора, если в каком-то году статей, обзоров и
+    докладов (по всем местам работы) больше порога; иначе None.
+
+    Имён, ссылок и мест работы нет (решение владельца 6.11.2026): только
+    числа и признак «последнее место работы — в своей стране» ([home]).
+    """
     years = {
-        int(k): n for k, n in year_counts.items() if k.isdigit() and isinstance(n, int)
+        int(k): c for k, c in year_counts.items() if k.isdigit() and isinstance(c, int)
     }
-    over = {y: n for y, n in years.items() if n > PROLIFIC_PER_YEAR}
+    over = {y: c for y, c in years.items() if c > PROLIFIC_PER_YEAR}
     if not over:
         return None
     top_year = max(over, key=lambda y: (over[y], y))
     return {
-        **row,
+        "n": n,
+        "home": home,
         "max": over[top_year],
         "max_year": top_year,
         "years_over": len(over),
     }
+
+
+def works_in_country(author: dict, country: str) -> bool:
+    """Последнее известное место работы автора — в стране [country]."""
+    return any(
+        isinstance(i, dict) and str(i.get("country_code") or "").upper() == country.upper()
+        for i in author.get("last_known_institutions") or []
+    )

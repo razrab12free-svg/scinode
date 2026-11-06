@@ -770,6 +770,22 @@ const Map<String, List<String>> analyticsStrings = {
     '{y} yilda {max} tagacha ish · chegaradan yuqori yillar: {k} · bu yerda davrda {n}',
     'up to {max} works in {y} · years over threshold: {k} · {n} here in the period',
   ],
+  'an.prolific_author': ['Автор {i}', 'Muallif {i}', 'Author {i}'],
+  'an.prolific_is_home': [
+    'работает в Узбекистане',
+    'O‘zbekistonda ishlaydi',
+    'works in Uzbekistan',
+  ],
+  'an.prolific_abroad': [
+    'зарубежный соавтор',
+    'xorijiy hammuallif',
+    'co-author from abroad',
+  ],
+  'an.prolific_home': [
+    'Работают в Узбекистане: {h} · зарубежные соавторы: {a}. Имена не показываются.',
+    'O‘zbekistonda ishlaydi: {h} · xorijiy hammualliflar: {a}. Ismlar ko‘rsatilmaydi.',
+    'Work in Uzbekistan: {h} · co-authors from abroad: {a}. Names are not shown.',
+  ],
   'an.cmp.sdg': ['Связаны с ЦУР', 'BRM bilan bog‘liq', 'Related to SDGs'],
   'an.cmp.uz': ['На узбекском языке', 'O‘zbek tilida', 'In Uzbek'],
   'an.cmp.funded': [

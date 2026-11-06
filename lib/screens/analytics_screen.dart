@@ -937,9 +937,14 @@ class _ReportBody extends StatelessWidget {
               ),
               _Note(t('an.prolific_note', {'n': r.prolific!.checked})),
               if (r.prolific!.authors.isEmpty) _Note(t('an.prolific_none')),
-              for (final a in r.prolific!.authors)
+              if (r.prolific!.authors.isNotEmpty)
+                _Note(t('an.prolific_home', {
+                  'h': r.prolific!.home,
+                  'a': r.prolific!.authors.length - r.prolific!.home,
+                })),
+              for (final (i, a) in r.prolific!.authors.indexed)
                 CountBar(
-                  label: a.name,
+                  label: t('an.prolific_author', {'i': i + 1}),
                   value: a.max,
                   max: r.prolific!.authors.first.max,
                   valueText: _num(a.max),
@@ -951,9 +956,8 @@ class _ReportBody extends StatelessWidget {
                       'k': a.yearsOver,
                       'n': _num(a.n),
                     }),
-                    if (a.inst.isNotEmpty) a.inst,
+                    a.home ? t('an.prolific_is_home') : t('an.prolific_abroad'),
                   ].join(' · '),
-                  onTap: () => openLink(context, a.openAlexUrl),
                 ),
             ],
             if (r.citationCheck != null) _CitationCheckBlock(r.citationCheck!),

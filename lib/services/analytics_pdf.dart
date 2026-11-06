@@ -963,9 +963,12 @@ class _Pdf {
           _table(
             [t('ap.author'), t('ap.mark')],
             [
-              for (final a in pr.authors)
+              for (final (i, a) in pr.authors.indexed)
                 [
-                  [a.name, if (a.inst.isNotEmpty) a.inst].join('\n'),
+                  [
+                    t('an.prolific_author', {'i': i + 1}),
+                    a.home ? t('an.prolific_is_home') : t('an.prolific_abroad'),
+                  ].join('\n'),
                   t('an.prolific_row', {
                     'max': n(a.max),
                     'y': a.maxYear,
@@ -974,8 +977,13 @@ class _Pdf {
                   }),
                 ],
             ],
-            widths: {0: const pw.FlexColumnWidth(2.2)},
+            widths: {0: const pw.FlexColumnWidth(1.6)},
           ),
+        if (pr.authors.isNotEmpty)
+          _note(t('an.prolific_home', {
+            'h': pr.home,
+            'a': pr.authors.length - pr.home,
+          })),
       ];
 
   List<pw.Widget> integrity(OrgReport r) => [
