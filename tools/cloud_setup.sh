@@ -36,15 +36,18 @@ npm install --no-audit --no-fund \
   || log "Не удалось поставить firebase-tools"
 npx --yes firebase setup:emulators:firestore >/dev/null 2>&1 || true
 
-# 4. Python для будущей аналитики (этап B)
+# 4. Python для Аналитики: расчёт — только стандартная библиотека, тесты — pytest
+#    (та же версия, что в .github/workflows/analytics.yml). Остальное — для анализа.
 python3 -m pip install --quiet --disable-pip-version-check \
-  pandas networkx matplotlib jinja2 requests 2>/dev/null \
+  pytest==9.2.0 pandas networkx matplotlib jinja2 requests 2>/dev/null \
   || log "Python-пакеты не установились"
 
 # 5. Пакеты проекта (если репозиторий уже на месте)
 for d in /home/user/scinode "$PWD"; do
   if [ -f "$d/pubspec.yaml" ]; then
     (cd "$d" && flutter pub get >/dev/null 2>&1) || true
+    (cd "$d/analytics" && python3 -m pytest -q tests >/dev/null 2>&1) \
+      || log "Тесты Аналитики не прошли (проверьте вручную)"
     break
   fi
 done

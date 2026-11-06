@@ -44,3 +44,7 @@ api.nsf.gov
 api.tech.ec.europa.eu
 tile.openstreetmap.org
 x9096730-spec.github.io
+zenodo.org
+open.leidenranking.com
+www.leidenranking.com
+api.openaire.eu
