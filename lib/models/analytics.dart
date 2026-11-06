@@ -33,10 +33,18 @@ class OrgSummary {
     this.citationsTotal = 0,
     this.h = 0,
     this.i10 = 0,
+    this.rorNames = const {},
+    this.established,
   });
 
   final String id;
   final String name;
+
+  /// Официальные названия из реестра ROR по языкам (ru, uz, en…).
+  final Map<String, String> rorNames;
+
+  /// Год основания (ROR).
+  final int? established;
   final List<String> acronyms;
   final List<String> alt;
   final String type;
@@ -65,11 +73,27 @@ class OrgSummary {
         citationsTotal: _i(j['citations_total']),
         h: _i(j['h']),
         i10: _i(j['i10']),
+        rorNames: _rorNames(j['ror_data']),
+        established: j['ror_data'] is Map && j['ror_data']['established'] is num
+            ? (j['ror_data']['established'] as num).toInt()
+            : null,
       );
+
+  static Map<String, String> _rorNames(Object? r) {
+    final n = r is Map ? r['names'] : null;
+    if (n is! Map) return const {};
+    return {
+      for (final e in n.entries)
+        if (_s(e.value).isNotEmpty) e.key.toString(): _s(e.value),
+    };
+  }
 
   /// Название на языке интерфейса, если OpenAlex знает такой вариант:
   /// ru — первое название кириллицей, uz — узбекское латиницей.
   String localName(String lang) {
+    // Официальное название из ROR — надёжнее догадок по другим названиям.
+    final official = rorNames[lang];
+    if (official != null && official.isNotEmpty) return official;
     if (lang == 'ru') {
       // Русское — кириллица без букв узбекской, украинской и таджикской
       // кириллицы (ў қ ғ ҳ і ї є ґ ӯ ҷ): иначе «Бухоро давлат тиббиёт
@@ -106,7 +130,8 @@ class OrgSummary {
   bool matches(String query) {
     final q = _fold(query);
     if (q.isEmpty) return true;
-    final all = [name, ...acronyms, ...alt, city].map(_fold);
+    final all =
+        [name, ...acronyms, ...alt, ...rorNames.values, city].map(_fold);
     final words = q.split(' ').where((w) => w.isNotEmpty);
     return words.every((w) => all.any((s) => s.contains(w)));
   }
@@ -331,10 +356,32 @@ class Journal {
     required this.h,
     required this.mean2y,
     required this.n,
+    this.crossref,
+    this.crossrefPublisher = '',
+    this.growthRatio,
+    this.growthSharp = false,
+    this.growthWorks = 0,
+    this.growthBefore = 0,
+    this.growthYear,
   });
   final String id;
   final String name;
   final String type; // journal, repository, conference, ebook platform…
+
+  /// Есть ли журнал в Crossref (null — не проверялось: не журнал или нет ISSN).
+  final bool? crossref;
+  final String crossrefPublisher;
+
+  /// Во сколько раз выросло число работ журнала за 3 года и резко ли.
+  final double? growthRatio;
+  final bool growthSharp;
+  final int growthWorks;
+  final int growthBefore;
+  final int? growthYear;
+
+  /// Повод проверить журнал: нет DOI в Crossref или резкий рост объёма.
+  /// Только для журналов — у репозиториев (Zenodo и т. п.) рост нормален.
+  bool get warning => type == 'journal' && (growthSharp || crossref == false);
   final String issn;
   final bool doaj;
   final bool oa;
@@ -381,6 +428,97 @@ class TopicRow {
   bool get mostlyGuest => leadShare != null && leadShare! < 0.3 && n >= 20;
 }
 
+/// Проверка самых цитируемых работ: самоцитирование (OpenCitations) и
+/// откуда приходят цитирования (OpenAlex).
+class CheckedWork {
+  CheckedWork({
+    required this.id,
+    required this.doi,
+    required this.title,
+    required this.year,
+    required this.source,
+    required this.cited,
+    required this.citing,
+    required this.ownShare,
+    required this.topName,
+    required this.topShare,
+    required this.ocN,
+    required this.authorSc,
+    required this.journalSc,
+    required this.flags,
+  });
+  final String id;
+  final String doi;
+  final String title;
+  final int? year;
+  final String source;
+  final int cited;
+  final int citing;
+  final double? ownShare;
+  final String topName;
+  final double? topShare;
+  final int ocN;
+  final int authorSc;
+  final int journalSc;
+
+  /// own_institution, one_institution, author_self, journal_self.
+  final List<String> flags;
+
+  double? get authorScShare => ocN > 0 ? authorSc / ocN : null;
+  double? get journalScShare => ocN > 0 ? journalSc / ocN : null;
+}
+
+class CitationCheck {
+  CitationCheck({
+    required this.checked,
+    required this.flagged,
+    required this.ownShare,
+    required this.authorScShare,
+    required this.journalScShare,
+    required this.ocCitations,
+    required this.works,
+  });
+  final int checked;
+  final int flagged;
+  final double? ownShare;
+  final double? authorScShare;
+  final double? journalScShare;
+  final int ocCitations;
+  final List<CheckedWork> works;
+
+  static CitationCheck? fromJson(Object? v) {
+    if (v is! Map) return null;
+    final j = Map<String, dynamic>.from(v);
+    return CitationCheck(
+      checked: _i(j['checked']),
+      flagged: _i(j['flagged']),
+      ownShare: _d(j['own_share']),
+      authorScShare: _d(j['author_sc_share']),
+      journalScShare: _d(j['journal_sc_share']),
+      ocCitations: _i(j['oc_citations']),
+      works: [
+        for (final w in _maps(j['works']))
+          CheckedWork(
+            id: _s(w['id']),
+            doi: _s(w['doi']),
+            title: _s(w['title']),
+            year: w['year'] is num ? (w['year'] as num).toInt() : null,
+            source: _s(w['source']),
+            cited: _i(w['cited']),
+            citing: _i(w['citing']),
+            ownShare: _d(w['own_share']),
+            topName: w['top_inst'] is Map ? _s(w['top_inst']['name']) : '',
+            topShare: _d(w['top_share']),
+            ocN: w['oc'] is Map ? _i(w['oc']['n']) : 0,
+            authorSc: w['oc'] is Map ? _i(w['oc']['author_sc']) : 0,
+            journalSc: w['oc'] is Map ? _i(w['oc']['journal_sc']) : 0,
+            flags: _strs(w['flags']),
+          ),
+      ],
+    );
+  }
+}
+
 /// Отозванные статьи и типы источников (журнал, репозиторий, конференция).
 class Integrity {
   Integrity({this.retracted, this.sourceTypes = const []});
@@ -416,6 +554,7 @@ class OrgReport {
     required this.journals,
     required this.topics,
     required this.integrity,
+    this.citationCheck,
   });
 
   final OrgSummary org;
@@ -442,6 +581,9 @@ class OrgReport {
   final List<TopicRow> topics;
   final Integrity integrity;
 
+  /// Проверка цитирования самых цитируемых работ (только у организаций).
+  final CitationCheck? citationCheck;
+
   double? get oaShare => works > 0 ? oaWindow / works : null;
 
   List<TopicRow> get strongTopics => [
@@ -458,6 +600,7 @@ class OrgReport {
     final jr = m(j['journals']);
     final ig = m(j['integrity']);
     return OrgReport(
+      citationCheck: CitationCheck.fromJson(j['citation_check']),
       integrity: Integrity(
         retracted: ig['retracted'] is num ? _i(ig['retracted']) : null,
         sourceTypes: Named.list(ig['source_types']),
@@ -514,6 +657,16 @@ class OrgReport {
             h: _i(s['h']),
             mean2y: _d(s['mean2y']) ?? 0,
             n: _i(s['n']),
+            crossref: s['crossref'] is bool ? s['crossref'] as bool : null,
+            crossrefPublisher: _s(s['crossref_publisher']),
+            growthRatio: s['growth'] is Map ? _d(s['growth']['ratio']) : null,
+            growthSharp: s['growth'] is Map && s['growth']['sharp'] == true,
+            growthWorks: s['growth'] is Map ? _i(s['growth']['works']) : 0,
+            growthBefore:
+                s['growth'] is Map ? _i(s['growth']['works_before']) : 0,
+            growthYear: s['growth'] is Map && s['growth']['year'] is num
+                ? (s['growth']['year'] as num).toInt()
+                : null,
           ),
       ],
       topics: [

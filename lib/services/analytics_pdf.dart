@@ -242,6 +242,8 @@ class _Pdf {
                   _info(t('ap.type'),
                       analyticsTypeLabel(o.isCountry ? 'country' : o.type)),
                   if (o.city.isNotEmpty) _info(t('ap.city'), o.city),
+                  if (o.established != null)
+                    _info(t('ap.founded'), '${o.established}'),
                   _info(t('ap.period'), period(r)),
                   _info(t('ap.data_date'), date(r.generated)),
                   _info(t('ap.source'), t('ap.source_v')),
@@ -833,7 +835,13 @@ class _Pdf {
         _big(p(r.doajShare), t('an.doaj_share'), c: _good),
         _note(t('an.journals_note')),
         _table(
-          [t('ap.source_name'), t('ap.type'), 'DOAJ', t('ap.works')],
+          [
+            t('ap.source_name'),
+            t('ap.type'),
+            'DOAJ',
+            t('ap.works'),
+            t('ap.mark'),
+          ],
           [
             for (final j in r.journals.take(20))
               [
@@ -841,9 +849,21 @@ class _Pdf {
                 _tr('an.jt.${j.type}', j.type),
                 j.doaj ? t('ap.yes') : '',
                 n(j.n),
+                [
+                  if (j.warning && j.crossref == false) t('an.j.no_crossref'),
+                  if (j.warning && j.growthSharp)
+                    t('an.j.growth', {
+                      'a': n(j.growthBefore),
+                      'b': n(j.growthWorks),
+                      'y': j.growthYear ?? '',
+                    }),
+                ].join('; '),
               ],
           ],
-          widths: {0: const pw.FlexColumnWidth(3.4)},
+          widths: {
+            0: const pw.FlexColumnWidth(3),
+            4: const pw.FlexColumnWidth(2),
+          },
           right: {3},
         ),
       ];
@@ -863,7 +883,78 @@ class _Pdf {
               t('an.repo_share')),
           _note(t('an.repo_note')),
         ],
+        if (r.citationCheck != null) ..._citationCheck(r.citationCheck!),
       ];
+
+  String _flag(String f, CheckedWork w) {
+    final name = _tr('an.cc.f.$f', f);
+    return switch (f) {
+      'own_institution' => '$name: ${p(w.ownShare)}',
+      'one_institution' => '$name: ${p(w.topShare)} (${w.topName})',
+      'author_self' => '$name: ${p(w.authorScShare)}',
+      'journal_self' => '$name: ${p(w.journalScShare)}',
+      _ => name,
+    };
+  }
+
+  List<pw.Widget> _citationCheck(CitationCheck c) {
+    final flagged = [
+      for (final w in c.works)
+        if (w.flags.isNotEmpty) w,
+    ];
+    return [
+      pw.SizedBox(height: 8),
+      pw.Text(t('an.cc.title', {'n': c.checked}),
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+      pw.SizedBox(height: 4),
+      _note(t('an.cc.note')),
+      _table(
+        [t('ap.indicator'), t('ap.share')],
+        [
+          [t('an.cc.author_sc'), p(c.authorScShare)],
+          [t('an.cc.journal_sc'), p(c.journalScShare)],
+          [t('an.cc.own'), p(c.ownShare)],
+        ],
+        widths: {0: const pw.FlexColumnWidth(3)},
+        right: {1},
+      ),
+      pw.SizedBox(height: 6),
+      pw.Text(
+        flagged.isEmpty
+            ? t('an.cc.none')
+            : t('an.cc.flagged', {'n': flagged.length, 'all': c.checked}),
+        style: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold,
+            color: flagged.isEmpty ? _good : _countryC),
+      ),
+      if (flagged.isNotEmpty) ...[
+        pw.SizedBox(height: 4),
+        _table(
+          [t('ap.work'), t('ap.cites'), t('ap.mark')],
+          [
+            for (final w in flagged)
+              [
+                [
+                  w.title,
+                  [
+                    if (w.year != null) '${w.year}',
+                    if (w.source.isNotEmpty) w.source,
+                    if (w.doi.isNotEmpty) 'doi:${w.doi}',
+                  ].join(' · '),
+                ].join('\n'),
+                n(w.cited),
+                w.flags.map((f) => _flag(f, w)).join('; '),
+              ],
+          ],
+          widths: {
+            0: const pw.FlexColumnWidth(3.2),
+            2: const pw.FlexColumnWidth(2.2),
+          },
+          right: {1},
+        ),
+      ],
+    ];
+  }
 
   List<pw.Widget> method(OrgReport r) => [
         _h1(t('an.s.method')),
@@ -930,6 +1021,18 @@ class _Pdf {
           [t('an.cmp.doaj'), p(a.doajShare), p(b.doajShare)],
           if (!a.org.isCountry && !b.org.isCountry)
             [t('an.cmp.h'), '${a.org.h}', '${b.org.h}'],
+          if (a.citationCheck != null && b.citationCheck != null) ...[
+            [
+              t('an.cc.author_sc'),
+              p(a.citationCheck!.authorScShare),
+              p(b.citationCheck!.authorScShare)
+            ],
+            [
+              t('an.cmp.flagged'),
+              '${a.citationCheck!.flagged} / ${a.citationCheck!.checked}',
+              '${b.citationCheck!.flagged} / ${b.citationCheck!.checked}'
+            ],
+          ],
           if (a.integrity.retracted != null && b.integrity.retracted != null)
             [
               t('an.cmp.retracted'),

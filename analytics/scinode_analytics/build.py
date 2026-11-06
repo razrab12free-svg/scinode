@@ -12,11 +12,13 @@ import argparse
 import datetime as dt
 import json
 import sys
+import threading
+import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from . import metrics as m
-from .client import OpenAlexClient, OpenAlexError
+from .client import BudgetExhausted, OpenAlexClient, OpenAlexError
 
 SCHEMA = 1
 EXCLUDED_TYPES = {"company"}
@@ -69,6 +71,76 @@ def _fwci(client, flt: str) -> dict:
         cited=_count(client, flt + ",fwci:>0"),
         above1=_count(client, flt + ",fwci:>1"),
     )
+
+
+_crossref_cache: dict[str, dict] = {}
+_crossref_lock = threading.Lock()
+
+# Запросов OpenAlex на организацию и на страну (с запасом) — для проверки
+# дневного лимита ключа перед началом расчёта.
+REQUESTS_PER_ORG = 50
+REQUESTS_COUNTRY = 40
+
+# Сколько самых цитируемых работ организации проверять (по 1 запросу
+# OpenAlex и 1 запросу OpenCitations на работу).
+CHECK_WORKS = 10
+
+
+def _crossref(client, issn: str) -> dict:
+    """Журнал в Crossref (с кэшем: одни и те же журналы у многих вузов)."""
+    with _crossref_lock:
+        hit = _crossref_cache.get(issn)
+    if hit is not None:
+        return hit
+    try:
+        res = m.crossref_journal(
+            client.get_url(
+                "https://api.crossref.org/works?rows=0&facet=publisher-name:1"
+                f"&filter=issn:{urllib.parse.quote(issn)}"
+            )
+        )
+    except OpenAlexError:
+        res = {}
+    with _crossref_lock:
+        _crossref_cache[issn] = res
+    return res
+
+
+def _citation_check(client, flt: str, exclude: set[str]) -> dict:
+    r = client.get(
+        "/works",
+        {
+            "filter": flt + f",cited_by_count:>{m.CHECK_MIN_CITES - 1}",
+            "sort": "cited_by_count:desc",
+            "per_page": str(CHECK_WORKS),
+            "select": "id,doi,display_name,publication_year,cited_by_count,"
+            "primary_location",
+        },
+    )
+    rows = []
+    for w in r.get("results") or []:
+        wid = m.short_id(w.get("id"))
+        inst = m.citing_institutions(
+            client.get(
+                "/works",
+                {"filter": f"cites:{wid}", "group_by": "authorships.institutions.lineage"},
+            ),
+            exclude,
+        )
+        doi = str(w.get("doi") or "").replace("https://doi.org/", "")
+        oc = {"n": 0, "author_sc": 0, "journal_sc": 0}
+        if doi:
+            try:
+                oc = m.oc_counts(
+                    client.get_url(
+                        "https://api.opencitations.net/index/v2/citations/doi:"
+                        + urllib.parse.quote(doi, safe="/:")
+                    )
+                )
+            except OpenAlexError:
+                pass
+        rows.append(m.work_check(w, oc, inst))
+    return m.citation_check_summary(rows)
 
 
 def build_report(
@@ -202,9 +274,21 @@ def build_report(
         "/sources",
         [s["id"] for s in top_src],
         "id,display_name,type,issn_l,is_in_doaj,is_oa,host_organization_name,"
-        "country_code,summary_stats",
+        "country_code,summary_stats,counts_by_year",
     )
-    journals = [m.journal_row(sdata[s["id"]], s["n"]) for s in top_src if s["id"] in sdata]
+    journals = [
+        m.journal_row(sdata[s["id"]], s["n"], last)
+        for s in top_src
+        if s["id"] in sdata
+    ]
+    # Crossref: есть ли журнал (по ISSN) в главном реестре DOI, издатель.
+    for j in journals:
+        if j["issn"] and j["type"] == "journal":
+            j.update(_crossref(client, j["issn"]))
+
+    # Самые цитируемые работы: самоцитирование (OpenCitations) и откуда
+    # приходят цитирования (OpenAlex) — признаки «накрутки» и «картелей».
+    citation_check = _citation_check(client, W, exclude) if lead_id else None
 
     sub_total = m.group_list(_works(client, W, "primary_topic.subfield.id"))
     lead_sub = None
@@ -272,6 +356,7 @@ def build_report(
         },
         "topics": topics,
         "integrity": integrity,
+        **({"citation_check": citation_check} if citation_check else {}),
     }
 
 
@@ -344,6 +429,14 @@ def build_all(
         orgs = [o for o in orgs if m.short_id(o.get("id")) in only]
     if limit:
         orgs = orgs[:limit]
+    # Хватит ли дневного лимита ключа на весь расчёт? Иначе — не начинать:
+    # обрыв на середине оставил бы неполные данные.
+    need = len(orgs) * REQUESTS_PER_ORG + REQUESTS_COUNTRY
+    left = getattr(client, "remaining", None)
+    if left is not None and left < need:
+        raise BudgetExhausted(
+            f"нужно около {need} запросов OpenAlex, осталось {left}"
+        )
     base_dir = out / "analytics" / f"v{SCHEMA}"
     (base_dir / "orgs").mkdir(parents=True, exist_ok=True)
     common = {
@@ -369,8 +462,21 @@ def build_all(
                 country,
                 lead_id=meta["id"],
             )
+        except BudgetExhausted:
+            raise
         except (OpenAlexError, KeyError, TypeError, ValueError) as e:
             return meta, str(e)
+        if meta.get("ror"):
+            try:
+                ror = m.ror_record(
+                    client.get_url(
+                        f"https://api.ror.org/v2/organizations/{meta['ror']}"
+                    )
+                )
+                if ror:
+                    meta["ror_data"] = ror
+            except OpenAlexError:
+                pass
         doc = {**common, "org": meta, **rep}
         (base_dir / "orgs" / f"{meta['id']}.json").write_text(
             json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
@@ -406,6 +512,8 @@ def build_all(
             json.dumps(national, ensure_ascii=False, separators=(",", ":")),
             encoding="utf-8",
         )
+    except BudgetExhausted:
+        raise
     except OpenAlexError as e:
         failed.append({"id": country, "error": str(e)})
 
@@ -444,20 +552,34 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
     today = dt.date.fromisoformat(a.today) if a.today else None
-    idx = build_all(
-        client,
-        Path(a.out),
-        a.country,
-        a.min_works,
-        today,
-        a.only,
-        a.limit,
-        a.workers,
-    )
+    try:
+        # Один лёгкий запрос, чтобы узнать остаток дневного лимита ключа.
+        client.get("/works", {"per_page": "1", "select": "id"})
+    except BudgetExhausted as e:
+        print(f"Расчёт не начат: {e}. Данные на сайте не изменились.", file=sys.stderr)
+        return 3
+    try:
+        idx = build_all(
+            client,
+            Path(a.out),
+            a.country,
+            a.min_works,
+            today,
+            a.only,
+            a.limit,
+            a.workers,
+        )
+    except BudgetExhausted as e:
+        print(
+            f"Расчёт остановлен: {e}. Ничего не опубликовано — на сайте остаются "
+            "прошлые данные. Запустите снова после 00:00 UTC.",
+            file=sys.stderr,
+        )
+        return 3
     total = len(idx["orgs"]) + len(idx["failed"])
     print(
         f"Готово: {len(idx['orgs'])} организаций, ошибок {len(idx['failed'])}, "
-        f"запросов {client.calls}"
+        f"запросов OpenAlex {client.calls}, других API {client.ext_calls}"
     )
     # Если сломалось больше 10 % — не публикуем неполные данные.
     if total == 0 or len(idx["failed"]) > max(1, total // 10):
