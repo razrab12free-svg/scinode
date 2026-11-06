@@ -581,6 +581,7 @@ class _ReportBody extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
           child: InfoNote(text: t('an.disclaimer')),
         ),
+        if (r.quality != null) _QualityCard(r.quality!, r),
 
         // 1. Публикации по годам.
         _Section(
@@ -964,6 +965,15 @@ class _ReportBody extends StatelessWidget {
           ],
         ),
 
+        // История ежемесячных расчётов.
+        if (r.history.isNotEmpty)
+          _Section(
+            key: const Key('an.history'),
+            title: t('an.s.history'),
+            icon: Icons.history,
+            children: [_HistoryBlock(r.history)],
+          ),
+
         // Методика.
         _Section(
           title: t('an.s.method'),
@@ -991,6 +1001,188 @@ class _ReportBody extends StatelessWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+/// Насколько можно доверять отчёту — сразу под шапкой.
+class _QualityCard extends StatelessWidget {
+  const _QualityCard(this.q, this.r);
+  final DataQuality q;
+  final OrgReport r;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = switch (q.level) {
+      'good' => AnColors.good,
+      'medium' => AnColors.country,
+      _ => scheme.error,
+    };
+    final icon = switch (q.level) {
+      'good' => Icons.verified_outlined,
+      'medium' => Icons.info_outline,
+      _ => Icons.warning_amber_rounded,
+    };
+    final p = r.citation.lead?.ppTop10 ?? r.citation.ppTop10;
+    return Padding(
+      key: const Key('an.quality'),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.45)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${t('an.q.title')}: ${t('an.q.${q.level}')}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final reason in q.reasons)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text('• ${_tr('an.q.r.$reason', reason)}',
+                    style: const TextStyle(fontSize: 13, height: 1.3)),
+              ),
+            if (q.ciLow != null && q.ciHigh != null && p != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  t('an.q.ci', {
+                    'p': _pct(p),
+                    'lo': _pct(q.ciLow),
+                    'hi': _pct(q.ciHigh),
+                  }),
+                  style: const TextStyle(fontSize: 13, height: 1.3),
+                ),
+              ),
+            ShareBar(
+              label: t('an.q.doi'),
+              valueText: _pct(q.doiShare),
+              value: q.doiShare,
+            ),
+            ShareBar(
+              label: t('an.q.orcid'),
+              valueText: _pct(q.orcidShare),
+              value: q.orcidShare,
+            ),
+            Text(t('an.q.note'),
+                style: TextStyle(
+                    fontSize: 12, height: 1.3, color: scheme.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// История ежемесячных расчётов: таблица с изменением к прошлому расчёту.
+class _HistoryBlock extends StatelessWidget {
+  const _HistoryBlock(this.points);
+  final List<HistoryPoint> points;
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = Strings.instance.lang;
+    final scheme = Theme.of(context).colorScheme;
+    if (points.length < 2) {
+      return _Note(
+          t('an.h.first', {'date': formatDate(points.first.date, lang)}));
+    }
+    final rows = points.reversed.take(12).toList();
+    Widget change(double? now, double? before) {
+      final s = formatPpChange(now, before, lang);
+      if (s.isEmpty) return const SizedBox.shrink();
+      final up = (now ?? 0) > (before ?? 0);
+      return Text(s,
+          style: TextStyle(
+              fontSize: 12,
+              color: s.startsWith('0')
+                  ? scheme.onSurfaceVariant
+                  : up
+                      ? AnColors.good
+                      : scheme.error));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Note(t('an.h.note')),
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i + 1 < rows.length && !rows[i].sameWindow(rows[i + 1]))
+            _Note(t('an.h.window', {
+              'date': formatDate(rows[i].date, lang),
+              'from': rows[i].windowFrom,
+              'to': rows[i].windowTo,
+            })),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(formatDate(rows[i].date, lang),
+                    style: const TextStyle(fontWeight: FontWeight.w800)),
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 2,
+                  children: [
+                    Text('${t('ap.works')}: ${_num(rows[i].works)}',
+                        style: const TextStyle(fontSize: 13)),
+                    Text.rich(TextSpan(
+                      style: const TextStyle(fontSize: 13),
+                      children: [
+                        TextSpan(
+                            text:
+                                '${rows[i].leadPpTop10 != null ? t('an.c.lead_top10') : t('an.c.top10')}: '
+                                '${_pct(rows[i].leadPpTop10 ?? rows[i].ppTop10)} '),
+                        if (i + 1 < rows.length &&
+                            rows[i].sameWindow(rows[i + 1]))
+                          WidgetSpan(
+                              child: change(
+                                  rows[i].leadPpTop10 ?? rows[i].ppTop10,
+                                  rows[i + 1].leadPpTop10 ??
+                                      rows[i + 1].ppTop10)),
+                      ],
+                    )),
+                    Text.rich(TextSpan(
+                      style: const TextStyle(fontSize: 13),
+                      children: [
+                        TextSpan(
+                            text:
+                                '${t('an.cmp.oa')}: ${_pct(rows[i].oaShare)} '),
+                        if (i + 1 < rows.length &&
+                            rows[i].sameWindow(rows[i + 1]))
+                          WidgetSpan(
+                              child:
+                                  change(rows[i].oaShare, rows[i + 1].oaShare)),
+                      ],
+                    )),
+                    if (rows[i].level.isNotEmpty)
+                      Text(
+                          '${t('an.q.title')}: ${_tr('an.q.short.${rows[i].level}', rows[i].level)}',
+                          style: const TextStyle(fontSize: 13)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (i + 1 < rows.length) const Divider(height: 1),
+        ],
       ],
     );
   }
@@ -1489,6 +1681,14 @@ class _CompareBody extends StatelessWidget {
           t('an.cmp.retracted'),
           _num(a.integrity.retracted!),
           _num(b.integrity.retracted!),
+          null,
+          null
+        ),
+      if (a.quality != null && b.quality != null)
+        (
+          t('an.cmp.quality'),
+          t('an.q.short.${a.quality!.level}'),
+          t('an.q.short.${b.quality!.level}'),
           null,
           null
         ),

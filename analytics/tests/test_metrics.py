@@ -189,12 +189,12 @@ def test_national_report(built):
     assert "lead" not in d["citation"]
     assert d["integrity"]["retracted"] > 0
     assert all(not t.get("lead") for t in d["topics"])
-    # Весь расчёт (список, вуз, страна) — 92 запроса OpenAlex (без скачивания
-    # списков работ) и 31 бесплатный запрос к Crossref, OpenCitations и ROR
-    # (из них 13 — «нет такого журнала» в Crossref);
+    # Весь расчёт (список, вуз, страна) — 96 запросов OpenAlex (без скачивания
+    # списков работ) и 32 бесплатных запроса: Crossref, OpenCitations, ROR
+    # (из них 13 — «нет такого журнала» в Crossref) и прошлая история с сайта;
     # ещё один запрос — проверка остатка лимита в main().
-    assert client.calls == 92
-    assert client.ext_calls == 31
+    assert client.calls == 96
+    assert client.ext_calls == 32
 
 
 def test_new_sections_org(built):
@@ -296,6 +296,95 @@ def test_funders_block():
         {"id": "F1", "name": "Fund One", "country": "UZ", "n": 4},
         {"id": "F2", "name": "Two", "country": "", "n": 2},
     ]}
+
+
+def test_quality_and_history_in_reports(built):
+    _, base, _ = built
+    d = json.loads((base / "orgs" / f"{ORG}.json").read_text(encoding="utf-8"))
+    q = d["quality"]
+    # 93 работы — мало для устойчивых процентов.
+    assert q["level"] == "low" and "small" in q["reasons"]
+    assert q["works"] == 93 and 0 < q["doi_share"] <= 1 and 0 < q["orcid_share"] <= 1
+    lo, hi = q["pp_top10_ci"]
+    assert lo < d["citation"]["lead"]["pp_top10"] < hi
+    # Первый запуск: истории на сайте ещё нет — одна точка.
+    assert [p["date"] for p in d["history"]] == ["2026-11-05"]
+    assert d["history"][0]["works"] == 93 and d["history"][0]["level"] == "low"
+    uz = json.loads((base / "orgs" / "UZ.json").read_text(encoding="utf-8"))
+    # По стране DOI только у 66 % работ — «среднее».
+    assert uz["quality"]["level"] == "medium" and "doi_mid" in uz["quality"]["reasons"]
+    h = json.loads((base / "history.json").read_text(encoding="utf-8"))
+    assert set(h["orgs"]) == {ORG, "UZ"}
+    assert h["orgs"][ORG] == d["history"]
+
+
+def test_quality_rules():
+    good = m.quality_block(5000, (4000, 5000), (2500, 5000), 0.1, (300, 4900))
+    assert good["level"] == "good" and good["reasons"] == []
+    assert good["doi_share"] == 0.8
+    mid = m.quality_block(5000, (3000, 5000), (500, 5000), 0.25, (300, 4900))
+    assert mid["level"] == "medium"
+    assert mid["reasons"] == ["doi_mid", "orcid_low", "repo_high"]
+    low = m.quality_block(3000, (1200, 3000), (2000, 3000), 0.0, (10, 2900))
+    assert low["level"] == "low" and low["reasons"] == ["doi_low"]
+    assert m.quality_block(150, (150, 150), (150, 150), 0, (0, 0))["pp_top10_ci"] is None
+    # Интервал Уилсона: 5 из 100 → примерно 2,2–11,2 %.
+    assert (m.wilson_low(5, 100), m.wilson_high(5, 100)) == (0.0215, 0.1118)
+    assert m.wilson_high(0, 0) is None
+
+
+def test_merge_history():
+    a = {"date": "2026-11-05", "works": 1}
+    b = {"date": "2026-12-03", "works": 2}
+    pts = m.merge_history([a], b)
+    assert pts == [a, b]
+    # Повторный запуск в том же месяце заменяет точку, а не добавляет.
+    b2 = {"date": "2026-12-20", "works": 3}
+    assert m.merge_history(pts, b2) == [a, b2]
+    assert m.merge_history(None, a) == [a]
+    assert m.merge_history(["x", {"no": 1}], a) == [{"no": 1}, a]
+    many = [{"date": f"20{20 + i // 12}-{i % 12 + 1:02d}-03"} for i in range(40)]
+    assert len(m.merge_history(many, {"date": "2030-01-03"})) == m.HISTORY_KEEP
+
+
+class _Hist:
+    def __init__(self, answer):
+        self.answer = answer
+
+    def get_url(self, url):
+        if isinstance(self.answer, Exception):
+            raise self.answer
+        return self.answer
+
+
+def test_load_history_protects_published_history():
+    assert build.load_history(_Hist(None), "u") == {}  # 404: первый запуск
+    assert build.load_history(_Hist({"orgs": {"I1": [{"date": "x"}], "I2": 5}}), "u") == {
+        "I1": [{"date": "x"}]
+    }
+    assert build.load_history(_Hist("bad"), None) == {}
+    with pytest.raises(build.HistoryUnavailable):
+        build.load_history(_Hist(OpenAlexError("сеть")), "u")
+    with pytest.raises(build.HistoryUnavailable):
+        build.load_history(_Hist({"oops": 1}), "u")
+
+
+def test_second_run_appends_history(tmp_path):
+    prev = {"orgs": {ORG: [{"date": "2026-10-03", "works": 90}], "I999": [{"date": "2026-10-03"}]}}
+
+    class C(ReplayClient):
+        def get_url(self, url):
+            if url == build.HISTORY_URL:
+                return prev
+            return super().get_url(url)
+
+    build.build_all(C(FX), tmp_path, "UZ", 100, TODAY, only=[ORG], workers=1, log=lambda *_: None)
+    base = tmp_path / "analytics" / "v1"
+    d = json.loads((base / "orgs" / f"{ORG}.json").read_text(encoding="utf-8"))
+    assert [p["date"] for p in d["history"]] == ["2026-10-03", "2026-11-05"]
+    h = json.loads((base / "history.json").read_text(encoding="utf-8"))
+    # Организация, которой нет в этом расчёте, не теряет историю.
+    assert h["orgs"]["I999"] == [{"date": "2026-10-03"}]
 
 
 def test_replay_unknown_request_fails():

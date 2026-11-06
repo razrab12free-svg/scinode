@@ -235,6 +235,55 @@ void main() {
           isEmpty);
     });
 
+    test('качество данных и история', () {
+      final r = OrgReport.fromJson(_j('orgs/$nuu.json'));
+      final q = r.quality!;
+      expect(q.level, 'good');
+      expect(q.reasons, isEmpty);
+      expect(q.doiShare, 0.8621);
+      expect(q.ciLow! < r.citation.lead!.ppTop10!, isTrue);
+      expect(q.ciHigh! > r.citation.lead!.ppTop10!, isTrue);
+      expect(r.history.single.date, DateTime(2026, 11, 5));
+      expect(r.history.single.works, r.works);
+      expect(r.history.single.leadPpTop10, r.citation.lead!.ppTop10);
+      final uz = OrgReport.fromJson(_j('orgs/UZ.json'));
+      expect(uz.quality!.level, 'medium');
+      expect(uz.quality!.reasons, ['doi_mid', 'orcid_low']);
+      // Старый файл и неизвестный уровень — без раздела, без ошибок.
+      expect(OrgReport.fromJson({}).quality, isNull);
+      expect(OrgReport.fromJson({}).history, isEmpty);
+      expect(DataQuality.fromJson({'level': 'excellent'}), isNull);
+      final h = HistoryPoint.list([
+        {
+          'date': '2026-12-03',
+          'window': [2021, 2025],
+          'works': 2
+        },
+        {'date': 'плохо'},
+        {
+          'date': '2026-11-05',
+          'window': [2021, 2025],
+          'works': 1
+        },
+        {
+          'date': '2027-01-03',
+          'window': [2022, 2026],
+          'works': 3
+        },
+      ]);
+      expect([for (final p in h) p.works], [1, 2, 3]);
+      expect(h[0].sameWindow(h[1]), isTrue);
+      expect(h[1].sameWindow(h[2]), isFalse);
+    });
+
+    test('изменение в процентных пунктах', () {
+      expect(formatPpChange(0.055, 0.051, 'ru'), '+0,4$_nb' 'п.$_nb' 'п.');
+      expect(formatPpChange(0.04, 0.052, 'en'), '−1.2${_nb}pp');
+      expect(formatPpChange(0.05, 0.0502, 'en'), '0 pp');
+      expect(formatPpChange(null, 0.05, 'ru'), '');
+      expect(formatPpChange(0.07, 0.05, 'uz'), '+2,0${_nb}f.${_nb}p.');
+    });
+
     test('проценты', () {
       expect(formatShare(0.0594, 'ru'), '5,9$_nb%');
       expect(formatShare(0.0594, 'en'), '5.9%');
@@ -314,10 +363,11 @@ void main() {
     Future<void> pump(WidgetTester tester, Widget home,
         {String lang = 'ru',
         Size size = const Size(360, 720),
-        ThemeMode mode = ThemeMode.light}) async {
+        ThemeMode mode = ThemeMode.light,
+        http.Client? client}) async {
       await Strings.instance.setLang(lang);
-      AnalyticsService.instance =
-          AnalyticsService(client: _pages(), cache: MemoryJsonCache());
+      AnalyticsService.instance = AnalyticsService(
+          client: client ?? _pages(), cache: MemoryJsonCache());
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -363,6 +413,10 @@ void main() {
       expect(find.byKey(const Key('an.compare_btn')), findsOneWidget);
       expect(find.byKey(const Key('an.pdf_btn')), findsOneWidget);
       expect(find.byKey(const Key('an.pdf_inline')), findsOneWidget);
+      await tester.scrollUntilVisible(find.byKey(const Key('an.quality')), 300,
+          scrollable: find.byType(Scrollable).first);
+      expect(
+          find.text('${t('an.q.title')}: ${t('an.q.good')}'), findsOneWidget);
       await tester.scrollUntilVisible(
           find.byKey(const Key('an.lead_top10')), 300,
           scrollable: find.byType(Scrollable).first);
@@ -454,6 +508,39 @@ void main() {
       expect(find.text('9,0$_nb%'), findsOneWidget);
       expect(find.textContaining(t('an.country_v', {'v': '5,9$_nb%'})),
           findsOneWidget);
+    });
+
+    testWidgets('история: изменения к прошлому расчёту и смена периода',
+        (tester) async {
+      // Настоящий отчёт НУУз; прошлые точки истории — тестовые.
+      final doc = _j('orgs/$nuu.json');
+      final now = Map<String, dynamic>.from((doc['history'] as List).single);
+      doc['history'] = [
+        {
+          ...now,
+          'date': '2026-09-03',
+          'window': [2020, 2024]
+        },
+        {...now, 'date': '2026-10-03', 'lead_pp_top10': 0.047, 'oa_share': 0.6},
+        now,
+      ];
+      final client = MockClient((r) async {
+        final p = r.url.path.split('/analytics/v1/').last;
+        final body = p == 'orgs/$nuu.json'
+            ? jsonEncode(doc)
+            : File('test/fixtures/analytics/$p').readAsStringSync();
+        return http.Response.bytes(utf8.encode(body), 200,
+            headers: {'content-type': 'application/json'});
+      });
+      await pump(tester, const OrgReportScreen(id: nuu), client: client);
+      await tester.scrollUntilVisible(find.byKey(const Key('an.history')), 400,
+          scrollable: find.byType(Scrollable).first);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      // 5,1 % против 4,7 % месяцем раньше.
+      expect(find.text('+0,4$_nb' 'п.$_nb' 'п.'), findsOneWidget);
+      expect(find.textContaining('2021–2025'), findsWidgets);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('сравнение двух организаций', (tester) async {

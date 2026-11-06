@@ -70,6 +70,7 @@ Future<Uint8List> buildOrgPdf(
     header: (c) => b.header(name, r),
     footer: b.footer,
     build: (_) => [
+      ...b.quality(r),
       ...b.years(r),
       ...b.oa(r),
       ...b.citation(r, country),
@@ -81,6 +82,7 @@ Future<Uint8List> buildOrgPdf(
       ...b.languages(r),
       ...b.funding(r),
       ...b.integrity(r),
+      ...b.history(r),
       ...b.method(r),
     ],
   ));
@@ -871,6 +873,97 @@ class _Pdf {
         ),
       ];
 
+  List<pw.Widget> quality(OrgReport r) {
+    final q = r.quality;
+    if (q == null) return [];
+    final c = switch (q.level) {
+      'good' => _good,
+      'medium' => _countryC,
+      _ => Brand.late,
+    };
+    final pp = r.citation.lead?.ppTop10 ?? r.citation.ppTop10;
+    return [
+      pw.Container(
+        padding: const pw.EdgeInsets.all(10),
+        margin: const pw.EdgeInsets.only(bottom: 10),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(color: c, width: 1),
+          borderRadius: pw.BorderRadius.circular(6),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('${t('an.q.title')}: ${t('an.q.${q.level}')}',
+                style: pw.TextStyle(
+                    fontSize: 11, fontWeight: pw.FontWeight.bold, color: c)),
+            pw.SizedBox(height: 4),
+            for (final reason in q.reasons)
+              pw.Text('• ${_tr('an.q.r.$reason', reason)}',
+                  style: const pw.TextStyle(fontSize: 8.5)),
+            if (q.ciLow != null && q.ciHigh != null && pp != null)
+              pw.Text(
+                  t('an.q.ci',
+                      {'p': p(pp), 'lo': p(q.ciLow), 'hi': p(q.ciHigh)}),
+                  style: const pw.TextStyle(fontSize: 8.5)),
+            pw.Text(
+                '${t('an.q.doi')}: ${p(q.doiShare)} · ${t('an.q.orcid')}: ${p(q.orcidShare)}',
+                style: const pw.TextStyle(fontSize: 8.5)),
+            pw.SizedBox(height: 3),
+            pw.Text(t('an.q.note'),
+                style: const pw.TextStyle(fontSize: 7.5, color: Brand.muted)),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<pw.Widget> history(OrgReport r) {
+    final h = r.history;
+    if (h.isEmpty) return [];
+    if (h.length < 2) {
+      return [
+        _h1(t('an.s.history')),
+        _note(t('an.h.first', {'date': date(h.first.date)})),
+      ];
+    }
+    final rows = h.reversed.take(12).toList();
+    String ch(int i, double? Function(HistoryPoint) f) =>
+        i + 1 < rows.length && rows[i].sameWindow(rows[i + 1])
+            ? formatPpChange(f(rows[i]), f(rows[i + 1]), lang)
+            : '';
+    double? top(HistoryPoint x) => x.leadPpTop10 ?? x.ppTop10;
+    return [
+      _h1(t('an.s.history')),
+      _note(t('an.h.note')),
+      _table(
+        [
+          t('an.h.date'),
+          t('ap.period'),
+          t('ap.works'),
+          r.citation.lead != null ? t('an.c.lead_top10') : t('an.c.top10'),
+          t('an.cmp.oa'),
+          t('an.q.title'),
+        ],
+        [
+          for (var i = 0; i < rows.length; i++)
+            [
+              date(rows[i].date),
+              '${rows[i].windowFrom}–${rows[i].windowTo}',
+              n(rows[i].works),
+              [p(top(rows[i])), ch(i, top)]
+                  .where((x) => x.isNotEmpty)
+                  .join(' '),
+              [p(rows[i].oaShare), ch(i, (x) => x.oaShare)]
+                  .where((x) => x.isNotEmpty)
+                  .join(' '),
+              _tr('an.q.short.${rows[i].level}', rows[i].level),
+            ],
+        ],
+        right: {2},
+      ),
+    ];
+  }
+
   List<pw.Widget> sdg(OrgReport r) {
     final s = r.sdg;
     if (s == null || s.goals.isEmpty) return [];
@@ -1163,6 +1256,12 @@ class _Pdf {
             '${a.strongTopics.length}',
             '${b.strongTopics.length}'
           ],
+          if (a.quality != null && b.quality != null)
+            [
+              t('an.cmp.quality'),
+              t('an.q.short.${a.quality!.level}'),
+              t('an.q.short.${b.quality!.level}')
+            ],
           if (a.sdg != null && b.sdg != null)
             [t('an.cmp.sdg'), p(a.sdg!.share), p(b.sdg!.share)],
           if (a.languages.isNotEmpty && b.languages.isNotEmpty)

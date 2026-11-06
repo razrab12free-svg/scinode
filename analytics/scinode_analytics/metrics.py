@@ -583,3 +583,107 @@ def works_in_country(author: dict, country: str) -> bool:
         isinstance(i, dict) and str(i.get("country_code") or "").upper() == country.upper()
         for i in author.get("last_known_institutions") or []
     )
+
+
+# --- Качество данных и история расчётов (ноябрь 2026) ---
+
+# Пороги оценки «качества данных» (проверено на 12 вузах 6.11.2026: доля
+# работ с DOI — от 41 до 99 %, с ORCID — от 3 до 99 %; аннотации и
+# процентиль цитирования есть почти у всех и для оценки бесполезны).
+QUALITY_MIN_WORKS = 200   # меньше — проценты неустойчивы (± 4 п. п. и больше)
+QUALITY_GOOD_WORKS = 500
+QUALITY_MIN_DOI = 0.5     # меньше половины работ с DOI — цитирование теряется
+QUALITY_GOOD_DOI = 0.75
+QUALITY_LOW_ORCID = 0.3   # мало ORCID — авторы чаще склеиваются/дробятся
+QUALITY_HIGH_REPO = 0.2   # много работ только в репозиториях
+
+HISTORY_KEEP = 36  # точек (месяцев) в истории организации
+
+
+def wilson_high(k: int, n: int, z: float = 1.96) -> float | None:
+    """Верхняя граница 95 % интервала Уилсона (пара к wilson_low)."""
+    if n <= 0:
+        return None
+    p = k / n
+    d = 1 + z * z / n
+    c = p + z * z / (2 * n)
+    r = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return round((c + r) / d, 4)
+
+
+def quality_block(
+    works: int,
+    doi: tuple[int, int],
+    orcid: tuple[int, int],
+    repo_share: float | None,
+    top10: tuple[int, int],
+) -> dict:
+    """Насколько можно доверять отчёту: уровень и причины.
+
+    doi, orcid — (да, всего) из group_by has_doi / has_orcid;
+    top10 — (в топ-10 %, с процентилем) для интервала PP(top 10%).
+    """
+    doi_share = share(*doi)
+    orcid_share = share(*orcid)
+    reasons = []
+    if works < QUALITY_MIN_WORKS:
+        reasons.append("small")
+    if doi_share is not None and doi_share < QUALITY_MIN_DOI:
+        reasons.append("doi_low")
+    elif doi_share is not None and doi_share < QUALITY_GOOD_DOI:
+        reasons.append("doi_mid")
+    if orcid_share is not None and orcid_share < QUALITY_LOW_ORCID:
+        reasons.append("orcid_low")
+    if repo_share is not None and repo_share > QUALITY_HIGH_REPO:
+        reasons.append("repo_high")
+    if "small" in reasons or "doi_low" in reasons:
+        level = "low"
+    elif works >= QUALITY_GOOD_WORKS and doi_share is not None and doi_share >= QUALITY_GOOD_DOI:
+        level = "good"
+    else:
+        level = "medium"
+    k, n = top10
+    return {
+        "level": level,
+        "reasons": reasons,
+        "works": works,
+        "doi_share": doi_share,
+        "orcid_share": orcid_share,
+        "repo_share": repo_share,
+        "pp_top10_ci": [wilson_low(k, n), wilson_high(k, n)] if n > 0 else None,
+    }
+
+
+def history_point(rep: dict, date: str, window: list[int]) -> dict:
+    """Короткая запись о расчёте для истории организации."""
+    c = rep.get("citation") or {}
+    lead = c.get("lead") or {}
+    q = rep.get("quality") or {}
+    works = rep.get("works") or 0
+    return {
+        "date": date,
+        "window": list(window),
+        "works": works,
+        "lead_works": lead.get("works"),
+        "pp_top10": c.get("pp_top10"),
+        "lead_pp_top10": lead.get("pp_top10"),
+        "oa_share": share((rep.get("oa") or {}).get("n") or 0, works),
+        "intl_share": (rep.get("collab") or {}).get("intl_share"),
+        "doaj_share": (rep.get("journals") or {}).get("doaj_share"),
+        "retracted": (rep.get("integrity") or {}).get("retracted"),
+        "doi_share": q.get("doi_share"),
+        "level": q.get("level"),
+    }
+
+
+def merge_history(old: object, point: dict, keep: int = HISTORY_KEEP) -> list[dict]:
+    """Добавить точку; запись того же месяца заменяется (повторный запуск)."""
+    month = str(point.get("date", ""))[:7]
+    pts = [
+        p
+        for p in (old if isinstance(old, list) else [])
+        if isinstance(p, dict) and str(p.get("date", ""))[:7] != month
+    ]
+    pts.append(point)
+    pts.sort(key=lambda p: str(p.get("date", "")))
+    return pts[-keep:]

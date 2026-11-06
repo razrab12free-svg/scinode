@@ -648,6 +648,128 @@ class Prolific {
   }
 }
 
+/// Насколько можно доверять отчёту (полнота данных OpenAlex).
+class DataQuality {
+  DataQuality({
+    required this.level,
+    required this.reasons,
+    required this.works,
+    this.doiShare,
+    this.orcidShare,
+    this.repoShare,
+    this.ciLow,
+    this.ciHigh,
+  });
+
+  /// good, medium или low.
+  final String level;
+
+  /// small, doi_low, doi_mid, orcid_low, repo_high.
+  final List<String> reasons;
+  final int works;
+  final double? doiShare;
+  final double? orcidShare;
+  final double? repoShare;
+
+  /// 95 % интервал PP(top 10%) собственных работ (у страны — всех).
+  final double? ciLow;
+  final double? ciHigh;
+
+  static DataQuality? fromJson(Object? v) {
+    if (v is! Map) return null;
+    final level = _s(v['level']);
+    if (!const {'good', 'medium', 'low'}.contains(level)) return null;
+    final ci = v['pp_top10_ci'] is List ? v['pp_top10_ci'] as List : const [];
+    return DataQuality(
+      level: level,
+      reasons: _strs(v['reasons']),
+      works: _i(v['works']),
+      doiShare: _d(v['doi_share']),
+      orcidShare: _d(v['orcid_share']),
+      repoShare: _d(v['repo_share']),
+      ciLow: ci.length == 2 ? _d(ci[0]) : null,
+      ciHigh: ci.length == 2 ? _d(ci[1]) : null,
+    );
+  }
+}
+
+/// Одна точка истории: показатели на дату ежемесячного расчёта.
+class HistoryPoint {
+  HistoryPoint({
+    required this.date,
+    required this.windowFrom,
+    required this.windowTo,
+    required this.works,
+    this.leadWorks,
+    this.ppTop10,
+    this.leadPpTop10,
+    this.oaShare,
+    this.intlShare,
+    this.doajShare,
+    this.retracted,
+    this.doiShare,
+    this.level = '',
+  });
+  final DateTime date;
+  final int windowFrom;
+  final int windowTo;
+  final int works;
+  final int? leadWorks;
+  final double? ppTop10;
+  final double? leadPpTop10;
+  final double? oaShare;
+  final double? intlShare;
+  final double? doajShare;
+  final int? retracted;
+  final double? doiShare;
+  final String level;
+
+  bool sameWindow(HistoryPoint o) =>
+      windowFrom == o.windowFrom && windowTo == o.windowTo;
+
+  static List<HistoryPoint> list(Object? v) {
+    final out = <HistoryPoint>[];
+    for (final p in _maps(v)) {
+      final d = DateTime.tryParse(_s(p['date']));
+      if (d == null) continue;
+      final w = p['window'] is List ? p['window'] as List : const [];
+      out.add(HistoryPoint(
+        date: d,
+        windowFrom: w.isNotEmpty ? _i(w[0]) : 0,
+        windowTo: w.length > 1 ? _i(w[1]) : 0,
+        works: _i(p['works']),
+        leadWorks: p['lead_works'] is num ? _i(p['lead_works']) : null,
+        ppTop10: _d(p['pp_top10']),
+        leadPpTop10: _d(p['lead_pp_top10']),
+        oaShare: _d(p['oa_share']),
+        intlShare: _d(p['intl_share']),
+        doajShare: _d(p['doaj_share']),
+        retracted: p['retracted'] is num ? _i(p['retracted']) : null,
+        doiShare: _d(p['doi_share']),
+        level: _s(p['level']),
+      ));
+    }
+    out.sort((a, b) => a.date.compareTo(b.date));
+    return out;
+  }
+}
+
+/// Изменение доли в процентных пунктах для подписи: +0,4 п. п. / −1.2 pp.
+String formatPpChange(double? now, double? before, String lang) {
+  if (now == null || before == null) return '';
+  final d = (now - before) * 100;
+  if (d.abs() < 0.05) return lang == 'en' ? '0 pp' : '0\u00a0п.\u00a0п.';
+  final sign = d > 0 ? '+' : '−';
+  var v = d.abs().toStringAsFixed(1);
+  if (lang != 'en') v = v.replaceAll('.', ',');
+  final unit = switch (lang) {
+    'en' => 'pp',
+    'uz' => 'f.\u00a0p.',
+    _ => 'п.\u00a0п.',
+  };
+  return '$sign$v\u00a0$unit';
+}
+
 class OrgReport {
   OrgReport({
     required this.org,
@@ -677,6 +799,8 @@ class OrgReport {
     this.funding,
     this.apc,
     this.prolific,
+    this.quality,
+    this.history = const [],
   });
 
   final OrgSummary org;
@@ -714,6 +838,10 @@ class OrgReport {
   final Funding? funding;
   final ApcEstimate? apc;
   final Prolific? prolific;
+  final DataQuality? quality;
+
+  /// Прошлые ежемесячные расчёты (по дате, последний — этот).
+  final List<HistoryPoint> history;
 
   double? get oaShare => works > 0 ? oaWindow / works : null;
 
@@ -737,6 +865,8 @@ class OrgReport {
       funding: Funding.fromJson(j['funding']),
       apc: ApcEstimate.fromJson(j['apc']),
       prolific: Prolific.fromJson(j['prolific']),
+      quality: DataQuality.fromJson(j['quality']),
+      history: HistoryPoint.list(j['history']),
       integrity: Integrity(
         retracted: ig['retracted'] is num ? _i(ig['retracted']) : null,
         sourceTypes: Named.list(ig['source_types']),

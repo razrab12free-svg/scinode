@@ -803,4 +803,88 @@ const Map<String, List<String>> analyticsStrings = {
     'Yiliga 72 tadan ortiq ishli mualliflar',
     'Authors with over 72 works a year',
   ],
+
+  // --- Качество данных и история (ноябрь 2026) ---
+  'an.q.title': ['Качество данных', 'Ma’lumotlar sifati', 'Data quality'],
+  'an.q.good': [
+    'хорошее — показателям можно доверять',
+    'yaxshi — ko‘rsatkichlarga ishonish mumkin',
+    'good — the indicators are reliable',
+  ],
+  'an.q.medium': [
+    'среднее — сравнивайте с осторожностью',
+    'o‘rtacha — ehtiyotkorlik bilan solishtiring',
+    'medium — compare with care',
+  ],
+  'an.q.low': [
+    'мало данных — цифры ориентировочные',
+    'ma’lumot kam — raqamlar taxminiy',
+    'limited data — figures are indicative',
+  ],
+  'an.q.r.small': [
+    'Меньше 200 работ за период: несколько статей сильно меняют проценты.',
+    'Davrda 200 tadan kam ish: bir nechta maqola foizlarni keskin o‘zgartiradi.',
+    'Fewer than 200 works in the period: a few papers change the percentages a lot.',
+  ],
+  'an.q.r.doi_low': [
+    'DOI меньше чем у половины работ: цитирования таких работ часто не учитываются.',
+    'Ishlarning yarmidan kamida DOI bor: bunday ishlarning iqtiboslari ko‘pincha hisobga olinmaydi.',
+    'Fewer than half of the works have a DOI: their citations are often missed.',
+  ],
+  'an.q.r.doi_mid': [
+    'DOI не у всех работ: часть цитирований может не учитываться.',
+    'Hamma ishlarda DOI yo‘q: iqtiboslarning bir qismi hisobga olinmasligi mumkin.',
+    'Not all works have a DOI: some citations may be missed.',
+  ],
+  'an.q.r.orcid_low': [
+    'ORCID указан меньше чем у трети работ: данные об авторах менее надёжны.',
+    'ORCID ishlarning uchdan biridan kamida ko‘rsatilgan: mualliflar haqidagi ma’lumotlar kamroq ishonchli.',
+    'ORCID appears on fewer than a third of works: author data is less reliable.',
+  ],
+  'an.q.r.repo_high': [
+    'Больше 20 % работ только в репозиториях (без журнала).',
+    'Ishlarning 20 % dan ortig‘i faqat repozitoriylarda (jurnalsiz).',
+    'Over 20% of works are only in repositories (no journal).',
+  ],
+  'an.q.doi': ['работ с DOI', 'DOI li ishlar', 'works with a DOI'],
+  'an.q.orcid': [
+    'работ с ORCID хотя бы у одного автора',
+    'kamida bitta muallifida ORCID bor ishlar',
+    'works with an ORCID for at least one author',
+  ],
+  'an.q.ci': [
+    'Доля в топ-10 %: {p}, с вероятностью 95 % — от {lo} до {hi}.',
+    'Top-10 % ulushi: {p}, 95 % ehtimol bilan — {lo} dan {hi} gacha.',
+    'Share in the top 10%: {p}; 95% likely between {lo} and {hi}.',
+  ],
+  'an.q.note': [
+    'Оценка — по полноте данных OpenAlex: числу работ, доле работ с DOI и ORCID. Как исправить: указывать DOI и ORCID в статьях, публиковаться в журналах с DOI.',
+    'Baho OpenAlex ma’lumotlarining to‘liqligi bo‘yicha: ishlar soni, DOI va ORCID li ishlar ulushi. Qanday yaxshilash mumkin: maqolalarda DOI va ORCID ni ko‘rsatish, DOI li jurnallarda nashr qilish.',
+    'Based on the completeness of OpenAlex data: number of works and the share with a DOI and ORCID. To improve: include DOIs and ORCIDs, publish in journals that assign DOIs.',
+  ],
+  'an.s.history': [
+    'История расчётов',
+    'Hisob-kitoblar tarixi',
+    'Calculation history'
+  ],
+  'an.h.first': [
+    'Первый расчёт с историей — {date}. Изменения будут видны после следующего ежемесячного пересчёта.',
+    'Tarixli birinchi hisob — {date}. O‘zgarishlar keyingi oylik hisobdan keyin ko‘rinadi.',
+    'First calculation with history: {date}. Changes will show after the next monthly update.',
+  ],
+  'an.h.note': [
+    'Каждый месяц расчёт повторяется по свежим данным OpenAlex. Изменение — к прошлому расчёту, в процентных пунктах.',
+    'Har oy hisob OpenAlex yangi ma’lumotlari bo‘yicha takrorlanadi. O‘zgarish — oldingi hisobga nisbatan, foiz punktlarida.',
+    'The calculation is repeated monthly on fresh OpenAlex data. Change is versus the previous run, in percentage points.',
+  ],
+  'an.h.window': [
+    'С {date} период сменился на {from}–{to}: показатели до и после сравнивать нельзя.',
+    '{date} dan davr {from}–{to} ga o‘zgardi: oldingi va keyingi ko‘rsatkichlarni solishtirib bo‘lmaydi.',
+    'From {date} the period changed to {from}–{to}: figures before and after are not comparable.',
+  ],
+  'an.h.date': ['Расчёт', 'Hisob', 'Run'],
+  'an.cmp.quality': ['Качество данных', 'Ma’lumotlar sifati', 'Data quality'],
+  'an.q.short.good': ['хорошее', 'yaxshi', 'good'],
+  'an.q.short.medium': ['среднее', 'o‘rtacha', 'medium'],
+  'an.q.short.low': ['мало данных', 'ma’lumot kam', 'limited'],
 };
