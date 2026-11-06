@@ -409,7 +409,8 @@ class _OrgReportScreenState extends State<OrgReportScreen> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children, this.icon});
+  const _Section(
+      {super.key, required this.title, required this.children, this.icon});
   final String title;
   final IconData? icon;
   final List<Widget> children;
@@ -472,21 +473,34 @@ class _BigNumber extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(value,
-                style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    color: color ?? Theme.of(context).colorScheme.primary)),
-            const SizedBox(width: 10),
-            Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
-          ],
-        ),
-      );
+  Widget build(BuildContext context) {
+    final big = Text(value,
+        style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.w900,
+            color: color ?? Theme.of(context).colorScheme.primary));
+    final text = Text(label, style: const TextStyle(fontSize: 14));
+    // Длинное число (сумма в долларах) — подпись под ним, а не сбоку.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: value.length > 7
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(fit: BoxFit.scaleDown, child: big),
+                text,
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                big,
+                const SizedBox(width: 10),
+                Expanded(child: text),
+              ],
+            ),
+    );
+  }
 }
 
 class _ReportBody extends StatelessWidget {
@@ -790,6 +804,89 @@ class _ReportBody extends StatelessWidget {
           ],
         ),
 
+        // Цели устойчивого развития ООН.
+        if (r.sdg != null && r.sdg!.goals.isNotEmpty)
+          _Section(
+            key: const Key('an.sdg'),
+            title: t('an.s.sdg'),
+            icon: Icons.public,
+            children: [
+              _BigNumber(value: _pct(r.sdg!.share), label: t('an.sdg_share')),
+              _Note(t('an.sdg_note')),
+              for (final g in r.sdg!.goals.take(17))
+                CountBar(
+                  label: '${g.$1}. ${t('an.sdg.${g.$1}')}',
+                  value: g.$2,
+                  max: r.sdg!.goals.first.$2,
+                  valueText: _num(g.$2),
+                  sub: _pct(r.sdg!.works > 0 ? g.$2 / r.sdg!.works : null),
+                ),
+            ],
+          ),
+
+        // Языки публикаций.
+        if (r.languages.isNotEmpty)
+          _Section(
+            key: const Key('an.languages'),
+            title: t('an.s.lang'),
+            icon: Icons.translate,
+            children: [
+              _Note(t('an.lang_note')),
+              for (final l in r.languages.take(8))
+                CountBar(
+                  label: _tr('an.lang.${l.id}', l.name.isEmpty ? l.id : l.name),
+                  value: l.n,
+                  max: r.languages.first.n,
+                  valueText: _pct(r.works > 0 ? l.n / r.works : null),
+                ),
+            ],
+          ),
+
+        // Финансирование и расходы на публикацию.
+        if (r.funding != null || r.apc != null)
+          _Section(
+            key: const Key('an.funding'),
+            title: t('an.s.funding'),
+            icon: Icons.payments_outlined,
+            children: [
+              if (r.funding != null) ...[
+                _BigNumber(
+                    value: _pct(r.funding!.share), label: t('an.funded_share')),
+                _Note(t('an.funding_note')),
+                if (r.funding!.top.isNotEmpty) ...[
+                  Text(t('an.funders'),
+                      style: const TextStyle(fontWeight: FontWeight.w800)),
+                  for (final f in r.funding!.top.take(10))
+                    CountBar(
+                      label: f.name,
+                      value: f.n,
+                      max: r.funding!.top.first.n,
+                      valueText: _num(f.n),
+                      sub: f.country.isEmpty ? null : countryName(f.country),
+                      color: f.country == 'UZ' ? null : AnColors.good,
+                      onTap: () => openLink(context, f.openAlexUrl),
+                    ),
+                  const SizedBox(height: 10),
+                ],
+              ],
+              if (r.apc != null) ...[
+                if (r.apc!.lead != null)
+                  _BigNumber(
+                    key: const Key('an.apc_lead'),
+                    value: formatMoney(r.apc!.lead!.usd, 'USD', lang),
+                    label: t('an.apc_lead', {'n': _num(r.apc!.lead!.works)}),
+                  ),
+                _BigNumber(
+                  key: const Key('an.apc_all'),
+                  value: formatMoney(r.apc!.usd, 'USD', lang),
+                  label: t('an.apc_all', {'n': _num(r.apc!.works)}),
+                ),
+                _Note(t('an.apc_note')),
+                if (isCountry) _Note(t('an.apc_country_note')),
+              ],
+            ],
+          ),
+
         // 8. Сравнение.
         _Section(
           title: t('an.s.compare'),
@@ -830,6 +927,34 @@ class _ReportBody extends StatelessWidget {
                 label: t('an.repo_share'),
               ),
               _Note(t('an.repo_note')),
+            ],
+            if (r.prolific != null) ...[
+              _BigNumber(
+                key: const Key('an.prolific'),
+                value: '${r.prolific!.authors.length}',
+                label: t('an.prolific', {'t': r.prolific!.threshold}),
+                color: r.prolific!.authors.isNotEmpty ? AnColors.country : null,
+              ),
+              _Note(t('an.prolific_note', {'n': r.prolific!.checked})),
+              if (r.prolific!.authors.isEmpty) _Note(t('an.prolific_none')),
+              for (final a in r.prolific!.authors)
+                CountBar(
+                  label: a.name,
+                  value: a.max,
+                  max: r.prolific!.authors.first.max,
+                  valueText: _num(a.max),
+                  color: AnColors.country,
+                  sub: [
+                    t('an.prolific_row', {
+                      'max': _num(a.max),
+                      'y': a.maxYear,
+                      'k': a.yearsOver,
+                      'n': _num(a.n),
+                    }),
+                    if (a.inst.isNotEmpty) a.inst,
+                  ].join(' · '),
+                  onTap: () => openLink(context, a.openAlexUrl),
+                ),
             ],
             if (r.citationCheck != null) _CitationCheckBlock(r.citationCheck!),
           ],
@@ -1360,6 +1485,46 @@ class _CompareBody extends StatelessWidget {
           t('an.cmp.retracted'),
           _num(a.integrity.retracted!),
           _num(b.integrity.retracted!),
+          null,
+          null
+        ),
+      if (a.sdg != null && b.sdg != null)
+        (
+          t('an.cmp.sdg'),
+          _pct(a.sdg!.share),
+          _pct(b.sdg!.share),
+          a.sdg!.share,
+          b.sdg!.share
+        ),
+      if (a.languages.isNotEmpty && b.languages.isNotEmpty)
+        (
+          t('an.cmp.uz'),
+          _pct(languageShare(a, 'uz')),
+          _pct(languageShare(b, 'uz')),
+          languageShare(a, 'uz'),
+          languageShare(b, 'uz')
+        ),
+      if (a.funding != null && b.funding != null)
+        (
+          t('an.cmp.funded'),
+          _pct(a.funding!.share),
+          _pct(b.funding!.share),
+          a.funding!.share,
+          b.funding!.share
+        ),
+      if (a.apc?.lead != null && b.apc?.lead != null)
+        (
+          t('an.cmp.apc'),
+          formatMoney(a.apc!.lead!.usd, 'USD', Strings.instance.lang),
+          formatMoney(b.apc!.lead!.usd, 'USD', Strings.instance.lang),
+          null,
+          null
+        ),
+      if (a.prolific != null && b.prolific != null)
+        (
+          t('an.cmp.prolific'),
+          '${a.prolific!.authors.length}',
+          '${b.prolific!.authors.length}',
           null,
           null
         ),

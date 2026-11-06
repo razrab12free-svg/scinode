@@ -456,3 +456,117 @@ def safe_url(v: object) -> str:
     """Только обычные ссылки http(s): в данных OpenAlex встречается мусор."""
     s = str(v or "").strip()
     return s if s.lower().startswith(("https://", "http://")) and " " not in s else ""
+
+
+# --- Новые разделы (ноябрь 2026): ЦУР, языки, фонды, APC, плодовитость ---
+
+# Порог «сверхплодовитого» автора: больше 72 статей, обзоров и докладов
+# конференций за один календарный год — одна работа каждые 5 дней
+# (Ioannidis, Klavans, Boyack. Nature 561, 167–169, 2018).
+PROLIFIC_PER_YEAR = 72
+PROLIFIC_TYPES = "article|review|conference-paper"
+
+
+def sdg_block(resp: dict, with_sdg: int, total: int) -> dict:
+    """Цели устойчивого развития ООН (классификатор OpenAlex).
+
+    Одна работа может относиться к нескольким целям, поэтому доли целей
+    считаются от числа работ с хотя бы одной целью ([with_sdg]).
+    """
+    goals = []
+    for g in group_list(resp):
+        if not g["id"].isdigit() or not 1 <= int(g["id"]) <= 17:
+            continue
+        goals.append({"id": int(g["id"]), "n": g["n"]})
+    goals.sort(key=lambda g: (-g["n"], g["id"]))
+    return {
+        "works": with_sdg,
+        "share": share(with_sdg, total),
+        "goals": goals,
+    }
+
+
+def languages_list(resp: dict, limit: int = 10) -> list[dict]:
+    """Языки публикаций: [{id: 'en', name: 'English', n}]."""
+    return [
+        {"id": g["id"].lower(), "name": g["name"], "n": g["n"]}
+        for g in group_list(resp)
+    ][:limit]
+
+
+def funders_block(
+    resp: dict, funded: int, total: int, info: dict[str, dict], limit: int = 15
+) -> dict:
+    """Фонды, указанные в работах (благодарности и метаданные издателя)."""
+    top = []
+    for g in group_list(resp)[:limit]:
+        f = info.get(g["id"]) or {}
+        top.append(
+            {
+                "id": g["id"],
+                "name": " ".join(str(f.get("display_name") or g["name"]).split()),
+                "country": f.get("country_code") or "",
+                "n": g["n"],
+            }
+        )
+    return {"works": funded, "share": share(funded, total), "top": top}
+
+
+def apc_sum(pages: list[dict]) -> dict:
+    """Сумма group_by=apc_paid.value_usd: Σ (цена × число работ).
+
+    OpenAlex отдаёт оценку по прайс-листу журнала (для золотого и
+    гибридного открытого доступа), а не фактический платёж.
+    """
+    works = 0
+    usd = 0.0
+    for resp in pages:
+        for x in groups(resp):
+            n = x.get("count")
+            try:
+                v = float(x.get("key"))
+            except (TypeError, ValueError):
+                continue
+            if not isinstance(n, int) or v <= 0 or math.isnan(v):
+                continue
+            works += n
+            usd += v * n
+    return {"works": works, "usd": int(round(usd))}
+
+
+def prolific_candidates(authors: dict[str, dict], first: int, last: int) -> list[str]:
+    """Авторы, у которых по counts_by_year (все типы работ — оценка сверху)
+    в каком-то году окна больше порога. Их проверяем точным запросом."""
+    best: dict[str, int] = {}
+    for aid, a in authors.items():
+        for c in a.get("counts_by_year") or []:
+            if not isinstance(c, dict):
+                continue
+            y, n = c.get("year"), c.get("works_count")
+            if (
+                isinstance(y, int)
+                and isinstance(n, int)
+                and first <= y <= last
+                and n > PROLIFIC_PER_YEAR
+            ):
+                best[aid] = max(best.get(aid, 0), n)
+    # Самые плодовитые — первыми: проверяется не больше 10.
+    return sorted(best, key=lambda a: (-best[a], a))
+
+
+def prolific_row(row: dict, year_counts: dict[str, int]) -> dict | None:
+    """Строка автора, если в каком-то году статей, обзоров и докладов
+    (по всем местам работы) больше порога; иначе None."""
+    years = {
+        int(k): n for k, n in year_counts.items() if k.isdigit() and isinstance(n, int)
+    }
+    over = {y: n for y, n in years.items() if n > PROLIFIC_PER_YEAR}
+    if not over:
+        return None
+    top_year = max(over, key=lambda y: (over[y], y))
+    return {
+        **row,
+        "max": over[top_year],
+        "max_year": top_year,
+        "years_over": len(over),
+    }

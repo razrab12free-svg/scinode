@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:scinode/models/analytics.dart';
+import 'package:scinode/models/grant.dart' show formatMoney;
 import 'package:scinode/screens/analytics_screen.dart';
 import 'package:scinode/services/analytics_service.dart';
 import 'package:scinode/services/map_service.dart' show MemoryJsonCache;
@@ -185,6 +186,53 @@ void main() {
       expect(AnalyticsIndex.fromJson({}).orgs, isEmpty);
     });
 
+    test('ЦУР, языки, фонды, APC и сверхплодовитые авторы', () {
+      // Настоящий расчёт 6 ноября 2026 (OpenAlex).
+      final r = OrgReport.fromJson(_j('orgs/$nuu.json'));
+      expect(r.sdg!.share, 0.3946);
+      expect(r.sdg!.goals.every((g) => g.$1 >= 1 && g.$1 <= 17), isTrue);
+      expect(r.sdg!.goals.first.$1, 4); // качественное образование
+      expect(r.languages.map((l) => l.id).take(3), ['en', 'uz', 'ru']);
+      expect(languageShare(r, 'uz')!, closeTo(1027 / 9059, 0.001));
+      expect(r.funding!.share, 0.0899);
+      expect(r.funding!.top.first.country, 'UZ');
+      expect((r.apc!.works, r.apc!.usd), (466, 873698));
+      expect((r.apc!.lead!.works, r.apc!.lead!.usd), (192, 305462));
+      expect(r.prolific!.threshold, 72);
+      expect(r.prolific!.checked, 20);
+      expect(r.prolific!.authors.single.name, 'Farruh Atamurotov');
+      expect(r.prolific!.authors.single.max, greaterThan(72));
+
+      final ped = OrgReport.fromJson(_j('orgs/I4210159566.json'));
+      expect(ped.prolific!.authors.length, 8);
+      final maxes = [for (final a in ped.prolific!.authors) a.max];
+      expect(maxes, [...maxes]..sort((a, b) => b.compareTo(a)));
+      // Своих работ с APC мало: почти всё платили соавторы.
+      expect(ped.apc!.lead!.works, lessThan(ped.apc!.works ~/ 10));
+
+      final uz = OrgReport.fromJson(_j('orgs/UZ.json'));
+      expect(uz.apc!.lead, isNull);
+      expect(uz.sdg!.goals.length, 17);
+
+      // Старый файл без новых разделов читается без ошибок.
+      final old = OrgReport.fromJson({'works': 5});
+      expect(old.sdg, isNull);
+      expect(old.languages, isEmpty);
+      expect(old.funding, isNull);
+      expect(old.apc, isNull);
+      expect(old.prolific, isNull);
+      expect(languageShare(old, 'uz'), isNull);
+      expect(
+          SdgBlock.fromJson({
+            'goals': [
+              {'id': 18, 'n': 3},
+              'x'
+            ]
+          })!
+              .goals,
+          isEmpty);
+    });
+
     test('проценты', () {
       expect(formatShare(0.0594, 'ru'), '5,9$_nb%');
       expect(formatShare(0.0594, 'en'), '5.9%');
@@ -326,6 +374,17 @@ void main() {
           scrollable: find.byType(Scrollable).first);
       expect(find.text(t('an.cc.none')), findsOneWidget);
       expect(find.text('Национальный университет Узбекистана'), findsWidgets);
+      await tester.scrollUntilVisible(
+          find.byKey(const Key('an.prolific')), -300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text('Farruh Atamurotov'), findsOneWidget);
+      await tester.scrollUntilVisible(
+          find.byKey(const Key('an.apc_lead')), -300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text(formatMoney(305462, 'USD', 'ru')), findsOneWidget);
+      await tester.scrollUntilVisible(find.byKey(const Key('an.sdg')), -300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text(t('an.s.sdg')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

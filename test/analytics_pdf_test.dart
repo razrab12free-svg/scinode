@@ -44,6 +44,9 @@ void main() {
         for (final a in _r(id).authors) a.name,
         for (final j in _r(id).journals) j.name,
         for (final p in _r(id).partners) p.name,
+        for (final f in _r(id).funding!.top) f.name,
+        for (final a in _r(id).prolific!.authors) ...[a.name, a.inst],
+        for (final l in _r(id).languages) l.name,
       ],
     ];
     final missing = <String>{};

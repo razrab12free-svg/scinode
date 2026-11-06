@@ -78,12 +78,67 @@ _crossref_lock = threading.Lock()
 
 # Запросов OpenAlex на организацию и на страну (с запасом) — для проверки
 # дневного лимита ключа перед началом расчёта.
-REQUESTS_PER_ORG = 50
-REQUESTS_COUNTRY = 40
+REQUESTS_PER_ORG = 60
+REQUESTS_COUNTRY = 60
 
 # Сколько самых цитируемых работ организации проверять (по 1 запросу
 # OpenAlex и 1 запросу OpenCitations на работу).
 CHECK_WORKS = 10
+
+
+def _apc(client, flt: str) -> dict:
+    """Оценка расходов на APC: group_by по цене, все страницы (cursor)."""
+    pages = []
+    cursor = "*"
+    for _ in range(20):
+        r = client.get(
+            "/works",
+            {
+                "filter": flt + ",apc_paid.value_usd:>0",
+                "group_by": "apc_paid.value_usd",
+                "per_page": "200",
+                "cursor": cursor,
+            },
+        )
+        pages.append(r)
+        cursor = (r.get("meta") or {}).get("next_cursor")
+        if not cursor or not m.groups(r):
+            break
+    return m.apc_sum(pages)
+
+
+def _prolific(client, flt: str, first: int, last: int) -> dict:
+    """Сверхплодовитые авторы: больше 72 статей, обзоров и докладов за год.
+
+    Работы мегаколлабораций (больше 100 авторов) не считаются — как у
+    Иоаннидиса (физика частиц иначе даёт сотни «работ» в год). Кандидаты —
+    20 самых активных авторов набора; их годовой итог считается по ВСЕМ
+    местам работы.
+    """
+    typed = f"type:{m.PROLIFIC_TYPES},authors_count:<{m.MEGA_AUTHORS + 1}"
+    top = m.group_list(_works(client, f"{flt},{typed}", "authorships.author.id"))[:20]
+    adata = _batch(
+        client,
+        "/authors",
+        [a["id"] for a in top],
+        "id,display_name,orcid,works_count,cited_by_count,summary_stats,"
+        "last_known_institutions,counts_by_year",
+    )
+    rows = {a["id"]: m.author_row(adata[a["id"]], a["n"]) for a in top if a["id"] in adata}
+    out = []
+    for aid in m.prolific_candidates(adata, first, last)[:10]:
+        yc = m.group_counts(
+            _works(
+                client,
+                f"authorships.author.id:{aid},publication_year:{first}-{last},{typed}",
+                "publication_year",
+            )
+        )
+        r = m.prolific_row(rows[aid], yc) if aid in rows else None
+        if r:
+            out.append(r)
+    out.sort(key=lambda r: (-r["max"], r["id"]))
+    return {"threshold": m.PROLIFIC_PER_YEAR, "checked": len(rows), "authors": out}
 
 
 def _crossref(client, issn: str) -> dict:
@@ -267,6 +322,26 @@ def build_report(
         "last_known_institutions",
     )
     authors = [m.author_row(adata[a["id"]], a["n"]) for a in top_auth if a["id"] in adata]
+    prolific = _prolific(client, W, first, last)
+
+    # Цели устойчивого развития, языки, фонды, оценка расходов на APC.
+    sdg = m.sdg_block(
+        _works(client, W, "sustainable_development_goals.id"),
+        _count(client, W + ",sustainable_development_goals.id:!null"),
+        total,
+    )
+    languages = m.languages_list(_works(client, W, "language"))
+    fund_groups = _works(client, W, "funders.id")
+    fund_ids = [g["id"] for g in m.group_list(fund_groups)[:15]]
+    funding = m.funders_block(
+        fund_groups,
+        _count(client, W + ",funders.id:!null"),
+        total,
+        _batch(client, "/funders", fund_ids, "id,display_name,country_code"),
+    )
+    apc = _apc(client, W)
+    if L:
+        apc["lead"] = _apc(client, L)
 
     top_src = m.group_list(_works(client, W, "primary_location.source.id"))[:20]
     sdata = _batch(
@@ -356,6 +431,11 @@ def build_report(
         },
         "topics": topics,
         "integrity": integrity,
+        "prolific": prolific,
+        "sdg": sdg,
+        "languages": languages,
+        "funding": funding,
+        "apc": apc,
         **({"citation_check": citation_check} if citation_check else {}),
     }
 

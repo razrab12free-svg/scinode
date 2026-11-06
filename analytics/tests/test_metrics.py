@@ -189,12 +189,110 @@ def test_national_report(built):
     assert "lead" not in d["citation"]
     assert d["integrity"]["retracted"] > 0
     assert all(not t.get("lead") for t in d["topics"])
-    # Весь расчёт (список, вуз, страна) — 62 запроса OpenAlex (без скачивания
+    # Весь расчёт (список, вуз, страна) — 92 запроса OpenAlex (без скачивания
     # списков работ) и 31 бесплатный запрос к Crossref, OpenCitations и ROR
     # (из них 13 — «нет такого журнала» в Crossref);
     # ещё один запрос — проверка остатка лимита в main().
-    assert client.calls == 62
+    assert client.calls == 92
     assert client.ext_calls == 31
+
+
+def test_new_sections_org(built):
+    _, base, _ = built
+    d = json.loads((base / "orgs" / f"{ORG}.json").read_text(encoding="utf-8"))
+    sdg = d["sdg"]
+    # Записано 6.11.2026: 65 из 93 работ отнесены хотя бы к одной цели.
+    assert (sdg["works"], sdg["share"]) == (65, 0.6989)
+    assert sdg["goals"][0] == {"id": 4, "n": 50}  # качественное образование
+    assert all(1 <= g["id"] <= 17 for g in sdg["goals"])
+    assert [x["id"] for x in d["languages"]] == ["en", "uz", "ru"]
+    assert sum(x["n"] for x in d["languages"]) <= d["works"]
+    assert d["funding"] == {"works": 0, "share": 0.0, "top": []}
+    assert d["apc"] == {"works": 0, "usd": 0, "lead": {"works": 0, "usd": 0}}
+    assert d["prolific"] == {"threshold": 72, "checked": 20, "authors": []}
+
+
+def test_new_sections_country(built):
+    _, base, _ = built
+    d = json.loads((base / "orgs" / "UZ.json").read_text(encoding="utf-8"))
+    assert d["sdg"]["works"] == 106333 and d["sdg"]["share"] == 0.5864
+    assert len(d["sdg"]["goals"]) == 17
+    assert [x["id"] for x in d["languages"][:3]] == ["en", "uz", "ru"]
+    f = d["funding"]
+    assert f["works"] == 5259 and f["share"] == 0.029
+    assert f["top"][0]["name"] == "National Natural Science Foundation of China"
+    assert f["top"][0]["country"] == "CN"
+    assert any(x["country"] == "UZ" for x in f["top"])
+    # APC по стране: 4 страницы group_by (cursor), оценка по прайс-листам.
+    assert d["apc"] == {"works": 3748, "usd": 7296240}
+    assert "lead" not in d["apc"]
+    p = d["prolific"]
+    assert p["threshold"] == 72 and p["checked"] == 20
+    assert p["authors"] and all(a["max"] > 72 for a in p["authors"])
+    assert [a["max"] for a in p["authors"]] == sorted(
+        (a["max"] for a in p["authors"]), reverse=True
+    )
+    # Без мегаколлабораций физики ЦЕРН в списке нет.
+    assert "A5000028915" not in {a["id"] for a in p["authors"]}
+
+
+def test_sdg_and_languages_parsing():
+    r = {"group_by": [
+        {"key": "https://openalex.org/sdgs/4", "key_display_name": "Quality education", "count": 5},
+        {"key": "https://openalex.org/sdgs/18", "count": 9},
+        {"key": "unknown", "count": 3},
+        {"key": "https://openalex.org/sdgs/3", "count": 5},
+    ]}
+    assert m.sdg_block(r, 8, 10) == {
+        "works": 8, "share": 0.8, "goals": [{"id": 3, "n": 5}, {"id": 4, "n": 5}]
+    }
+    assert m.sdg_block({}, 0, 0)["goals"] == []
+    lang = {"group_by": [
+        {"key": "https://openalex.org/languages/UZ", "key_display_name": "Uzbek", "count": 2},
+        {"key": "https://openalex.org/languages/en", "key_display_name": "English", "count": 7},
+    ]}
+    assert m.languages_list(lang) == [
+        {"id": "en", "name": "English", "n": 7}, {"id": "uz", "name": "Uzbek", "n": 2}
+    ]
+
+
+def test_apc_sum():
+    pages = [
+        {"group_by": [{"key": "500.0", "count": 3}, {"key": "1885.5", "count": 2}]},
+        {"group_by": [{"key": "unknown", "count": 9}, {"key": "0", "count": 4},
+                      {"key": "nan", "count": 1}, {"key": "100", "count": "x"}]},
+    ]
+    assert m.apc_sum(pages) == {"works": 5, "usd": 5271}
+    assert m.apc_sum([]) == {"works": 0, "usd": 0}
+
+
+def test_prolific_rules():
+    authors = {
+        "A1": {"counts_by_year": [{"year": 2024, "works_count": 73}]},
+        "A2": {"counts_by_year": [{"year": 2024, "works_count": 72}]},
+        "A3": {"counts_by_year": [{"year": 2019, "works_count": 300}]},  # вне окна
+        "A4": {"counts_by_year": [{"year": 2022, "works_count": 200}, "bad"]},
+    }
+    assert m.prolific_candidates(authors, 2021, 2025) == ["A4", "A1"]
+    row = {"id": "A1", "name": "X"}
+    assert m.prolific_row(row, {"2023": 72, "2024": 80}) == {
+        "id": "A1", "name": "X", "max": 80, "max_year": 2024, "years_over": 1
+    }
+    # Ровно 72 — ещё не «сверхплодовитый» (порог — больше 72).
+    assert m.prolific_row(row, {"2023": 72}) is None
+    assert m.prolific_row(row, {}) is None
+
+
+def test_funders_block():
+    r = {"group_by": [
+        {"key": "https://openalex.org/F1", "key_display_name": "Fund  One", "count": 4},
+        {"key": "https://openalex.org/F2", "key_display_name": "Two", "count": 2},
+    ]}
+    out = m.funders_block(r, 5, 50, {"F1": {"display_name": "Fund One", "country_code": "UZ"}})
+    assert out == {"works": 5, "share": 0.1, "top": [
+        {"id": "F1", "name": "Fund One", "country": "UZ", "n": 4},
+        {"id": "F2", "name": "Two", "country": "", "n": 2},
+    ]}
 
 
 def test_replay_unknown_request_fails():

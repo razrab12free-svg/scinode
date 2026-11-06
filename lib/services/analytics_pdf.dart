@@ -77,6 +77,9 @@ Future<Uint8List> buildOrgPdf(
       ...b.partners(r),
       ...b.authors(r),
       ...b.journals(r),
+      ...b.sdg(r),
+      ...b.languages(r),
+      ...b.funding(r),
       ...b.integrity(r),
       ...b.method(r),
     ],
@@ -868,6 +871,113 @@ class _Pdf {
         ),
       ];
 
+  List<pw.Widget> sdg(OrgReport r) {
+    final s = r.sdg;
+    if (s == null || s.goals.isEmpty) return [];
+    return [
+      _h1(t('an.s.sdg')),
+      _big(p(s.share), t('an.sdg_share'), c: _good),
+      _note(t('an.sdg_note')),
+      _table(
+        [t('an.s.sdg'), t('ap.works'), t('ap.share')],
+        [
+          for (final g in s.goals)
+            [
+              '${g.$1}. ${t('an.sdg.${g.$1}')}',
+              n(g.$2),
+              p(s.works > 0 ? g.$2 / s.works : null),
+            ],
+        ],
+        widths: {0: const pw.FlexColumnWidth(3)},
+        right: {1, 2},
+      ),
+    ];
+  }
+
+  List<pw.Widget> languages(OrgReport r) => r.languages.isEmpty
+      ? []
+      : [
+          _h1(t('an.s.lang')),
+          _note(t('an.lang_note')),
+          _table(
+            [t('an.s.lang'), t('ap.works'), t('ap.share')],
+            [
+              for (final l in r.languages.take(10))
+                [
+                  _tr('an.lang.${l.id}', l.name.isEmpty ? l.id : l.name),
+                  n(l.n),
+                  p(r.works > 0 ? l.n / r.works : null),
+                ],
+            ],
+            widths: {0: const pw.FlexColumnWidth(3)},
+            right: {1, 2},
+          ),
+        ];
+
+  List<pw.Widget> funding(OrgReport r) {
+    final f = r.funding;
+    final a = r.apc;
+    if (f == null && a == null) return [];
+    return [
+      _h1(t('an.s.funding')),
+      if (f != null) ...[
+        _big(p(f.share), t('an.funded_share')),
+        _note(t('an.funding_note')),
+        if (f.top.isNotEmpty)
+          _table(
+            [t('an.funders'), t('ap.country'), t('ap.works')],
+            [
+              for (final x in f.top.take(15))
+                [
+                  x.name,
+                  x.country.isEmpty ? '' : countryName(x.country),
+                  n(x.n)
+                ],
+            ],
+            widths: {0: const pw.FlexColumnWidth(3)},
+            right: {2},
+          ),
+        pw.SizedBox(height: 8),
+      ],
+      if (a != null) ...[
+        if (a.lead != null)
+          _big(formatMoney(a.lead!.usd, 'USD', lang),
+              t('an.apc_lead', {'n': n(a.lead!.works)})),
+        _big(
+            formatMoney(a.usd, 'USD', lang), t('an.apc_all', {'n': n(a.works)}),
+            c: Brand.muted),
+        _note(t('an.apc_note')),
+        if (r.org.isCountry) _note(t('an.apc_country_note')),
+      ],
+    ];
+  }
+
+  List<pw.Widget> _prolific(Prolific pr) => [
+        pw.SizedBox(height: 8),
+        _big('${pr.authors.length}', t('an.prolific', {'t': pr.threshold}),
+            c: pr.authors.isEmpty ? Brand.primary : _countryC),
+        _note(t('an.prolific_note', {'n': pr.checked})),
+        if (pr.authors.isEmpty)
+          _note(t('an.prolific_none'))
+        else
+          _table(
+            [t('ap.author'), t('ap.mark')],
+            [
+              for (final a in pr.authors)
+                [
+                  [a.name, if (a.inst.isNotEmpty) a.inst].join('\n'),
+                  t('an.prolific_row', {
+                    'max': n(a.max),
+                    'y': a.maxYear,
+                    'k': a.yearsOver,
+                    'n': n(a.n),
+                  }),
+                ],
+            ],
+            widths: {0: const pw.FlexColumnWidth(2.2)},
+          ),
+      ];
+
   List<pw.Widget> integrity(OrgReport r) => [
         _h1(t('an.s.integrity')),
         if (r.integrity.retracted != null) ...[
@@ -883,6 +993,7 @@ class _Pdf {
               t('an.repo_share')),
           _note(t('an.repo_note')),
         ],
+        if (r.prolific != null) ..._prolific(r.prolific!),
         if (r.citationCheck != null) ..._citationCheck(r.citationCheck!),
       ];
 
@@ -1044,6 +1155,28 @@ class _Pdf {
             '${a.strongTopics.length}',
             '${b.strongTopics.length}'
           ],
+          if (a.sdg != null && b.sdg != null)
+            [t('an.cmp.sdg'), p(a.sdg!.share), p(b.sdg!.share)],
+          if (a.languages.isNotEmpty && b.languages.isNotEmpty)
+            [
+              t('an.cmp.uz'),
+              p(languageShare(a, 'uz')),
+              p(languageShare(b, 'uz'))
+            ],
+          if (a.funding != null && b.funding != null)
+            [t('an.cmp.funded'), p(a.funding!.share), p(b.funding!.share)],
+          if (a.apc?.lead != null && b.apc?.lead != null)
+            [
+              t('an.cmp.apc'),
+              formatMoney(a.apc!.lead!.usd, 'USD', lang),
+              formatMoney(b.apc!.lead!.usd, 'USD', lang)
+            ],
+          if (a.prolific != null && b.prolific != null)
+            [
+              t('an.cmp.prolific'),
+              '${a.prolific!.authors.length}',
+              '${b.prolific!.authors.length}'
+            ],
         ],
         widths: {0: const pw.FlexColumnWidth(2.6)},
         right: {1, 2},
