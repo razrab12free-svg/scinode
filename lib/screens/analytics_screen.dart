@@ -409,7 +409,8 @@ class _OrgReportScreenState extends State<OrgReportScreen> {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children, this.icon});
+  const _Section(
+      {super.key, required this.title, required this.children, this.icon});
   final String title;
   final IconData? icon;
   final List<Widget> children;
@@ -472,21 +473,34 @@ class _BigNumber extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(value,
-                style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    color: color ?? Theme.of(context).colorScheme.primary)),
-            const SizedBox(width: 10),
-            Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
-          ],
-        ),
-      );
+  Widget build(BuildContext context) {
+    final big = Text(value,
+        style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.w900,
+            color: color ?? Theme.of(context).colorScheme.primary));
+    final text = Text(label, style: const TextStyle(fontSize: 14));
+    // Длинное число (сумма в долларах) — подпись под ним, а не сбоку.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: value.length > 7
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(fit: BoxFit.scaleDown, child: big),
+                text,
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                big,
+                const SizedBox(width: 10),
+                Expanded(child: text),
+              ],
+            ),
+    );
+  }
 }
 
 class _ReportBody extends StatelessWidget {
@@ -567,6 +581,7 @@ class _ReportBody extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
           child: InfoNote(text: t('an.disclaimer')),
         ),
+        if (r.quality != null) _QualityCard(r.quality!, r),
 
         // 1. Публикации по годам.
         _Section(
@@ -790,6 +805,89 @@ class _ReportBody extends StatelessWidget {
           ],
         ),
 
+        // Цели устойчивого развития ООН.
+        if (r.sdg != null && r.sdg!.goals.isNotEmpty)
+          _Section(
+            key: const Key('an.sdg'),
+            title: t('an.s.sdg'),
+            icon: Icons.public,
+            children: [
+              _BigNumber(value: _pct(r.sdg!.share), label: t('an.sdg_share')),
+              _Note(t('an.sdg_note')),
+              for (final g in r.sdg!.goals.take(17))
+                CountBar(
+                  label: '${g.$1}. ${t('an.sdg.${g.$1}')}',
+                  value: g.$2,
+                  max: r.sdg!.goals.first.$2,
+                  valueText: _num(g.$2),
+                  sub: _pct(r.sdg!.works > 0 ? g.$2 / r.sdg!.works : null),
+                ),
+            ],
+          ),
+
+        // Языки публикаций.
+        if (r.languages.isNotEmpty)
+          _Section(
+            key: const Key('an.languages'),
+            title: t('an.s.lang'),
+            icon: Icons.translate,
+            children: [
+              _Note(t('an.lang_note')),
+              for (final l in r.languages.take(8))
+                CountBar(
+                  label: _tr('an.lang.${l.id}', l.name.isEmpty ? l.id : l.name),
+                  value: l.n,
+                  max: r.languages.first.n,
+                  valueText: _pct(r.works > 0 ? l.n / r.works : null),
+                ),
+            ],
+          ),
+
+        // Финансирование и расходы на публикацию.
+        if (r.funding != null || r.apc != null)
+          _Section(
+            key: const Key('an.funding'),
+            title: t('an.s.funding'),
+            icon: Icons.payments_outlined,
+            children: [
+              if (r.funding != null) ...[
+                _BigNumber(
+                    value: _pct(r.funding!.share), label: t('an.funded_share')),
+                _Note(t('an.funding_note')),
+                if (r.funding!.top.isNotEmpty) ...[
+                  Text(t('an.funders'),
+                      style: const TextStyle(fontWeight: FontWeight.w800)),
+                  for (final f in r.funding!.top.take(10))
+                    CountBar(
+                      label: f.name,
+                      value: f.n,
+                      max: r.funding!.top.first.n,
+                      valueText: _num(f.n),
+                      sub: f.country.isEmpty ? null : countryName(f.country),
+                      color: f.country == 'UZ' ? null : AnColors.good,
+                      onTap: () => openLink(context, f.openAlexUrl),
+                    ),
+                  const SizedBox(height: 10),
+                ],
+              ],
+              if (r.apc != null) ...[
+                if (r.apc!.lead != null)
+                  _BigNumber(
+                    key: const Key('an.apc_lead'),
+                    value: formatMoney(r.apc!.lead!.usd, 'USD', lang),
+                    label: t('an.apc_lead', {'n': _num(r.apc!.lead!.works)}),
+                  ),
+                _BigNumber(
+                  key: const Key('an.apc_all'),
+                  value: formatMoney(r.apc!.usd, 'USD', lang),
+                  label: t('an.apc_all', {'n': _num(r.apc!.works)}),
+                ),
+                _Note(t('an.apc_note')),
+                if (isCountry) _Note(t('an.apc_country_note')),
+              ],
+            ],
+          ),
+
         // 8. Сравнение.
         _Section(
           title: t('an.s.compare'),
@@ -831,9 +929,50 @@ class _ReportBody extends StatelessWidget {
               ),
               _Note(t('an.repo_note')),
             ],
+            if (r.prolific != null) ...[
+              _BigNumber(
+                key: const Key('an.prolific'),
+                value: '${r.prolific!.authors.length}',
+                label: t('an.prolific', {'t': r.prolific!.threshold}),
+                color: r.prolific!.authors.isNotEmpty ? AnColors.country : null,
+              ),
+              _Note(t('an.prolific_note', {'n': r.prolific!.checked})),
+              if (r.prolific!.authors.isEmpty) _Note(t('an.prolific_none')),
+              if (r.prolific!.authors.isNotEmpty)
+                _Note(t('an.prolific_home', {
+                  'h': r.prolific!.home,
+                  'a': r.prolific!.authors.length - r.prolific!.home,
+                })),
+              for (final (i, a) in r.prolific!.authors.indexed)
+                CountBar(
+                  label: t('an.prolific_author', {'i': i + 1}),
+                  value: a.max,
+                  max: r.prolific!.authors.first.max,
+                  valueText: _num(a.max),
+                  color: AnColors.country,
+                  sub: [
+                    t('an.prolific_row', {
+                      'max': _num(a.max),
+                      'y': a.maxYear,
+                      'k': a.yearsOver,
+                      'n': _num(a.n),
+                    }),
+                    a.home ? t('an.prolific_is_home') : t('an.prolific_abroad'),
+                  ].join(' · '),
+                ),
+            ],
             if (r.citationCheck != null) _CitationCheckBlock(r.citationCheck!),
           ],
         ),
+
+        // История ежемесячных расчётов.
+        if (r.history.isNotEmpty)
+          _Section(
+            key: const Key('an.history'),
+            title: t('an.s.history'),
+            icon: Icons.history,
+            children: [_HistoryBlock(r.history)],
+          ),
 
         // Методика.
         _Section(
@@ -862,6 +1001,188 @@ class _ReportBody extends StatelessWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+/// Насколько можно доверять отчёту — сразу под шапкой.
+class _QualityCard extends StatelessWidget {
+  const _QualityCard(this.q, this.r);
+  final DataQuality q;
+  final OrgReport r;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = switch (q.level) {
+      'good' => AnColors.good,
+      'medium' => AnColors.country,
+      _ => scheme.error,
+    };
+    final icon = switch (q.level) {
+      'good' => Icons.verified_outlined,
+      'medium' => Icons.info_outline,
+      _ => Icons.warning_amber_rounded,
+    };
+    final p = r.citation.lead?.ppTop10 ?? r.citation.ppTop10;
+    return Padding(
+      key: const Key('an.quality'),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.45)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${t('an.q.title')}: ${t('an.q.${q.level}')}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final reason in q.reasons)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text('• ${_tr('an.q.r.$reason', reason)}',
+                    style: const TextStyle(fontSize: 13, height: 1.3)),
+              ),
+            if (q.ciLow != null && q.ciHigh != null && p != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  t('an.q.ci', {
+                    'p': _pct(p),
+                    'lo': _pct(q.ciLow),
+                    'hi': _pct(q.ciHigh),
+                  }),
+                  style: const TextStyle(fontSize: 13, height: 1.3),
+                ),
+              ),
+            ShareBar(
+              label: t('an.q.doi'),
+              valueText: _pct(q.doiShare),
+              value: q.doiShare,
+            ),
+            ShareBar(
+              label: t('an.q.orcid'),
+              valueText: _pct(q.orcidShare),
+              value: q.orcidShare,
+            ),
+            Text(t('an.q.note'),
+                style: TextStyle(
+                    fontSize: 12, height: 1.3, color: scheme.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// История ежемесячных расчётов: таблица с изменением к прошлому расчёту.
+class _HistoryBlock extends StatelessWidget {
+  const _HistoryBlock(this.points);
+  final List<HistoryPoint> points;
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = Strings.instance.lang;
+    final scheme = Theme.of(context).colorScheme;
+    if (points.length < 2) {
+      return _Note(
+          t('an.h.first', {'date': formatDate(points.first.date, lang)}));
+    }
+    final rows = points.reversed.take(12).toList();
+    Widget change(double? now, double? before) {
+      final s = formatPpChange(now, before, lang);
+      if (s.isEmpty) return const SizedBox.shrink();
+      final up = (now ?? 0) > (before ?? 0);
+      return Text(s,
+          style: TextStyle(
+              fontSize: 12,
+              color: s.startsWith('0')
+                  ? scheme.onSurfaceVariant
+                  : up
+                      ? AnColors.good
+                      : scheme.error));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Note(t('an.h.note')),
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i + 1 < rows.length && !rows[i].sameWindow(rows[i + 1]))
+            _Note(t('an.h.window', {
+              'date': formatDate(rows[i].date, lang),
+              'from': rows[i].windowFrom,
+              'to': rows[i].windowTo,
+            })),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(formatDate(rows[i].date, lang),
+                    style: const TextStyle(fontWeight: FontWeight.w800)),
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 2,
+                  children: [
+                    Text('${t('ap.works')}: ${_num(rows[i].works)}',
+                        style: const TextStyle(fontSize: 13)),
+                    Text.rich(TextSpan(
+                      style: const TextStyle(fontSize: 13),
+                      children: [
+                        TextSpan(
+                            text:
+                                '${rows[i].leadPpTop10 != null ? t('an.c.lead_top10') : t('an.c.top10')}: '
+                                '${_pct(rows[i].leadPpTop10 ?? rows[i].ppTop10)} '),
+                        if (i + 1 < rows.length &&
+                            rows[i].sameWindow(rows[i + 1]))
+                          WidgetSpan(
+                              child: change(
+                                  rows[i].leadPpTop10 ?? rows[i].ppTop10,
+                                  rows[i + 1].leadPpTop10 ??
+                                      rows[i + 1].ppTop10)),
+                      ],
+                    )),
+                    Text.rich(TextSpan(
+                      style: const TextStyle(fontSize: 13),
+                      children: [
+                        TextSpan(
+                            text:
+                                '${t('an.cmp.oa')}: ${_pct(rows[i].oaShare)} '),
+                        if (i + 1 < rows.length &&
+                            rows[i].sameWindow(rows[i + 1]))
+                          WidgetSpan(
+                              child:
+                                  change(rows[i].oaShare, rows[i + 1].oaShare)),
+                      ],
+                    )),
+                    if (rows[i].level.isNotEmpty)
+                      Text(
+                          '${t('an.q.title')}: ${_tr('an.q.short.${rows[i].level}', rows[i].level)}',
+                          style: const TextStyle(fontSize: 13)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (i + 1 < rows.length) const Divider(height: 1),
+        ],
       ],
     );
   }
@@ -1360,6 +1681,54 @@ class _CompareBody extends StatelessWidget {
           t('an.cmp.retracted'),
           _num(a.integrity.retracted!),
           _num(b.integrity.retracted!),
+          null,
+          null
+        ),
+      if (a.quality != null && b.quality != null)
+        (
+          t('an.cmp.quality'),
+          t('an.q.short.${a.quality!.level}'),
+          t('an.q.short.${b.quality!.level}'),
+          null,
+          null
+        ),
+      if (a.sdg != null && b.sdg != null)
+        (
+          t('an.cmp.sdg'),
+          _pct(a.sdg!.share),
+          _pct(b.sdg!.share),
+          a.sdg!.share,
+          b.sdg!.share
+        ),
+      if (a.languages.isNotEmpty && b.languages.isNotEmpty)
+        (
+          t('an.cmp.uz'),
+          _pct(languageShare(a, 'uz')),
+          _pct(languageShare(b, 'uz')),
+          languageShare(a, 'uz'),
+          languageShare(b, 'uz')
+        ),
+      if (a.funding != null && b.funding != null)
+        (
+          t('an.cmp.funded'),
+          _pct(a.funding!.share),
+          _pct(b.funding!.share),
+          a.funding!.share,
+          b.funding!.share
+        ),
+      if (a.apc?.lead != null && b.apc?.lead != null)
+        (
+          t('an.cmp.apc'),
+          formatMoney(a.apc!.lead!.usd, 'USD', Strings.instance.lang),
+          formatMoney(b.apc!.lead!.usd, 'USD', Strings.instance.lang),
+          null,
+          null
+        ),
+      if (a.prolific != null && b.prolific != null)
+        (
+          t('an.cmp.prolific'),
+          '${a.prolific!.authors.length}',
+          '${b.prolific!.authors.length}',
           null,
           null
         ),

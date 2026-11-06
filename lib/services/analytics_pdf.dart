@@ -70,6 +70,7 @@ Future<Uint8List> buildOrgPdf(
     header: (c) => b.header(name, r),
     footer: b.footer,
     build: (_) => [
+      ...b.quality(r),
       ...b.years(r),
       ...b.oa(r),
       ...b.citation(r, country),
@@ -77,7 +78,11 @@ Future<Uint8List> buildOrgPdf(
       ...b.partners(r),
       ...b.authors(r),
       ...b.journals(r),
+      ...b.sdg(r),
+      ...b.languages(r),
+      ...b.funding(r),
       ...b.integrity(r),
+      ...b.history(r),
       ...b.method(r),
     ],
   ));
@@ -868,6 +873,212 @@ class _Pdf {
         ),
       ];
 
+  List<pw.Widget> quality(OrgReport r) {
+    final q = r.quality;
+    if (q == null) return [];
+    final c = switch (q.level) {
+      'good' => _good,
+      'medium' => _countryC,
+      _ => Brand.late,
+    };
+    final pp = r.citation.lead?.ppTop10 ?? r.citation.ppTop10;
+    return [
+      pw.Container(
+        padding: const pw.EdgeInsets.all(10),
+        margin: const pw.EdgeInsets.only(bottom: 10),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(color: c, width: 1),
+          borderRadius: pw.BorderRadius.circular(6),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('${t('an.q.title')}: ${t('an.q.${q.level}')}',
+                style: pw.TextStyle(
+                    fontSize: 11, fontWeight: pw.FontWeight.bold, color: c)),
+            pw.SizedBox(height: 4),
+            for (final reason in q.reasons)
+              pw.Text('• ${_tr('an.q.r.$reason', reason)}',
+                  style: const pw.TextStyle(fontSize: 8.5)),
+            if (q.ciLow != null && q.ciHigh != null && pp != null)
+              pw.Text(
+                  t('an.q.ci',
+                      {'p': p(pp), 'lo': p(q.ciLow), 'hi': p(q.ciHigh)}),
+                  style: const pw.TextStyle(fontSize: 8.5)),
+            pw.Text(
+                '${t('an.q.doi')}: ${p(q.doiShare)} · ${t('an.q.orcid')}: ${p(q.orcidShare)}',
+                style: const pw.TextStyle(fontSize: 8.5)),
+            pw.SizedBox(height: 3),
+            pw.Text(t('an.q.note'),
+                style: const pw.TextStyle(fontSize: 7.5, color: Brand.muted)),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<pw.Widget> history(OrgReport r) {
+    final h = r.history;
+    if (h.isEmpty) return [];
+    if (h.length < 2) {
+      return [
+        _h1(t('an.s.history')),
+        _note(t('an.h.first', {'date': date(h.first.date)})),
+      ];
+    }
+    final rows = h.reversed.take(12).toList();
+    String ch(int i, double? Function(HistoryPoint) f) =>
+        i + 1 < rows.length && rows[i].sameWindow(rows[i + 1])
+            ? formatPpChange(f(rows[i]), f(rows[i + 1]), lang)
+            : '';
+    double? top(HistoryPoint x) => x.leadPpTop10 ?? x.ppTop10;
+    return [
+      _h1(t('an.s.history')),
+      _note(t('an.h.note')),
+      _table(
+        [
+          t('an.h.date'),
+          t('ap.period'),
+          t('ap.works'),
+          r.citation.lead != null ? t('an.c.lead_top10') : t('an.c.top10'),
+          t('an.cmp.oa'),
+          t('an.q.title'),
+        ],
+        [
+          for (var i = 0; i < rows.length; i++)
+            [
+              date(rows[i].date),
+              '${rows[i].windowFrom}–${rows[i].windowTo}',
+              n(rows[i].works),
+              [p(top(rows[i])), ch(i, top)]
+                  .where((x) => x.isNotEmpty)
+                  .join(' '),
+              [p(rows[i].oaShare), ch(i, (x) => x.oaShare)]
+                  .where((x) => x.isNotEmpty)
+                  .join(' '),
+              _tr('an.q.short.${rows[i].level}', rows[i].level),
+            ],
+        ],
+        right: {2},
+      ),
+    ];
+  }
+
+  List<pw.Widget> sdg(OrgReport r) {
+    final s = r.sdg;
+    if (s == null || s.goals.isEmpty) return [];
+    return [
+      _h1(t('an.s.sdg')),
+      _big(p(s.share), t('an.sdg_share'), c: _good),
+      _note(t('an.sdg_note')),
+      _table(
+        [t('an.s.sdg'), t('ap.works'), t('ap.share')],
+        [
+          for (final g in s.goals)
+            [
+              '${g.$1}. ${t('an.sdg.${g.$1}')}',
+              n(g.$2),
+              p(s.works > 0 ? g.$2 / s.works : null),
+            ],
+        ],
+        widths: {0: const pw.FlexColumnWidth(3)},
+        right: {1, 2},
+      ),
+    ];
+  }
+
+  List<pw.Widget> languages(OrgReport r) => r.languages.isEmpty
+      ? []
+      : [
+          _h1(t('an.s.lang')),
+          _note(t('an.lang_note')),
+          _table(
+            [t('an.s.lang'), t('ap.works'), t('ap.share')],
+            [
+              for (final l in r.languages.take(10))
+                [
+                  _tr('an.lang.${l.id}', l.name.isEmpty ? l.id : l.name),
+                  n(l.n),
+                  p(r.works > 0 ? l.n / r.works : null),
+                ],
+            ],
+            widths: {0: const pw.FlexColumnWidth(3)},
+            right: {1, 2},
+          ),
+        ];
+
+  List<pw.Widget> funding(OrgReport r) {
+    final f = r.funding;
+    final a = r.apc;
+    if (f == null && a == null) return [];
+    return [
+      _h1(t('an.s.funding')),
+      if (f != null) ...[
+        _big(p(f.share), t('an.funded_share')),
+        _note(t('an.funding_note')),
+        if (f.top.isNotEmpty)
+          _table(
+            [t('an.funders'), t('ap.country'), t('ap.works')],
+            [
+              for (final x in f.top.take(15))
+                [
+                  x.name,
+                  x.country.isEmpty ? '' : countryName(x.country),
+                  n(x.n)
+                ],
+            ],
+            widths: {0: const pw.FlexColumnWidth(3)},
+            right: {2},
+          ),
+        pw.SizedBox(height: 8),
+      ],
+      if (a != null) ...[
+        if (a.lead != null)
+          _big(formatMoney(a.lead!.usd, 'USD', lang),
+              t('an.apc_lead', {'n': n(a.lead!.works)})),
+        _big(
+            formatMoney(a.usd, 'USD', lang), t('an.apc_all', {'n': n(a.works)}),
+            c: Brand.muted),
+        _note(t('an.apc_note')),
+        if (r.org.isCountry) _note(t('an.apc_country_note')),
+      ],
+    ];
+  }
+
+  List<pw.Widget> _prolific(Prolific pr) => [
+        pw.SizedBox(height: 8),
+        _big('${pr.authors.length}', t('an.prolific', {'t': pr.threshold}),
+            c: pr.authors.isEmpty ? Brand.primary : _countryC),
+        _note(t('an.prolific_note', {'n': pr.checked})),
+        if (pr.authors.isEmpty)
+          _note(t('an.prolific_none'))
+        else
+          _table(
+            [t('ap.author'), t('ap.mark')],
+            [
+              for (final (i, a) in pr.authors.indexed)
+                [
+                  [
+                    t('an.prolific_author', {'i': i + 1}),
+                    a.home ? t('an.prolific_is_home') : t('an.prolific_abroad'),
+                  ].join('\n'),
+                  t('an.prolific_row', {
+                    'max': n(a.max),
+                    'y': a.maxYear,
+                    'k': a.yearsOver,
+                    'n': n(a.n),
+                  }),
+                ],
+            ],
+            widths: {0: const pw.FlexColumnWidth(1.6)},
+          ),
+        if (pr.authors.isNotEmpty)
+          _note(t('an.prolific_home', {
+            'h': pr.home,
+            'a': pr.authors.length - pr.home,
+          })),
+      ];
+
   List<pw.Widget> integrity(OrgReport r) => [
         _h1(t('an.s.integrity')),
         if (r.integrity.retracted != null) ...[
@@ -883,6 +1094,7 @@ class _Pdf {
               t('an.repo_share')),
           _note(t('an.repo_note')),
         ],
+        if (r.prolific != null) ..._prolific(r.prolific!),
         if (r.citationCheck != null) ..._citationCheck(r.citationCheck!),
       ];
 
@@ -1044,6 +1256,34 @@ class _Pdf {
             '${a.strongTopics.length}',
             '${b.strongTopics.length}'
           ],
+          if (a.quality != null && b.quality != null)
+            [
+              t('an.cmp.quality'),
+              t('an.q.short.${a.quality!.level}'),
+              t('an.q.short.${b.quality!.level}')
+            ],
+          if (a.sdg != null && b.sdg != null)
+            [t('an.cmp.sdg'), p(a.sdg!.share), p(b.sdg!.share)],
+          if (a.languages.isNotEmpty && b.languages.isNotEmpty)
+            [
+              t('an.cmp.uz'),
+              p(languageShare(a, 'uz')),
+              p(languageShare(b, 'uz'))
+            ],
+          if (a.funding != null && b.funding != null)
+            [t('an.cmp.funded'), p(a.funding!.share), p(b.funding!.share)],
+          if (a.apc?.lead != null && b.apc?.lead != null)
+            [
+              t('an.cmp.apc'),
+              formatMoney(a.apc!.lead!.usd, 'USD', lang),
+              formatMoney(b.apc!.lead!.usd, 'USD', lang)
+            ],
+          if (a.prolific != null && b.prolific != null)
+            [
+              t('an.cmp.prolific'),
+              '${a.prolific!.authors.length}',
+              '${b.prolific!.authors.length}'
+            ],
         ],
         widths: {0: const pw.FlexColumnWidth(2.6)},
         right: {1, 2},

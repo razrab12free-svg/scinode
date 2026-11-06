@@ -456,3 +456,234 @@ def safe_url(v: object) -> str:
     """Только обычные ссылки http(s): в данных OpenAlex встречается мусор."""
     s = str(v or "").strip()
     return s if s.lower().startswith(("https://", "http://")) and " " not in s else ""
+
+
+# --- Новые разделы (ноябрь 2026): ЦУР, языки, фонды, APC, плодовитость ---
+
+# Порог «сверхплодовитого» автора: больше 72 статей, обзоров и докладов
+# конференций за один календарный год — одна работа каждые 5 дней
+# (Ioannidis, Klavans, Boyack. Nature 561, 167–169, 2018).
+PROLIFIC_PER_YEAR = 72
+PROLIFIC_TYPES = "article|review|conference-paper"
+
+
+def sdg_block(resp: dict, with_sdg: int, total: int) -> dict:
+    """Цели устойчивого развития ООН (классификатор OpenAlex).
+
+    Одна работа может относиться к нескольким целям, поэтому доли целей
+    считаются от числа работ с хотя бы одной целью ([with_sdg]).
+    """
+    goals = []
+    for g in group_list(resp):
+        if not g["id"].isdigit() or not 1 <= int(g["id"]) <= 17:
+            continue
+        goals.append({"id": int(g["id"]), "n": g["n"]})
+    goals.sort(key=lambda g: (-g["n"], g["id"]))
+    return {
+        "works": with_sdg,
+        "share": share(with_sdg, total),
+        "goals": goals,
+    }
+
+
+def languages_list(resp: dict, limit: int = 10) -> list[dict]:
+    """Языки публикаций: [{id: 'en', name: 'English', n}]."""
+    return [
+        {"id": g["id"].lower(), "name": g["name"], "n": g["n"]}
+        for g in group_list(resp)
+    ][:limit]
+
+
+def funders_block(
+    resp: dict, funded: int, total: int, info: dict[str, dict], limit: int = 15
+) -> dict:
+    """Фонды, указанные в работах (благодарности и метаданные издателя)."""
+    top = []
+    for g in group_list(resp)[:limit]:
+        f = info.get(g["id"]) or {}
+        top.append(
+            {
+                "id": g["id"],
+                "name": " ".join(str(f.get("display_name") or g["name"]).split()),
+                "country": f.get("country_code") or "",
+                "n": g["n"],
+            }
+        )
+    return {"works": funded, "share": share(funded, total), "top": top}
+
+
+def apc_sum(pages: list[dict]) -> dict:
+    """Сумма group_by=apc_paid.value_usd: Σ (цена × число работ).
+
+    OpenAlex отдаёт оценку по прайс-листу журнала (для золотого и
+    гибридного открытого доступа), а не фактический платёж.
+    """
+    works = 0
+    usd = 0.0
+    for resp in pages:
+        for x in groups(resp):
+            n = x.get("count")
+            try:
+                v = float(x.get("key"))
+            except (TypeError, ValueError):
+                continue
+            if not isinstance(n, int) or v <= 0 or math.isnan(v):
+                continue
+            works += n
+            usd += v * n
+    return {"works": works, "usd": int(round(usd))}
+
+
+def prolific_candidates(authors: dict[str, dict], first: int, last: int) -> list[str]:
+    """Авторы, у которых по counts_by_year (все типы работ — оценка сверху)
+    в каком-то году окна больше порога. Их проверяем точным запросом."""
+    best: dict[str, int] = {}
+    for aid, a in authors.items():
+        for c in a.get("counts_by_year") or []:
+            if not isinstance(c, dict):
+                continue
+            y, n = c.get("year"), c.get("works_count")
+            if (
+                isinstance(y, int)
+                and isinstance(n, int)
+                and first <= y <= last
+                and n > PROLIFIC_PER_YEAR
+            ):
+                best[aid] = max(best.get(aid, 0), n)
+    # Самые плодовитые — первыми: проверяется не больше 10.
+    return sorted(best, key=lambda a: (-best[a], a))
+
+
+def prolific_row(n: int, home: bool, year_counts: dict[str, int]) -> dict | None:
+    """Обезличенная строка автора, если в каком-то году статей, обзоров и
+    докладов (по всем местам работы) больше порога; иначе None.
+
+    Имён, ссылок и мест работы нет (решение владельца 6.11.2026): только
+    числа и признак «последнее место работы — в своей стране» ([home]).
+    """
+    years = {
+        int(k): c for k, c in year_counts.items() if k.isdigit() and isinstance(c, int)
+    }
+    over = {y: c for y, c in years.items() if c > PROLIFIC_PER_YEAR}
+    if not over:
+        return None
+    top_year = max(over, key=lambda y: (over[y], y))
+    return {
+        "n": n,
+        "home": home,
+        "max": over[top_year],
+        "max_year": top_year,
+        "years_over": len(over),
+    }
+
+
+def works_in_country(author: dict, country: str) -> bool:
+    """Последнее известное место работы автора — в стране [country]."""
+    return any(
+        isinstance(i, dict) and str(i.get("country_code") or "").upper() == country.upper()
+        for i in author.get("last_known_institutions") or []
+    )
+
+
+# --- Качество данных и история расчётов (ноябрь 2026) ---
+
+# Пороги оценки «качества данных» (проверено на 12 вузах 6.11.2026: доля
+# работ с DOI — от 41 до 99 %, с ORCID — от 3 до 99 %; аннотации и
+# процентиль цитирования есть почти у всех и для оценки бесполезны).
+QUALITY_MIN_WORKS = 200   # меньше — проценты неустойчивы (± 4 п. п. и больше)
+QUALITY_GOOD_WORKS = 500
+QUALITY_MIN_DOI = 0.5     # меньше половины работ с DOI — цитирование теряется
+QUALITY_GOOD_DOI = 0.75
+QUALITY_LOW_ORCID = 0.3   # мало ORCID — авторы чаще склеиваются/дробятся
+QUALITY_HIGH_REPO = 0.2   # много работ только в репозиториях
+
+HISTORY_KEEP = 36  # точек (месяцев) в истории организации
+
+
+def wilson_high(k: int, n: int, z: float = 1.96) -> float | None:
+    """Верхняя граница 95 % интервала Уилсона (пара к wilson_low)."""
+    if n <= 0:
+        return None
+    p = k / n
+    d = 1 + z * z / n
+    c = p + z * z / (2 * n)
+    r = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return round((c + r) / d, 4)
+
+
+def quality_block(
+    works: int,
+    doi: tuple[int, int],
+    orcid: tuple[int, int],
+    repo_share: float | None,
+    top10: tuple[int, int],
+) -> dict:
+    """Насколько можно доверять отчёту: уровень и причины.
+
+    doi, orcid — (да, всего) из group_by has_doi / has_orcid;
+    top10 — (в топ-10 %, с процентилем) для интервала PP(top 10%).
+    """
+    doi_share = share(*doi)
+    orcid_share = share(*orcid)
+    reasons = []
+    if works < QUALITY_MIN_WORKS:
+        reasons.append("small")
+    if doi_share is not None and doi_share < QUALITY_MIN_DOI:
+        reasons.append("doi_low")
+    elif doi_share is not None and doi_share < QUALITY_GOOD_DOI:
+        reasons.append("doi_mid")
+    if orcid_share is not None and orcid_share < QUALITY_LOW_ORCID:
+        reasons.append("orcid_low")
+    if repo_share is not None and repo_share > QUALITY_HIGH_REPO:
+        reasons.append("repo_high")
+    if "small" in reasons or "doi_low" in reasons:
+        level = "low"
+    elif works >= QUALITY_GOOD_WORKS and doi_share is not None and doi_share >= QUALITY_GOOD_DOI:
+        level = "good"
+    else:
+        level = "medium"
+    k, n = top10
+    return {
+        "level": level,
+        "reasons": reasons,
+        "works": works,
+        "doi_share": doi_share,
+        "orcid_share": orcid_share,
+        "repo_share": repo_share,
+        "pp_top10_ci": [wilson_low(k, n), wilson_high(k, n)] if n > 0 else None,
+    }
+
+
+def history_point(rep: dict, date: str, window: list[int]) -> dict:
+    """Короткая запись о расчёте для истории организации."""
+    c = rep.get("citation") or {}
+    lead = c.get("lead") or {}
+    q = rep.get("quality") or {}
+    works = rep.get("works") or 0
+    return {
+        "date": date,
+        "window": list(window),
+        "works": works,
+        "lead_works": lead.get("works"),
+        "pp_top10": c.get("pp_top10"),
+        "lead_pp_top10": lead.get("pp_top10"),
+        "oa_share": share((rep.get("oa") or {}).get("n") or 0, works),
+        "intl_share": (rep.get("collab") or {}).get("intl_share"),
+        "doaj_share": (rep.get("journals") or {}).get("doaj_share"),
+        "retracted": (rep.get("integrity") or {}).get("retracted"),
+        "doi_share": q.get("doi_share"),
+        "level": q.get("level"),
+    }
+
+
+def merge_history(old: object, point: dict, keep: int = HISTORY_KEEP) -> list[dict]:
+    """Добавить точку; запись того же месяца заменяется (повторный запуск)."""
+    month = str(point.get("date", ""))[:7]
+    pts = [
+        p
+        for p in (old if isinstance(old, list) else [])
+        if isinstance(p, dict) and str(p.get("date", ""))[:7] != month
+    ]
+    pts.append(point)
+    pts.sort(key=lambda p: str(p.get("date", "")))
+    return pts[-keep:]

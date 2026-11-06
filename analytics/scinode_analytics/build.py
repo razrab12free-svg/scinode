@@ -20,6 +20,14 @@ from pathlib import Path
 from . import metrics as m
 from .client import BudgetExhausted, OpenAlexClient, OpenAlexError
 
+# Прошлая история расчётов (опубликованная на GitHub Pages).
+HISTORY_URL = "https://x9096730-spec.github.io/scinode/analytics/v1/history.json"
+
+
+class HistoryUnavailable(Exception):
+    """Не удалось прочитать прошлую историю: публиковать нельзя — иначе
+    история на сайте была бы стёрта."""
+
 SCHEMA = 1
 EXCLUDED_TYPES = {"company"}
 INST_FIELDS = (
@@ -78,12 +86,69 @@ _crossref_lock = threading.Lock()
 
 # Запросов OpenAlex на организацию и на страну (с запасом) — для проверки
 # дневного лимита ключа перед началом расчёта.
-REQUESTS_PER_ORG = 50
-REQUESTS_COUNTRY = 40
+REQUESTS_PER_ORG = 62
+REQUESTS_COUNTRY = 62
 
 # Сколько самых цитируемых работ организации проверять (по 1 запросу
 # OpenAlex и 1 запросу OpenCitations на работу).
 CHECK_WORKS = 10
+
+
+def _apc(client, flt: str) -> dict:
+    """Оценка расходов на APC: group_by по цене, все страницы (cursor)."""
+    pages = []
+    cursor = "*"
+    for _ in range(20):
+        r = client.get(
+            "/works",
+            {
+                "filter": flt + ",apc_paid.value_usd:>0",
+                "group_by": "apc_paid.value_usd",
+                "per_page": "200",
+                "cursor": cursor,
+            },
+        )
+        pages.append(r)
+        cursor = (r.get("meta") or {}).get("next_cursor")
+        if not cursor or not m.groups(r):
+            break
+    return m.apc_sum(pages)
+
+
+def _prolific(client, flt: str, first: int, last: int, home_country: str) -> dict:
+    """Сверхплодовитые авторы: больше 72 статей, обзоров и докладов за год.
+
+    Работы мегаколлабораций (больше 100 авторов) не считаются — как у
+    Иоаннидиса (физика частиц иначе даёт сотни «работ» в год). Кандидаты —
+    20 самых активных авторов набора; их годовой итог считается по ВСЕМ
+    местам работы. В отчёт идут только числа, без имён.
+    """
+    typed = f"type:{m.PROLIFIC_TYPES},authors_count:<{m.MEGA_AUTHORS + 1}"
+    top = m.group_list(_works(client, f"{flt},{typed}", "authorships.author.id"))[:20]
+    here = {a["id"]: a["n"] for a in top}
+    adata = _batch(
+        client,
+        "/authors",
+        list(here),
+        "id,display_name,orcid,works_count,cited_by_count,summary_stats,"
+        "last_known_institutions,counts_by_year",
+    )
+    out = []
+    for aid in m.prolific_candidates(adata, first, last)[:10]:
+        yc = m.group_counts(
+            _works(
+                client,
+                f"authorships.author.id:{aid},publication_year:{first}-{last},{typed}",
+                "publication_year",
+            )
+        )
+        r = m.prolific_row(
+            here.get(aid, 0), m.works_in_country(adata[aid], home_country), yc
+        )
+        if r:
+            out.append(r)
+    out.sort(key=lambda r: (-r["max"], -r["n"], r["max_year"]))
+    return {"threshold": m.PROLIFIC_PER_YEAR, "checked": len(adata), "authors": out}
 
 
 def _crossref(client, issn: str) -> dict:
@@ -230,6 +295,15 @@ def build_report(
             _works(client, W, "primary_location.source.type")
         ),
     }
+    repo = sum(x["n"] for x in integrity["source_types"] if x["id"] == "repository")
+    lead_c = citation.get("lead")
+    quality = m.quality_block(
+        total,
+        m.bool_counts(_works(client, W, "has_doi")),
+        m.bool_counts(_works(client, W, "has_orcid")),
+        m.share(repo, total),
+        (lead_c["top10"], lead_c["known"]) if lead_c else (t10, known10),
+    )
 
     cdc = m.group_counts(_works(client, W, "countries_distinct_count"))
     intl = sum(n for k, n in cdc.items() if k.isdigit() and int(k) > 1)
@@ -267,6 +341,26 @@ def build_report(
         "last_known_institutions",
     )
     authors = [m.author_row(adata[a["id"]], a["n"]) for a in top_auth if a["id"] in adata]
+    prolific = _prolific(client, W, first, last, home_country)
+
+    # Цели устойчивого развития, языки, фонды, оценка расходов на APC.
+    sdg = m.sdg_block(
+        _works(client, W, "sustainable_development_goals.id"),
+        _count(client, W + ",sustainable_development_goals.id:!null"),
+        total,
+    )
+    languages = m.languages_list(_works(client, W, "language"))
+    fund_groups = _works(client, W, "funders.id")
+    fund_ids = [g["id"] for g in m.group_list(fund_groups)[:15]]
+    funding = m.funders_block(
+        fund_groups,
+        _count(client, W + ",funders.id:!null"),
+        total,
+        _batch(client, "/funders", fund_ids, "id,display_name,country_code"),
+    )
+    apc = _apc(client, W)
+    if L:
+        apc["lead"] = _apc(client, L)
 
     top_src = m.group_list(_works(client, W, "primary_location.source.id"))[:20]
     sdata = _batch(
@@ -356,6 +450,12 @@ def build_report(
         },
         "topics": topics,
         "integrity": integrity,
+        "prolific": prolific,
+        "quality": quality,
+        "sdg": sdg,
+        "languages": languages,
+        "funding": funding,
+        "apc": apc,
         **({"citation_check": citation_check} if citation_check else {}),
     }
 
@@ -410,6 +510,26 @@ def list_orgs(client, country: str, min_works: int, first: int, last: int) -> li
     return sel
 
 
+def load_history(client, url: str | None) -> dict[str, list]:
+    """Прошлая история {id: [точки]}; нет файла (первый запуск) — пусто.
+
+    Сбой сети или испорченный файл — HistoryUnavailable: расчёт не должен
+    публиковаться и стирать историю.
+    """
+    if not url:
+        return {}
+    try:
+        data = client.get_url(url)
+    except OpenAlexError as e:
+        raise HistoryUnavailable(f"история не загрузилась: {e}") from e
+    if data is None:
+        return {}
+    orgs = data.get("orgs") if isinstance(data, dict) else None
+    if not isinstance(orgs, dict):
+        raise HistoryUnavailable("история на сайте в неизвестном формате")
+    return {str(k): v for k, v in orgs.items() if isinstance(v, list)}
+
+
 def build_all(
     client,
     out: Path,
@@ -420,6 +540,7 @@ def build_all(
     limit: int | None = None,
     workers: int = 4,
     log=print,
+    history_url: str | None = HISTORY_URL,
 ) -> dict:
     today = today or dt.date.today()
     first, last = window(today)
@@ -437,6 +558,11 @@ def build_all(
         raise BudgetExhausted(
             f"нужно около {need} запросов OpenAlex, осталось {left}"
         )
+    # История прошлых расчётов — до первого запроса OpenAlex: без неё не
+    # тратить лимит (публиковать всё равно будет нельзя).
+    history = load_history(client, history_url)
+    hist_lock = threading.Lock()
+    new_hist: dict[str, list] = dict(history)
     base_dir = out / "analytics" / f"v{SCHEMA}"
     (base_dir / "orgs").mkdir(parents=True, exist_ok=True)
     common = {
@@ -477,7 +603,13 @@ def build_all(
                     meta["ror_data"] = ror
             except OpenAlexError:
                 pass
-        doc = {**common, "org": meta, **rep}
+        pts = m.merge_history(
+            history.get(meta["id"]),
+            m.history_point(rep, today.isoformat(), [first, last]),
+        )
+        with hist_lock:
+            new_hist[meta["id"]] = pts
+        doc = {**common, "org": meta, **rep, "history": pts}
         (base_dir / "orgs" / f"{meta['id']}.json").write_text(
             json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
         )
@@ -507,7 +639,16 @@ def build_all(
             set(),
             country,
         )
-        national = {**common, "org": {"id": country, "name": country, "type": "country"}, **rep}
+        pts = m.merge_history(
+            history.get(country), m.history_point(rep, today.isoformat(), [first, last])
+        )
+        new_hist[country] = pts
+        national = {
+            **common,
+            "org": {"id": country, "name": country, "type": "country"},
+            **rep,
+            "history": pts,
+        }
         (base_dir / "orgs" / f"{country}.json").write_text(
             json.dumps(national, ensure_ascii=False, separators=(",", ":")),
             encoding="utf-8",
@@ -525,6 +666,14 @@ def build_all(
         "orgs": done,
         "failed": failed,
     }
+    (base_dir / "history.json").write_text(
+        json.dumps(
+            {"schema": SCHEMA, "updated": today.isoformat(), "orgs": new_hist},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
     (base_dir / "index.json").write_text(
         json.dumps(index, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
@@ -569,6 +718,13 @@ def main(argv: list[str] | None = None) -> int:
             a.limit,
             a.workers,
         )
+    except HistoryUnavailable as e:
+        print(
+            f"Расчёт не начат: {e}. Данные на сайте не изменились — "
+            "запустите снова позже.",
+            file=sys.stderr,
+        )
+        return 4
     except BudgetExhausted as e:
         print(
             f"Расчёт остановлен: {e}. Ничего не опубликовано — на сайте остаются "

@@ -584,4 +584,307 @@ const Map<String, List<String>> analyticsStrings = {
     'Metodika haqida batafsil',
     'More about the methodology',
   ],
+
+  // --- ЦУР, языки, финансирование, APC, плодовитость (ноябрь 2026) ---
+  'an.s.sdg': [
+    'Цели устойчивого развития ООН',
+    'BMTning Barqaror rivojlanish maqsadlari',
+    'UN Sustainable Development Goals',
+  ],
+  'an.sdg_share': [
+    'работ связаны хотя бы с одной целью',
+    'ishlar kamida bitta maqsad bilan bog‘liq',
+    'of works relate to at least one goal',
+  ],
+  'an.sdg_note': [
+    'OpenAlex относит работу к цели автоматически — по названию и аннотации. Одна работа может относиться к нескольким целям, доли считаются от работ с целями. Пригодится для рейтинга THE Impact и отчётов о вкладе в ЦУР.',
+    'OpenAlex ishni maqsadga avtomatik — sarlavha va annotatsiya bo‘yicha bog‘laydi. Bitta ish bir nechta maqsadga tegishli bo‘lishi mumkin, ulushlar maqsadli ishlardan hisoblanadi. THE Impact reytingi va BRM hisobotlari uchun foydali.',
+    'OpenAlex assigns goals automatically from titles and abstracts. A work can relate to several goals; shares are of works with any goal. Useful for THE Impact Rankings and SDG reports.',
+  ],
+  'an.sdg.1': [
+    'Ликвидация нищеты',
+    'Qashshoqlikka barham berish',
+    'No poverty'
+  ],
+  'an.sdg.2': ['Ликвидация голода', 'Ochlikka barham berish', 'Zero hunger'],
+  'an.sdg.3': [
+    'Хорошее здоровье и благополучие',
+    'Sog‘liq va farovonlik',
+    'Good health and well-being',
+  ],
+  'an.sdg.4': [
+    'Качественное образование',
+    'Sifatli ta’lim',
+    'Quality education'
+  ],
+  'an.sdg.5': ['Гендерное равенство', 'Gender tengligi', 'Gender equality'],
+  'an.sdg.6': [
+    'Чистая вода и санитария',
+    'Toza suv va sanitariya',
+    'Clean water and sanitation',
+  ],
+  'an.sdg.7': [
+    'Недорогостоящая и чистая энергия',
+    'Arzon va toza energiya',
+    'Affordable and clean energy',
+  ],
+  'an.sdg.8': [
+    'Достойная работа и экономический рост',
+    'Munosib mehnat va iqtisodiy o‘sish',
+    'Decent work and economic growth',
+  ],
+  'an.sdg.9': [
+    'Индустриализация, инновации и инфраструктура',
+    'Sanoat, innovatsiyalar va infratuzilma',
+    'Industry, innovation and infrastructure',
+  ],
+  'an.sdg.10': [
+    'Уменьшение неравенства',
+    'Tengsizlikni qisqartirish',
+    'Reduced inequalities',
+  ],
+  'an.sdg.11': [
+    'Устойчивые города и населённые пункты',
+    'Barqaror shaharlar va aholi punktlari',
+    'Sustainable cities and communities',
+  ],
+  'an.sdg.12': [
+    'Ответственное потребление и производство',
+    'Mas’uliyatli iste’mol va ishlab chiqarish',
+    'Responsible consumption and production',
+  ],
+  'an.sdg.13': [
+    'Борьба с изменением климата',
+    'Iqlim o‘zgarishiga qarshi kurash',
+    'Climate action',
+  ],
+  'an.sdg.14': [
+    'Сохранение морских экосистем',
+    'Dengiz ekotizimlarini saqlash',
+    'Life below water',
+  ],
+  'an.sdg.15': [
+    'Сохранение экосистем суши',
+    'Quruqlik ekotizimlarini saqlash',
+    'Life on land',
+  ],
+  'an.sdg.16': [
+    'Мир, правосудие и эффективные институты',
+    'Tinchlik, odil sudlov va samarali institutlar',
+    'Peace, justice and strong institutions',
+  ],
+  'an.sdg.17': [
+    'Партнёрство в интересах устойчивого развития',
+    'Barqaror rivojlanish yo‘lida hamkorlik',
+    'Partnerships for the goals',
+  ],
+  'an.s.lang': [
+    'Языки публикаций',
+    'Nashrlar tillari',
+    'Publication languages'
+  ],
+  'an.lang_note': [
+    'Язык OpenAlex определяет автоматически по названию и аннотации и иногда ошибается, особенно на коротких текстах.',
+    'Tilni OpenAlex sarlavha va annotatsiya bo‘yicha avtomatik aniqlaydi va ba’zan, ayniqsa qisqa matnlarda, xato qiladi.',
+    'OpenAlex detects the language automatically from titles and abstracts and sometimes errs, especially on short texts.',
+  ],
+  'an.lang.en': ['Английский', 'Ingliz', 'English'],
+  'an.lang.uz': ['Узбекский', 'O‘zbek', 'Uzbek'],
+  'an.lang.ru': ['Русский', 'Rus', 'Russian'],
+  'an.lang.tr': ['Турецкий', 'Turk', 'Turkish'],
+  'an.lang.tg': ['Таджикский', 'Tojik', 'Tajik'],
+  'an.lang.kk': ['Казахский', 'Qozoq', 'Kazakh'],
+  'an.lang.ky': ['Киргизский', 'Qirg‘iz', 'Kyrgyz'],
+  'an.lang.az': ['Азербайджанский', 'Ozarbayjon', 'Azerbaijani'],
+  'an.lang.de': ['Немецкий', 'Nemis', 'German'],
+  'an.lang.fr': ['Французский', 'Fransuz', 'French'],
+  'an.lang.es': ['Испанский', 'Ispan', 'Spanish'],
+  'an.lang.pt': ['Португальский', 'Portugal', 'Portuguese'],
+  'an.lang.zh': ['Китайский', 'Xitoy', 'Chinese'],
+  'an.lang.ar': ['Арабский', 'Arab', 'Arabic'],
+  'an.lang.fa': ['Персидский', 'Fors', 'Persian'],
+  'an.lang.uk': ['Украинский', 'Ukrain', 'Ukrainian'],
+  'an.lang.bg': ['Болгарский', 'Bolgar', 'Bulgarian'],
+  'an.lang.pl': ['Польский', 'Polyak', 'Polish'],
+  'an.lang.lv': ['Латышский', 'Latish', 'Latvian'],
+  'an.lang.id': ['Индонезийский', 'Indonez', 'Indonesian'],
+  'an.lang.it': ['Итальянский', 'Italyan', 'Italian'],
+  'an.lang.nl': ['Нидерландский', 'Niderland', 'Dutch'],
+  'an.lang.ja': ['Японский', 'Yapon', 'Japanese'],
+  'an.lang.ko': ['Корейский', 'Koreys', 'Korean'],
+  'an.lang.hi': ['Хинди', 'Hind', 'Hindi'],
+  'an.lang.tk': ['Туркменский', 'Turkman', 'Turkmen'],
+  'an.s.funding': [
+    'Финансирование и расходы',
+    'Moliyalashtirish va xarajatlar',
+    'Funding and costs',
+  ],
+  'an.funded_share': [
+    'работ с указанным фондом',
+    'jamg‘arma ko‘rsatilgan ishlar',
+    'of works name a funder',
+  ],
+  'an.funding_note': [
+    'Фонды берутся из благодарностей в статьях и данных издателей (Crossref). Многие журналы их не передают, поэтому настоящая доля выше.',
+    'Jamg‘armalar maqolalardagi minnatdorchiliklar va noshirlar ma’lumotlaridan (Crossref) olinadi. Ko‘p jurnallar ularni bermaydi, shuning uchun haqiqiy ulush yuqoriroq.',
+    'Funders come from acknowledgements and publisher data (Crossref). Many journals do not supply them, so the real share is higher.',
+  ],
+  'an.funders': ['Главные фонды', 'Asosiy jamg‘armalar', 'Main funders'],
+  'an.apc_lead': [
+    'оценка платы за публикацию (APC) по собственным работам · {n} работ',
+    'o‘z ishlari bo‘yicha nashr to‘lovi (APC) bahosi · {n} ta ish',
+    'estimated publication fees (APC) for own works · {n} works',
+  ],
+  'an.apc_all': [
+    'оценка платы за публикацию (APC) по всем работам · {n} работ',
+    'barcha ishlar bo‘yicha nashr to‘lovi (APC) bahosi · {n} ta ish',
+    'estimated publication fees (APC) for all works · {n} works',
+  ],
+  'an.apc_note': [
+    'Сумма по прайс-листам журналов для статей в открытом доступе (золотом и гибридном), данные OpenAlex. Это оценка сверху: скидки, гранты и освобождения от оплаты не учтены. Обычно платит организация автора для переписки, поэтому для вуза главная цифра — по собственным работам.',
+    'Ochiq (oltin va gibrid) kirishdagi maqolalar uchun jurnallar narxlari bo‘yicha summa, OpenAlex ma’lumotlari. Bu yuqori baho: chegirmalar, grantlar va to‘lovdan ozod qilish hisobga olinmagan. Odatda yozishma muallifining tashkiloti to‘laydi, shuning uchun OTM uchun asosiy raqam — o‘z ishlari bo‘yicha.',
+    'Sum of journal list prices for gold and hybrid open-access papers (OpenAlex). An upper estimate: discounts, grants and waivers are not counted. Usually the corresponding author’s organization pays, so for a university the key figure is for its own works.',
+  ],
+  'an.apc_country_note': [
+    'Для страны — по всем работам с участием авторов из Узбекистана, включая те, где платили соавторы из других стран.',
+    'Mamlakat uchun — O‘zbekiston mualliflari ishtirokidagi barcha ishlar, jumladan boshqa mamlakat hammualliflari to‘lagan ishlar.',
+    'For the country: all works with authors from Uzbekistan, including those paid for by co-authors abroad.',
+  ],
+  'an.prolific': [
+    '— столько авторов публикуют больше {t} работ в год',
+    'ta muallif yiliga {t} tadan ortiq ish nashr qiladi',
+    '— number of authors with over {t} works a year',
+  ],
+  'an.prolific_note': [
+    'Больше 72 статей, обзоров и докладов за год — одна работа каждые 5 дней (порог Иоаннидиса, Nature, 2018). Считаются все места работы автора, работы больше чем со 100 авторами не учитываются. Это повод проверить, а не обвинение: бывают большие лаборатории, а OpenAlex иногда склеивает разных людей с одним именем. Проверены {n} самых активных авторов.',
+    'Yiliga 72 tadan ortiq maqola, sharh va ma’ruza — har 5 kunda bitta ish (Ioannidis chegarasi, Nature, 2018). Muallifning barcha ish joylari hisoblanadi, 100 dan ortiq muallifli ishlar hisobga olinmaydi. Bu ayblov emas, tekshirish uchun sabab: katta laboratoriyalar bo‘ladi, OpenAlex esa ba’zan bir xil ismli turli odamlarni birlashtiradi. Eng faol {n} ta muallif tekshirildi.',
+    'Over 72 articles, reviews and conference papers a year is one every 5 days (Ioannidis threshold, Nature, 2018). All of the author’s affiliations count; works with more than 100 authors are excluded. A reason to check, not an accusation: large labs exist, and OpenAlex sometimes merges different people with the same name. The {n} most active authors were checked.',
+  ],
+  'an.prolific_none': [
+    'Среди самых активных авторов никто не превысил порог.',
+    'Eng faol mualliflar orasida hech kim chegaradan oshmadi.',
+    'None of the most active authors exceeded the threshold.',
+  ],
+  'an.prolific_row': [
+    'до {max} работ в {y} году · лет выше порога: {k} · здесь {n} за период',
+    '{y} yilda {max} tagacha ish · chegaradan yuqori yillar: {k} · bu yerda davrda {n}',
+    'up to {max} works in {y} · years over threshold: {k} · {n} here in the period',
+  ],
+  'an.prolific_author': ['Автор {i}', 'Muallif {i}', 'Author {i}'],
+  'an.prolific_is_home': [
+    'работает в Узбекистане',
+    'O‘zbekistonda ishlaydi',
+    'works in Uzbekistan',
+  ],
+  'an.prolific_abroad': [
+    'зарубежный соавтор',
+    'xorijiy hammuallif',
+    'co-author from abroad',
+  ],
+  'an.prolific_home': [
+    'Работают в Узбекистане: {h} · зарубежные соавторы: {a}. Имена не показываются.',
+    'O‘zbekistonda ishlaydi: {h} · xorijiy hammualliflar: {a}. Ismlar ko‘rsatilmaydi.',
+    'Work in Uzbekistan: {h} · co-authors from abroad: {a}. Names are not shown.',
+  ],
+  'an.cmp.sdg': ['Связаны с ЦУР', 'BRM bilan bog‘liq', 'Related to SDGs'],
+  'an.cmp.uz': ['На узбекском языке', 'O‘zbek tilida', 'In Uzbek'],
+  'an.cmp.funded': [
+    'С указанным фондом',
+    'Jamg‘arma ko‘rsatilgan',
+    'Name a funder',
+  ],
+  'an.cmp.apc': [
+    'Оценка APC, свои работы',
+    'APC bahosi, o‘z ishlari',
+    'Estimated APC, own works',
+  ],
+  'an.cmp.prolific': [
+    'Авторов больше 72 работ в год',
+    'Yiliga 72 tadan ortiq ishli mualliflar',
+    'Authors with over 72 works a year',
+  ],
+
+  // --- Качество данных и история (ноябрь 2026) ---
+  'an.q.title': ['Качество данных', 'Ma’lumotlar sifati', 'Data quality'],
+  'an.q.good': [
+    'хорошее — показателям можно доверять',
+    'yaxshi — ko‘rsatkichlarga ishonish mumkin',
+    'good — the indicators are reliable',
+  ],
+  'an.q.medium': [
+    'среднее — сравнивайте с осторожностью',
+    'o‘rtacha — ehtiyotkorlik bilan solishtiring',
+    'medium — compare with care',
+  ],
+  'an.q.low': [
+    'мало данных — цифры ориентировочные',
+    'ma’lumot kam — raqamlar taxminiy',
+    'limited data — figures are indicative',
+  ],
+  'an.q.r.small': [
+    'Меньше 200 работ за период: несколько статей сильно меняют проценты.',
+    'Davrda 200 tadan kam ish: bir nechta maqola foizlarni keskin o‘zgartiradi.',
+    'Fewer than 200 works in the period: a few papers change the percentages a lot.',
+  ],
+  'an.q.r.doi_low': [
+    'DOI меньше чем у половины работ: цитирования таких работ часто не учитываются.',
+    'Ishlarning yarmidan kamida DOI bor: bunday ishlarning iqtiboslari ko‘pincha hisobga olinmaydi.',
+    'Fewer than half of the works have a DOI: their citations are often missed.',
+  ],
+  'an.q.r.doi_mid': [
+    'DOI не у всех работ: часть цитирований может не учитываться.',
+    'Hamma ishlarda DOI yo‘q: iqtiboslarning bir qismi hisobga olinmasligi mumkin.',
+    'Not all works have a DOI: some citations may be missed.',
+  ],
+  'an.q.r.orcid_low': [
+    'ORCID указан меньше чем у трети работ: данные об авторах менее надёжны.',
+    'ORCID ishlarning uchdan biridan kamida ko‘rsatilgan: mualliflar haqidagi ma’lumotlar kamroq ishonchli.',
+    'ORCID appears on fewer than a third of works: author data is less reliable.',
+  ],
+  'an.q.r.repo_high': [
+    'Больше 20 % работ только в репозиториях (без журнала).',
+    'Ishlarning 20 % dan ortig‘i faqat repozitoriylarda (jurnalsiz).',
+    'Over 20% of works are only in repositories (no journal).',
+  ],
+  'an.q.doi': ['работ с DOI', 'DOI li ishlar', 'works with a DOI'],
+  'an.q.orcid': [
+    'работ с ORCID хотя бы у одного автора',
+    'kamida bitta muallifida ORCID bor ishlar',
+    'works with an ORCID for at least one author',
+  ],
+  'an.q.ci': [
+    'Доля в топ-10 %: {p}, с вероятностью 95 % — от {lo} до {hi}.',
+    'Top-10 % ulushi: {p}, 95 % ehtimol bilan — {lo} dan {hi} gacha.',
+    'Share in the top 10%: {p}; 95% likely between {lo} and {hi}.',
+  ],
+  'an.q.note': [
+    'Оценка — по полноте данных OpenAlex: числу работ, доле работ с DOI и ORCID. Как исправить: указывать DOI и ORCID в статьях, публиковаться в журналах с DOI.',
+    'Baho OpenAlex ma’lumotlarining to‘liqligi bo‘yicha: ishlar soni, DOI va ORCID li ishlar ulushi. Qanday yaxshilash mumkin: maqolalarda DOI va ORCID ni ko‘rsatish, DOI li jurnallarda nashr qilish.',
+    'Based on the completeness of OpenAlex data: number of works and the share with a DOI and ORCID. To improve: include DOIs and ORCIDs, publish in journals that assign DOIs.',
+  ],
+  'an.s.history': [
+    'История расчётов',
+    'Hisob-kitoblar tarixi',
+    'Calculation history'
+  ],
+  'an.h.first': [
+    'Первый расчёт с историей — {date}. Изменения будут видны после следующего ежемесячного пересчёта.',
+    'Tarixli birinchi hisob — {date}. O‘zgarishlar keyingi oylik hisobdan keyin ko‘rinadi.',
+    'First calculation with history: {date}. Changes will show after the next monthly update.',
+  ],
+  'an.h.note': [
+    'Каждый месяц расчёт повторяется по свежим данным OpenAlex. Изменение — к прошлому расчёту, в процентных пунктах.',
+    'Har oy hisob OpenAlex yangi ma’lumotlari bo‘yicha takrorlanadi. O‘zgarish — oldingi hisobga nisbatan, foiz punktlarida.',
+    'The calculation is repeated monthly on fresh OpenAlex data. Change is versus the previous run, in percentage points.',
+  ],
+  'an.h.window': [
+    'С {date} период сменился на {from}–{to}: показатели до и после сравнивать нельзя.',
+    '{date} dan davr {from}–{to} ga o‘zgardi: oldingi va keyingi ko‘rsatkichlarni solishtirib bo‘lmaydi.',
+    'From {date} the period changed to {from}–{to}: figures before and after are not comparable.',
+  ],
+  'an.h.date': ['Расчёт', 'Hisob', 'Run'],
+  'an.cmp.quality': ['Качество данных', 'Ma’lumotlar sifati', 'Data quality'],
+  'an.q.short.good': ['хорошее', 'yaxshi', 'good'],
+  'an.q.short.medium': ['среднее', 'o‘rtacha', 'medium'],
+  'an.q.short.low': ['мало данных', 'ma’lumot kam', 'limited'],
 };

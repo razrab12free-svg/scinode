@@ -531,6 +531,245 @@ class Integrity {
       sourceTypes.where((s) => s.id == 'repository').fold(0, (a, b) => a + b.n);
 }
 
+/// Вклад в цели устойчивого развития ООН (классификатор OpenAlex).
+class SdgBlock {
+  SdgBlock(this.works, this.share, this.goals);
+
+  /// Работ хотя бы с одной целью.
+  final int works;
+  final double? share;
+
+  /// Цели 1–17: (номер, число работ) по убыванию.
+  final List<(int, int)> goals;
+
+  static SdgBlock? fromJson(Object? v) {
+    if (v is! Map) return null;
+    return SdgBlock(
+      _i(v['works']),
+      _d(v['share']),
+      [
+        for (final g in _maps(v['goals']))
+          if (_i(g['id']) >= 1 && _i(g['id']) <= 17) (_i(g['id']), _i(g['n'])),
+      ],
+    );
+  }
+}
+
+/// Фонд, указанный в работах.
+class FunderRow {
+  FunderRow(this.id, this.name, this.country, this.n);
+  final String id;
+  final String name;
+  final String country;
+  final int n;
+
+  String get openAlexUrl => 'https://openalex.org/$id';
+}
+
+class Funding {
+  Funding(this.works, this.share, this.top);
+
+  /// Работ, где указан хотя бы один фонд.
+  final int works;
+  final double? share;
+  final List<FunderRow> top;
+
+  static Funding? fromJson(Object? v) {
+    if (v is! Map) return null;
+    return Funding(_i(v['works']), _d(v['share']), [
+      for (final f in _maps(v['top']))
+        if (_s(f['id']).isNotEmpty)
+          FunderRow(_s(f['id']), _s(f['name']), _s(f['country']), _i(f['n'])),
+    ]);
+  }
+}
+
+/// Оценка расходов на публикацию в открытом доступе (APC) по прайс-листам.
+class ApcEstimate {
+  ApcEstimate(this.works, this.usd, [this.lead]);
+  final int works;
+  final int usd;
+
+  /// Только ведущие работы (автор для переписки — из организации).
+  final ApcEstimate? lead;
+
+  static ApcEstimate? fromJson(Object? v) {
+    if (v is! Map) return null;
+    return ApcEstimate(_i(v['works']), _i(v['usd']), fromJson(v['lead']));
+  }
+}
+
+/// Автор с очень большим числом работ в год (порог Иоаннидиса).
+/// Обезличено: без имени, ссылки и места работы — только числа.
+class ProlificAuthor {
+  ProlificAuthor({
+    required this.n,
+    required this.home,
+    required this.max,
+    required this.maxYear,
+    required this.yearsOver,
+  });
+
+  /// Работ в этом наборе (организация/страна) за окно.
+  final int n;
+
+  /// Есть место работы в Узбекистане (иначе — зарубежный соавтор).
+  final bool home;
+
+  /// Наибольшее число статей, обзоров и докладов за год (все места работы).
+  final int max;
+  final int maxYear;
+
+  /// Сколько лет окна выше порога.
+  final int yearsOver;
+}
+
+class Prolific {
+  Prolific(this.threshold, this.checked, this.authors);
+  final int threshold;
+  final int checked;
+  final List<ProlificAuthor> authors;
+
+  int get home => authors.where((a) => a.home).length;
+
+  static Prolific? fromJson(Object? v) {
+    if (v is! Map) return null;
+    return Prolific(_i(v['threshold']), _i(v['checked']), [
+      for (final a in _maps(v['authors']))
+        if (_i(a['max']) > 0)
+          ProlificAuthor(
+            n: _i(a['n']),
+            home: a['home'] == true,
+            max: _i(a['max']),
+            maxYear: _i(a['max_year']),
+            yearsOver: _i(a['years_over']),
+          ),
+    ]);
+  }
+}
+
+/// Насколько можно доверять отчёту (полнота данных OpenAlex).
+class DataQuality {
+  DataQuality({
+    required this.level,
+    required this.reasons,
+    required this.works,
+    this.doiShare,
+    this.orcidShare,
+    this.repoShare,
+    this.ciLow,
+    this.ciHigh,
+  });
+
+  /// good, medium или low.
+  final String level;
+
+  /// small, doi_low, doi_mid, orcid_low, repo_high.
+  final List<String> reasons;
+  final int works;
+  final double? doiShare;
+  final double? orcidShare;
+  final double? repoShare;
+
+  /// 95 % интервал PP(top 10%) собственных работ (у страны — всех).
+  final double? ciLow;
+  final double? ciHigh;
+
+  static DataQuality? fromJson(Object? v) {
+    if (v is! Map) return null;
+    final level = _s(v['level']);
+    if (!const {'good', 'medium', 'low'}.contains(level)) return null;
+    final ci = v['pp_top10_ci'] is List ? v['pp_top10_ci'] as List : const [];
+    return DataQuality(
+      level: level,
+      reasons: _strs(v['reasons']),
+      works: _i(v['works']),
+      doiShare: _d(v['doi_share']),
+      orcidShare: _d(v['orcid_share']),
+      repoShare: _d(v['repo_share']),
+      ciLow: ci.length == 2 ? _d(ci[0]) : null,
+      ciHigh: ci.length == 2 ? _d(ci[1]) : null,
+    );
+  }
+}
+
+/// Одна точка истории: показатели на дату ежемесячного расчёта.
+class HistoryPoint {
+  HistoryPoint({
+    required this.date,
+    required this.windowFrom,
+    required this.windowTo,
+    required this.works,
+    this.leadWorks,
+    this.ppTop10,
+    this.leadPpTop10,
+    this.oaShare,
+    this.intlShare,
+    this.doajShare,
+    this.retracted,
+    this.doiShare,
+    this.level = '',
+  });
+  final DateTime date;
+  final int windowFrom;
+  final int windowTo;
+  final int works;
+  final int? leadWorks;
+  final double? ppTop10;
+  final double? leadPpTop10;
+  final double? oaShare;
+  final double? intlShare;
+  final double? doajShare;
+  final int? retracted;
+  final double? doiShare;
+  final String level;
+
+  bool sameWindow(HistoryPoint o) =>
+      windowFrom == o.windowFrom && windowTo == o.windowTo;
+
+  static List<HistoryPoint> list(Object? v) {
+    final out = <HistoryPoint>[];
+    for (final p in _maps(v)) {
+      final d = DateTime.tryParse(_s(p['date']));
+      if (d == null) continue;
+      final w = p['window'] is List ? p['window'] as List : const [];
+      out.add(HistoryPoint(
+        date: d,
+        windowFrom: w.isNotEmpty ? _i(w[0]) : 0,
+        windowTo: w.length > 1 ? _i(w[1]) : 0,
+        works: _i(p['works']),
+        leadWorks: p['lead_works'] is num ? _i(p['lead_works']) : null,
+        ppTop10: _d(p['pp_top10']),
+        leadPpTop10: _d(p['lead_pp_top10']),
+        oaShare: _d(p['oa_share']),
+        intlShare: _d(p['intl_share']),
+        doajShare: _d(p['doaj_share']),
+        retracted: p['retracted'] is num ? _i(p['retracted']) : null,
+        doiShare: _d(p['doi_share']),
+        level: _s(p['level']),
+      ));
+    }
+    out.sort((a, b) => a.date.compareTo(b.date));
+    return out;
+  }
+}
+
+/// Изменение доли в процентных пунктах для подписи: +0,4 п. п. / −1.2 pp.
+String formatPpChange(double? now, double? before, String lang) {
+  if (now == null || before == null) return '';
+  final d = (now - before) * 100;
+  if (d.abs() < 0.05) return lang == 'en' ? '0 pp' : '0\u00a0п.\u00a0п.';
+  final sign = d > 0 ? '+' : '−';
+  var v = d.abs().toStringAsFixed(1);
+  if (lang != 'en') v = v.replaceAll('.', ',');
+  final unit = switch (lang) {
+    'en' => 'pp',
+    'uz' => 'f.\u00a0p.',
+    _ => 'п.\u00a0п.',
+  };
+  return '$sign$v\u00a0$unit';
+}
+
 class OrgReport {
   OrgReport({
     required this.org,
@@ -555,6 +794,13 @@ class OrgReport {
     required this.topics,
     required this.integrity,
     this.citationCheck,
+    this.sdg,
+    this.languages = const [],
+    this.funding,
+    this.apc,
+    this.prolific,
+    this.quality,
+    this.history = const [],
   });
 
   final OrgSummary org;
@@ -584,6 +830,19 @@ class OrgReport {
   /// Проверка цитирования самых цитируемых работ (только у организаций).
   final CitationCheck? citationCheck;
 
+  // Разделы от ноября 2026; в старых файлах их нет (null / пусто).
+  final SdgBlock? sdg;
+
+  /// Языки публикаций (id — код ISO 639-1: en, uz, ru…).
+  final List<Named> languages;
+  final Funding? funding;
+  final ApcEstimate? apc;
+  final Prolific? prolific;
+  final DataQuality? quality;
+
+  /// Прошлые ежемесячные расчёты (по дате, последний — этот).
+  final List<HistoryPoint> history;
+
   double? get oaShare => works > 0 ? oaWindow / works : null;
 
   List<TopicRow> get strongTopics => [
@@ -601,6 +860,13 @@ class OrgReport {
     final ig = m(j['integrity']);
     return OrgReport(
       citationCheck: CitationCheck.fromJson(j['citation_check']),
+      sdg: SdgBlock.fromJson(j['sdg']),
+      languages: Named.list(j['languages']),
+      funding: Funding.fromJson(j['funding']),
+      apc: ApcEstimate.fromJson(j['apc']),
+      prolific: Prolific.fromJson(j['prolific']),
+      quality: DataQuality.fromJson(j['quality']),
+      history: HistoryPoint.list(j['history']),
       integrity: Integrity(
         retracted: ig['retracted'] is num ? _i(ig['retracted']) : null,
         sourceTypes: Named.list(ig['source_types']),
@@ -688,6 +954,13 @@ class OrgReport {
       ],
     );
   }
+}
+
+/// Доля работ на языке [code] (en, uz, ru) — null, если данных нет.
+double? languageShare(OrgReport r, String code) {
+  if (r.languages.isEmpty || r.works <= 0) return null;
+  final n = r.languages.where((l) => l.id == code).fold(0, (a, b) => a + b.n);
+  return n / r.works;
 }
 
 /// Доля в процентах для подписи: 0.0594 → «5,9 %» (ru/uz) или «5.9%» (en).
