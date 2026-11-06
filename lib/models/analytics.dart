@@ -379,7 +379,9 @@ class Journal {
   final int growthBefore;
   final int? growthYear;
 
-  bool get warning => growthSharp || crossref == false;
+  /// Повод проверить журнал: нет DOI в Crossref или резкий рост объёма.
+  /// Только для журналов — у репозиториев (Zenodo и т. п.) рост нормален.
+  bool get warning => type == 'journal' && (growthSharp || crossref == false);
   final String issn;
   final bool doaj;
   final bool oa;

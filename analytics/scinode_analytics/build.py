@@ -94,7 +94,10 @@ def _crossref(client, issn: str) -> dict:
         return hit
     try:
         res = m.crossref_journal(
-            client.get_url(f"https://api.crossref.org/journals/{issn}")
+            client.get_url(
+                "https://api.crossref.org/works?rows=0&facet=publisher-name:1"
+                f"&filter=issn:{urllib.parse.quote(issn)}"
+            )
         )
     except OpenAlexError:
         res = {}

@@ -850,8 +850,8 @@ class _Pdf {
                 j.doaj ? t('ap.yes') : '',
                 n(j.n),
                 [
-                  if (j.crossref == false) t('an.j.no_crossref'),
-                  if (j.growthSharp)
+                  if (j.warning && j.crossref == false) t('an.j.no_crossref'),
+                  if (j.warning && j.growthSharp)
                     t('an.j.growth', {
                       'a': n(j.growthBefore),
                       'b': n(j.growthWorks),

@@ -167,6 +167,13 @@ def test_org_report(built):
     assert lead["share"] == 0.828
     assert c["mega"] == {"works": 0, "known": 0, "top10": 0, "pp_top10_without": 0.0215}
     assert d["integrity"]["retracted"] == 0
+    # Проверка цитирования: у небольшого вуза нет работ от 10 цитирований.
+    assert d["citation_check"]["checked"] == 0
+    assert d["org"]["ror_data"]["established"] == 2021
+    assert d["org"]["ror_data"]["names"]["uz"] == "Yangi Asr Universiteti"
+    growth = {x["name"][:20]: x["growth"] for x in j["top"]}
+    assert all(g is None or g["year"] == 2025 for g in growth.values())
+    assert any(x.get("crossref") is False for x in j["top"])
     assert [x["id"] for x in d["integrity"]["source_types"]][:2] == ["journal", "repository"]
 
 
@@ -182,8 +189,12 @@ def test_national_report(built):
     assert "lead" not in d["citation"]
     assert d["integrity"]["retracted"] > 0
     assert all(not t.get("lead") for t in d["topics"])
-    # Весь расчёт (список, вуз, страна) — 61 запрос: без скачивания списков работ.
-    assert client.calls == 61
+    # Весь расчёт (список, вуз, страна) — 62 запроса OpenAlex (без скачивания
+    # списков работ) и 31 бесплатный запрос к Crossref, OpenCitations и ROR
+    # (из них 13 — «нет такого журнала» в Crossref);
+    # ещё один запрос — проверка остатка лимита в main().
+    assert client.calls == 62
+    assert client.ext_calls == 31
 
 
 def test_replay_unknown_request_fails():

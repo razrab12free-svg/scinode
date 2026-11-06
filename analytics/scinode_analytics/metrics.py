@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import html
 import math
 from urllib.parse import unquote
 
@@ -284,15 +285,26 @@ def journal_growth(counts: list[dict], last: int | None = None) -> dict | None:
 
 
 def crossref_journal(msg: object) -> dict:
-    """Ответ api.crossref.org/journals/<ISSN> → есть ли журнал в Crossref."""
-    if not isinstance(msg, dict):
+    """Ответ api.crossref.org/works?filter=issn:<ISSN>&rows=0&facet=publisher-name:1
+    → есть ли у статей с этим ISSN DOI в Crossref и кто издатель.
+
+    Справочник /journals не годится: книжные серии и материалы конференций
+    (например, AIP Conference Proceedings, 270 тыс. DOI) там отвечают 404.
+    """
+    m = msg.get("message") if isinstance(msg, dict) else None
+    if not isinstance(m, dict):
         return {"crossref": False}
-    m = msg.get("message") if isinstance(msg.get("message"), dict) else {}
-    counts = m.get("counts") if isinstance(m.get("counts"), dict) else {}
+    total = m.get("total-results") or 0
+    pub = ""
+    facets = m.get("facets") if isinstance(m.get("facets"), dict) else {}
+    vals = (facets.get("publisher-name") or {}).get("values") if facets else None
+    if isinstance(vals, dict) and vals:
+        pub = max(vals.items(), key=lambda kv: kv[1])[0]
     return {
-        "crossref": True,
-        "crossref_publisher": " ".join(str(m.get("publisher") or "").split()),
-        "crossref_dois": counts.get("total-dois") or 0,
+        "crossref": total > 0,
+        # Crossref отдаёт названия с HTML-кодами: &quot;Innovative Academy&quot;.
+        "crossref_publisher": " ".join(html.unescape(str(pub)).split()),
+        "crossref_dois": total,
     }
 
 

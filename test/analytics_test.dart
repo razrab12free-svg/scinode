@@ -135,6 +135,31 @@ void main() {
       expect(r.integrity.repository, 438);
     });
 
+    test('проверка цитирования, журналов и ROR (настоящий расчёт)', () {
+      final r = OrgReport.fromJson(_j('orgs/I4210159566.json'));
+      final c = r.citationCheck!;
+      expect(c.checked, 10);
+      expect(c.flagged, 0);
+      expect(c.authorScShare, 0.0031); // самоцитирование авторов — 0,3 %
+      expect(c.ocCitations, 976);
+      expect(c.works.first.cited, greaterThan(300));
+      expect(c.works.first.source, 'RSC Advances');
+      // Журналы без DOI в Crossref — повод проверить.
+      final galaxy = r.journals
+          .firstWhere((j) => j.name.startsWith('Galaxy International'));
+      expect(galaxy.crossref, isFalse);
+      expect(galaxy.warning, isTrue);
+      // Репозиторий с ростом — не журнал, не помечается.
+      final zen = r.journals.firstWhere((j) => j.type == 'repository');
+      expect(zen.warning, isFalse);
+      // Официальное название и год основания — из ROR.
+      expect(r.org.localName('ru'),
+          'Национальный педагогический университет Узбекистана имени Низами');
+      expect(r.org.established, 1935);
+      // У страны проверки цитирования нет.
+      expect(OrgReport.fromJson(_j('orgs/UZ.json')).citationCheck, isNull);
+    });
+
     test('институт ядерной физики: мегаколлаборации', () {
       final r = OrgReport.fromJson(_j('orgs/I4210099818.json'));
       expect(r.citation.megaWorks, 125);
@@ -296,6 +321,10 @@ void main() {
           find.byKey(const Key('an.retracted')), 300,
           scrollable: find.byType(Scrollable).first);
       expect(find.text('19'), findsWidgets);
+      await tester.scrollUntilVisible(
+          find.byKey(const Key('an.citation_check')), 300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text(t('an.cc.none')), findsOneWidget);
       expect(find.text('Национальный университет Узбекистана'), findsWidgets);
       expect(tester.takeException(), isNull);
     });

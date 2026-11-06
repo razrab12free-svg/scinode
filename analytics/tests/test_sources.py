@@ -36,11 +36,13 @@ def test_opencitations_self_citation_flags():
 
 
 def test_crossref_journal():
-    j = m.crossref_journal(fx("crossref_journal_2211-3797.json"))
-    assert j["crossref"] is True
-    assert j["crossref_publisher"] == "Elsevier"
-    assert j["crossref_dois"] > 8000
-    # Журнала нет в Crossref (404) — клиент возвращает None.
+    # Серия материалов конференций: в справочнике /journals её нет (404),
+    # но статей с DOI — 270 тыс. Проверяем именно статьи.
+    aip = m.crossref_journal(fx("crossref_works_0094-243X.json"))
+    assert aip == {"crossref": True, "crossref_publisher": "AIP Publishing",
+                   "crossref_dois": 270051}
+    none = m.crossref_journal(fx("crossref_works_2347-6915.json"))
+    assert none["crossref"] is False and none["crossref_dois"] == 0
     assert m.crossref_journal(None) == {"crossref": False}
 
 
@@ -166,3 +168,33 @@ def test_preflight_refuses_when_budget_too_small(tmp_path):
     assert "осталось 100" in str(e.value)
     # Ничего не записано — на сайте останутся прошлые данные.
     assert not (tmp_path / "analytics" / "v1" / "index.json").exists()
+
+
+def test_incomplete_read_is_retried(monkeypatch):
+    # Настоящий сбой при расчёте 6 ноября 2026: ответ оборвался на середине.
+    import http.client
+
+    calls = []
+
+    class Ok:
+        headers = {}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b'{"ok": 1}'
+
+    def flaky(*a, **k):
+        calls.append(1)
+        if len(calls) == 1:
+            raise http.client.IncompleteRead(b"x" * 10, 5)
+        return Ok()
+
+    monkeypatch.setattr("urllib.request.urlopen", flaky)
+    c = OpenAlexClient(api_key="k", sleep=lambda s: None)
+    assert c.get_url("https://api.opencitations.net/x") == {"ok": 1}
+    assert c.get("/works", {}) == {"ok": 1}

@@ -772,8 +772,8 @@ class _ReportBody extends StatelessWidget {
                   _tr('an.jt.${j.type}', j.type),
                   if (j.publisher.isNotEmpty) j.publisher,
                   if (j.issn.isNotEmpty) 'ISSN ${j.issn}',
-                  if (j.crossref == false) t('an.j.no_crossref'),
-                  if (j.growthSharp)
+                  if (j.warning && j.crossref == false) t('an.j.no_crossref'),
+                  if (j.warning && j.growthSharp)
                     t('an.j.growth', {
                       'a': _num(j.growthBefore),
                       'b': _num(j.growthWorks),

@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import os
 import time
@@ -23,6 +24,18 @@ USER_AGENT = "scinode-analytics/1 (+https://github.com/x9096730-spec/scinode)"
 
 class OpenAlexError(Exception):
     pass
+
+
+# Сетевые сбои, после которых запрос стоит повторить: обрыв соединения,
+# недочитанный ответ (http.client.IncompleteRead), тайм-аут, битый JSON.
+NETWORK_ERRORS = (
+    urllib.error.URLError,
+    http.client.HTTPException,
+    ConnectionError,
+    TimeoutError,
+    OSError,
+    ValueError,
+)
 
 
 class BudgetExhausted(OpenAlexError):
@@ -111,7 +124,7 @@ class OpenAlexClient:
                     self.sleep(min(wait, MAX_WAIT))
                     continue
                 raise OpenAlexError(f"{e.code} {path}") from e
-            except (urllib.error.URLError, TimeoutError, ValueError) as e:
+            except NETWORK_ERRORS as e:
                 last = e
                 self.sleep(2 ** attempt)
         raise OpenAlexError(f"{path}: {last}")
@@ -148,7 +161,7 @@ class OpenAlexClient:
                     self.sleep(wait)
                     continue
                 raise OpenAlexError(f"{e.code} {url}") from e
-            except (urllib.error.URLError, TimeoutError, ValueError) as e:
+            except NETWORK_ERRORS as e:
                 last = e
                 self.sleep(2 ** attempt)
         raise OpenAlexError(f"{url}: {last}")
