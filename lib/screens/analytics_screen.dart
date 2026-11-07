@@ -997,7 +997,7 @@ class _ReportBody extends StatelessWidget {
               child: TextButton.icon(
                 style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
                 onPressed: () => openLink(context,
-                    'https://github.com/x9096730-spec/scinode/blob/main/analytics/README.md'),
+                    'https://github.com/razrab12free-svg/scinode/blob/main/analytics/README.md'),
                 icon: const Icon(Icons.open_in_new, size: 18),
                 label: Text(t('an.method_link')),
               ),

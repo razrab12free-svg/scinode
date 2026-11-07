@@ -2,7 +2,7 @@ name: Scinode Analytics
 
 # Раз в месяц считает показатели организаций Узбекистана по OpenAlex
 # и публикует файлы с цифрами на GitHub Pages:
-#   https://x9096730-spec.github.io/scinode/analytics/v1/index.json
+#   https://razrab12free-svg.github.io/scinode/analytics/v1/index.json
 on:
   schedule:
     - cron: "17 2 3 * *" # 3-го числа каждого месяца, 02:17 UTC

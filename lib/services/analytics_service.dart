@@ -25,7 +25,7 @@ class AnalyticsService {
         base = base ?? defaultBase;
 
   static const defaultBase =
-      'https://x9096730-spec.github.io/scinode/analytics/v$analyticsSchema';
+      'https://razrab12free-svg.github.io/scinode/analytics/v$analyticsSchema';
 
   static AnalyticsService instance = AnalyticsService();
 

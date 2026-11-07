@@ -337,7 +337,7 @@ void main() {
       final cache = MemoryJsonCache();
       final s = AnalyticsService(client: _pages(sent: sent), cache: cache);
       expect(AnalyticsService.defaultBase,
-          'https://x9096730-spec.github.io/scinode/analytics/v1');
+          'https://razrab12free-svg.github.io/scinode/analytics/v1');
       final i = await s.index();
       expect(i.orgs.length, 8);
       final r = await s.report(nuu);

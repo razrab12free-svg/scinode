@@ -21,7 +21,7 @@ from . import metrics as m
 from .client import BudgetExhausted, OpenAlexClient, OpenAlexError
 
 # Прошлая история расчётов (опубликованная на GitHub Pages).
-HISTORY_URL = "https://x9096730-spec.github.io/scinode/analytics/v1/history.json"
+HISTORY_URL = "https://razrab12free-svg.github.io/scinode/analytics/v1/history.json"
 
 
 class HistoryUnavailable(Exception):
