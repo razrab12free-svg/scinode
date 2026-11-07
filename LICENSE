@@ -1,0 +1,50 @@
+Copyright (c) 2026 владелец проекта Scinode (GitHub: x9096730-spec).
+Все права защищены. All rights reserved.
+
+RU
+Исходный код, тексты, дизайн, методика расчётов «Scinode Аналитики» и другие
+материалы этого репозитория являются собственностью владельца проекта Scinode.
+То, что репозиторий открыт для просмотра, НЕ даёт права копировать, изменять,
+распространять, продавать, сдавать в аренду, использовать в своих продуктах или
+сервисах, а также создавать производные работы — полностью или частично — без
+предварительного письменного разрешения владельца.
+
+Допускается только просмотр кода на GitHub и создание ответвления (fork)
+средствами GitHub в пределах, требуемых правилами GitHub (GitHub Terms of
+Service), без какого-либо дальнейшего использования.
+
+Сторонние компоненты (Flutter, пакеты Dart, Python-пакеты, шрифт Noto Sans и
+др.) распространяются на условиях своих собственных лицензий; эти лицензии
+продолжают действовать в отношении соответствующих компонентов.
+
+Данные, получаемые из открытых источников (OpenAlex, ROR, OpenCitations —
+CC0; Crossref и др.), принадлежат их правообладателям и используются на
+условиях их лицензий. Отчёты Аналитики указывают источник данных.
+
+По вопросам лицензирования и коммерческого использования обращайтесь к
+владельцу проекта через GitHub: https://github.com/x9096730-spec
+
+EN
+The source code, texts, design, the "Scinode Analytics" methodology and all
+other materials in this repository are the property of the owner of the
+Scinode project. The fact that this repository is publicly viewable does NOT
+grant any right to copy, modify, distribute, sell, sublicense, use in other
+products or services, or create derivative works, in whole or in part,
+without prior written permission from the owner.
+
+Only viewing the code on GitHub and forking it through GitHub's functionality,
+as required by the GitHub Terms of Service, are permitted, without any further
+use.
+
+Third-party components (Flutter, Dart and Python packages, the Noto Sans font,
+etc.) are distributed under their own licenses, which continue to apply to
+those components.
+
+Data obtained from open sources (OpenAlex, ROR, OpenCitations — CC0;
+Crossref and others) belongs to the respective rights holders and is used
+under their licenses. Analytics reports credit the data source.
+
+For licensing and commercial use, contact the project owner via GitHub:
+https://github.com/x9096730-spec
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
