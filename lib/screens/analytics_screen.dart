@@ -760,11 +760,14 @@ class _ReportBody extends StatelessWidget {
                   value: a.n,
                   max: r.authors.first.n,
                   valueText: _num(a.n),
-                  sub: t('an.author_row', {
-                    'n': _num(a.n),
-                    'h': a.h,
-                    'c': _num(a.citations),
-                  }),
+                  sub: [
+                    t('an.author_row', {
+                      'n': _num(a.n),
+                      'h': a.h,
+                      'c': _num(a.citations),
+                    }),
+                    if (r.isDuplicateAuthor(a)) t('an.author_dup'),
+                  ].join(' · '),
                   onTap: () => openLink(context, a.openAlexUrl),
                 ),
             ],
@@ -826,18 +829,18 @@ class _ReportBody extends StatelessWidget {
           ),
 
         // Языки публикаций.
-        if (r.languages.isNotEmpty)
+        if (r.mainLanguages.isNotEmpty)
           _Section(
             key: const Key('an.languages'),
             title: t('an.s.lang'),
             icon: Icons.translate,
             children: [
               _Note(t('an.lang_note')),
-              for (final l in r.languages.take(8))
+              for (final l in r.mainLanguages.take(8))
                 CountBar(
                   label: _tr('an.lang.${l.id}', l.name.isEmpty ? l.id : l.name),
                   value: l.n,
-                  max: r.languages.first.n,
+                  max: r.mainLanguages.first.n,
                   valueText: _pct(r.works > 0 ? l.n / r.works : null),
                 ),
             ],

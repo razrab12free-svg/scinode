@@ -60,7 +60,7 @@ String localSubfieldName(String id, String en) {
 }
 
 String countryName(String code) {
-  for (final c in countryList) {
+  for (final c in [...countryList, ...countryNamesExtra]) {
     if (c.$1 == code) {
       switch (Strings.instance.lang) {
         case 'ru':

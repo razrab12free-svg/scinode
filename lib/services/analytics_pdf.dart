@@ -428,7 +428,12 @@ class _Pdf {
       pw.TableHelper.fromTextArray(
         headers: head,
         data: rows,
-        columnWidths: widths,
+        // Все колонки — доли ширины страницы: иначе узкие колонки берут
+        // ширину по данным и заголовок рвётся («Jaho/n»).
+        columnWidths: {
+          for (var i = 0; i < head.length; i++)
+            i: widths?[i] ?? const pw.FlexColumnWidth(1),
+        },
         border: null,
         headerStyle: pw.TextStyle(
             fontSize: 8.5,
@@ -773,7 +778,10 @@ class _Pdf {
                         : '',
               ],
           ],
-          widths: {0: const pw.FlexColumnWidth(3)},
+          widths: {
+            0: const pw.FlexColumnWidth(3),
+            4: const pw.FlexColumnWidth(1.8),
+          },
           right: {1, 2, 3},
         ),
       ];
@@ -828,11 +836,18 @@ class _Pdf {
             [t('ap.author'), t('ap.here'), 'h', t('ap.cites')],
             [
               for (final a in r.authors.take(20))
-                [a.name, n(a.n), '${a.h}', n(a.citations)],
+                [
+                  r.isDuplicateAuthor(a) ? '${a.name} *' : a.name,
+                  n(a.n),
+                  '${a.h}',
+                  n(a.citations)
+                ],
             ],
             widths: {0: const pw.FlexColumnWidth(3)},
             right: {1, 2, 3},
           ),
+          if (r.duplicateAuthorNames.isNotEmpty)
+            _note('* ${t('an.author_dup')}'),
         ];
 
   List<pw.Widget> journals(OrgReport r) => [
@@ -968,7 +983,7 @@ class _Pdf {
     final s = r.sdg;
     if (s == null || s.goals.isEmpty) return [];
     return [
-      _h1(t('an.s.sdg')),
+      _h1('8. ${t('an.s.sdg')}'),
       _big(p(s.share), t('an.sdg_share'), c: _good),
       _note(t('an.sdg_note')),
       _table(
@@ -987,15 +1002,15 @@ class _Pdf {
     ];
   }
 
-  List<pw.Widget> languages(OrgReport r) => r.languages.isEmpty
+  List<pw.Widget> languages(OrgReport r) => r.mainLanguages.isEmpty
       ? []
       : [
-          _h1(t('an.s.lang')),
+          _h1('9. ${t('an.s.lang')}'),
           _note(t('an.lang_note')),
           _table(
             [t('an.s.lang'), t('ap.works'), t('ap.share')],
             [
-              for (final l in r.languages.take(10))
+              for (final l in r.mainLanguages.take(10))
                 [
                   _tr('an.lang.${l.id}', l.name.isEmpty ? l.id : l.name),
                   n(l.n),
@@ -1012,7 +1027,7 @@ class _Pdf {
     final a = r.apc;
     if (f == null && a == null) return [];
     return [
-      _h1(t('an.s.funding')),
+      _h1('10. ${t('an.s.funding')}'),
       if (f != null) ...[
         _big(p(f.share), t('an.funded_share')),
         _note(t('an.funding_note')),

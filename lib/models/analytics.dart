@@ -845,6 +845,27 @@ class OrgReport {
 
   double? get oaShare => works > 0 ? oaWindow / works : null;
 
+  /// Языки, на которых не меньше 0,5 % работ: реже — обычно ошибка
+  /// автоматического определения языка (например, «ndonga» у узбекских статей).
+  List<Named> get mainLanguages => [
+        for (final l in languages)
+          if (works > 0 && l.n / works >= 0.005) l,
+      ];
+
+  /// Имена, которые встречаются у нескольких ведущих авторов: обычно это
+  /// один человек с двумя профилями OpenAlex.
+  Set<String> get duplicateAuthorNames {
+    final seen = <String>{}, dup = <String>{};
+    for (final a in authors) {
+      final k = _fold(a.name);
+      if (k.isNotEmpty && !seen.add(k)) dup.add(k);
+    }
+    return dup;
+  }
+
+  bool isDuplicateAuthor(TopAuthor a) =>
+      duplicateAuthorNames.contains(_fold(a.name));
+
   List<TopicRow> get strongTopics => [
         for (final t in topics)
           if (t.strong) t,

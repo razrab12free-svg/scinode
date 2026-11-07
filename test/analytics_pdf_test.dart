@@ -87,6 +87,11 @@ void main() {
         File('$out/org_$lang.pdf').writeAsBytesSync(org);
         File('$out/country_$lang.pdf').writeAsBytesSync(country);
         File('$out/compare_$lang.pdf').writeAsBytesSync(cmp);
+        File('$out/urgench_$lang.pdf').writeAsBytesSync(await buildOrgPdf(
+            _r('I14916453'),
+            country: uz,
+            fonts: fonts,
+            lang: lang));
       }
     });
   }

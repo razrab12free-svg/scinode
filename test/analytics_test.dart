@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:scinode/models/analytics.dart';
+import 'package:scinode/models/taxonomy.dart' show countryName;
 import 'package:scinode/models/grant.dart' show formatMoney;
 import 'package:scinode/screens/analytics_screen.dart';
 import 'package:scinode/services/analytics_service.dart';
@@ -282,6 +283,26 @@ void main() {
       expect(formatPpChange(0.05, 0.0502, 'en'), '0 pp');
       expect(formatPpChange(null, 0.05, 'ru'), '');
       expect(formatPpChange(0.07, 0.05, 'uz'), '+2,0${_nb}f.${_nb}p.');
+    });
+
+    test('Ургенч: редкие языки, двойные профили, страны на трёх языках',
+        () async {
+      // Настоящий расчёт 7.11.2026 — по нему владелец нашёл недочёты в PDF.
+      final r = OrgReport.fromJson(_j('orgs/I14916453.json'));
+      // «ndonga» (10 из 4 104 работ) — ошибка определения языка, не показываем.
+      expect(r.languages.map((l) => l.id), contains('ng'));
+      expect(r.mainLanguages.map((l) => l.id), ['en', 'uz', 'ru', 'tr']);
+      expect(r.duplicateAuthorNames, {'javlon rayimbaev'});
+      final dup = r.authors.where(r.isDuplicateAuthor).toList();
+      expect(dup.length, 2);
+      await Strings.instance.setLang('uz');
+      expect(countryName('OM'), 'Ummon');
+      expect(countryName('JO'), 'Iordaniya');
+      expect(countryName('IQ'), 'Iroq');
+      expect(countryName('UZ'), 'O‘zbekiston');
+      expect(countryName('XX'), 'XX');
+      await Strings.instance.setLang('ru');
+      expect(countryName('OM'), 'Оман');
     });
 
     test('проценты', () {

@@ -684,9 +684,9 @@ const Map<String, List<String>> analyticsStrings = {
     'Publication languages'
   ],
   'an.lang_note': [
-    'Язык OpenAlex определяет автоматически по названию и аннотации и иногда ошибается, особенно на коротких текстах.',
-    'Tilni OpenAlex sarlavha va annotatsiya bo‘yicha avtomatik aniqlaydi va ba’zan, ayniqsa qisqa matnlarda, xato qiladi.',
-    'OpenAlex detects the language automatically from titles and abstracts and sometimes errs, especially on short texts.',
+    'Язык OpenAlex определяет автоматически по названию и аннотации и иногда ошибается, особенно на коротких текстах. Языки меньше 0,5\u00a0% работ не показаны: чаще всего это ошибки определения.',
+    'Tilni OpenAlex sarlavha va annotatsiya bo‘yicha avtomatik aniqlaydi va ba’zan, ayniqsa qisqa matnlarda, xato qiladi. Ishlarning 0,5\u00a0% idan kam tillar ko‘rsatilmagan: ular ko‘pincha aniqlash xatosi.',
+    'OpenAlex detects the language automatically from titles and abstracts and sometimes errs, especially on short texts. Languages under 0.5% of works are hidden: they are mostly detection errors.',
   ],
   'an.lang.en': ['Английский', 'Ingliz', 'English'],
   'an.lang.uz': ['Узбекский', 'O‘zbek', 'Uzbek'],
@@ -766,9 +766,9 @@ const Map<String, List<String>> analyticsStrings = {
     'None of the most active authors exceeded the threshold.',
   ],
   'an.prolific_row': [
-    'до {max} работ в {y} году · лет выше порога: {k} · здесь {n} за период',
-    '{y} yilda {max} tagacha ish · chegaradan yuqori yillar: {k} · bu yerda davrda {n}',
-    'up to {max} works in {y} · years over threshold: {k} · {n} here in the period',
+    'до {max} работ в {y} году · лет выше порога: {k}',
+    '{y} yilda {max} tagacha ish · chegaradan yuqori yillar: {k}',
+    'up to {max} works in {y} · years over threshold: {k}',
   ],
   'an.prolific_author': ['Автор {i}', 'Muallif {i}', 'Author {i}'],
   'an.prolific_is_home': [
@@ -785,6 +785,11 @@ const Map<String, List<String>> analyticsStrings = {
     'Работают в Узбекистане: {h} · зарубежные соавторы: {a}. Имена не показываются.',
     'O‘zbekistonda ishlaydi: {h} · xorijiy hammualliflar: {a}. Ismlar ko‘rsatilmaydi.',
     'Work in Uzbekistan: {h} · co-authors from abroad: {a}. Names are not shown.',
+  ],
+  'an.author_dup': [
+    'имя повторяется: возможно, один человек с двумя профилями OpenAlex',
+    'ism takrorlanadi: ehtimol, OpenAlex’dagi ikki profilli bitta odam',
+    'name repeats: possibly one person with two OpenAlex profiles',
   ],
   'an.cmp.sdg': ['Связаны с ЦУР', 'BRM bilan bog‘liq', 'Related to SDGs'],
   'an.cmp.uz': ['На узбекском языке', 'O‘zbek tilida', 'In Uzbek'],
