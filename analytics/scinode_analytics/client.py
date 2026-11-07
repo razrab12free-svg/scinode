@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Callable
 
 API = "https://api.openalex.org"
-USER_AGENT = "scinode-analytics/1 (+https://github.com/x9096730-spec/scinode)"
+USER_AGENT = "scinode-analytics/1 (+https://github.com/razrab12free-svg/scinode)"
 
 
 class OpenAlexError(Exception):

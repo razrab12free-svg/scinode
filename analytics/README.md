@@ -8,7 +8,7 @@ GitHub Pages. Графики и PDF-отчёт рисует приложение
 - Запуск на GitHub: `.github/workflows/analytics.yml` — 3-го числа каждого месяца,
   после изменений в `analytics/` в main и вручную (Actions → Scinode Analytics →
   Run workflow).
-- Адрес данных: `https://x9096730-spec.github.io/scinode/analytics/v1/index.json`
+- Адрес данных: `https://razrab12free-svg.github.io/scinode/analytics/v1/index.json`
   и `…/analytics/v1/orgs/<id>.json` (`UZ.json` — вся страна).
 - Ключ OpenAlex — секрет репозитория `OPENALEX_API_KEY` (в коде его нет).
   Один расчёт — около 45 запросов OpenAlex на организацию, всего около 6 500

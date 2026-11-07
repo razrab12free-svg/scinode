@@ -130,7 +130,7 @@ Scinode — мобильное приложение для коллаборац�
   Workflow `.github/workflows/analytics.yml`:
   тесты на PR; расчёт и публикация на GitHub Pages — 3-го числа каждого месяца, при
   push в main с изменениями `analytics/` и вручную. Секрет `OPENALEX_API_KEY`.
-- Данные: `https://x9096730-spec.github.io/scinode/analytics/v1/index.json` и
+- Данные: `https://razrab12free-svg.github.io/scinode/analytics/v1/index.json` и
   `orgs/<id>.json` (`UZ.json` — вся страна). Методика и формат — `analytics/README.md`.
 - Тесты: `cd analytics && python -m pytest -q tests` — на записанных настоящих ответах
   (`--record` записывает новые образцы; ключ в них не попадает).

@@ -1198,7 +1198,7 @@ class _Pdf {
         _note(t('an.disclaimer')),
         pw.UrlLink(
           destination:
-              'https://github.com/x9096730-spec/scinode/blob/main/analytics/README.md',
+              'https://github.com/razrab12free-svg/scinode/blob/main/analytics/README.md',
           child: pw.Text(t('an.method_link'),
               style: const pw.TextStyle(
                   fontSize: 9,
