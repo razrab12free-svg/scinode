@@ -68,7 +68,13 @@ def mentions(raw: str, variants: list[str]) -> int:
     return int(max((fuzz.partial_ratio(norm(v), r) for v in variants), default=0))
 
 
-def classify(raw: str, institutions: list[dict], variants: list[str]) -> str | None:
+def classify(
+    raw: str,
+    institutions: list[dict],
+    variants: list[str],
+    countries: list[str] | None = None,
+    home: str = "UZ",
+) -> str | None:
     """Вид совпадения строки места работы у работы, не привязанной к организации.
 
     None — строка не о нашей организации (или о другой с похожим названием);
@@ -78,6 +84,10 @@ def classify(raw: str, institutions: list[dict], variants: list[str]) -> str | N
     """
     ours = mentions(raw, variants)
     if ours < MATCH:
+        return None
+    # Страна строки известна и это не наша страна — одноимённая организация
+    # за рубежом («Istanbul New Century University» ≠ New Century University).
+    if countries and home.upper() not in {str(c).upper() for c in countries}:
         return None
     if BRANCH.search(raw):
         return "branch"
@@ -148,6 +158,57 @@ def lost_works(resp: dict, variants: list[str]) -> dict:
         **kinds,
         "estimate": estimate,
         "works": rows[:LOST_LIST],
+    }
+
+
+def lost_strings(
+    pages: list[dict], variants: list[str], names: dict[str, str], home: str = "UZ"
+) -> dict:
+    """Разбор ответов /raw-affiliation-strings (по одному на вариант названия).
+
+    pages — ответы с unmatched-institutions=<организация>, т. е. строки, НЕ
+    привязанные к ней; names — {I…: название} для institution_ids_final.
+    Одна строка может прийти по нескольким вариантам — считаем один раз.
+    Возвращает число строк и работ по видам и самые частые строки.
+    """
+    seen: set[str] = set()
+    kinds = {k: {"strings": 0, "works": 0} for k in ORDER}
+    rows = []
+    checked = 0
+    for resp in pages:
+        for r in (resp or {}).get("results") or []:
+            if not isinstance(r, dict):
+                continue
+            raw = r.get("raw_affiliation_string")
+            if not isinstance(raw, str) or raw in seen:
+                continue
+            seen.add(raw)
+            checked += 1
+            inst = [
+                {"display_name": names.get(short_id(i), "")}
+                for i in r.get("institution_ids_final") or []
+            ]
+            k = classify(raw, inst, variants, r.get("countries") or [], home)
+            if not k:
+                continue
+            n = r.get("works_count") if isinstance(r.get("works_count"), int) else 0
+            kinds[k]["strings"] += 1
+            kinds[k]["works"] += n
+            rows.append(
+                {
+                    "raw": raw,  # точно как в OpenAlex (для заявки на исправление)
+                    "works": n,
+                    "kind": k,
+                    "assigned": "; ".join(i["display_name"] for i in inst if i["display_name"])[:200],
+                    "countries": [str(c) for c in r.get("countries") or []][:3],
+                }
+            )
+    rows.sort(key=lambda x: (ORDER[x["kind"]], -x["works"], x["raw"]))
+    return {
+        "variants": variants,
+        "checked": checked,
+        **kinds,
+        "top": rows[:LOST_LIST],
     }
 
 
