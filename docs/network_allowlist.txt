@@ -48,3 +48,10 @@ zenodo.org
 open.leidenranking.com
 www.leidenranking.com
 api.openaire.eu
+api.labs.crossref.org
+query.wikidata.org
+www.wikidata.org
+portal.issn.org
+icite.od.nih.gov
+oak.uz
+uzjournals.edu.uz
